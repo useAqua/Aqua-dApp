@@ -47,12 +47,12 @@ export default function Home() {
       </div>
 
       <div className="mb-8 flex justify-between">
-        <div className="flex gap-4">
+        <div className="flex gap-8">
           <MetricCard label="DEPOSITED" value="$0" />
           <MetricCard label="AVG. APY" value="0%" />
           <MetricCard label="ACCRUED POINTS" value="200" />
         </div>
-        <div className="flex gap-4">
+        <div className="flex gap-8">
           <MetricCard label="TVL" value="$0" className="text-right" />
           <MetricCard label="Vaults" value="1" className="text-right" />
         </div>

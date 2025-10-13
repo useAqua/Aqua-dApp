@@ -43,7 +43,8 @@ const MetricCard = ({
       className={cn(
         "text-card-foreground",
         {
-          "bg-card rounded-lg p-4 shadow-[var(--shadow-card)]": type === "card",
+          "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
+            type === "card",
         },
         className,
       )}
