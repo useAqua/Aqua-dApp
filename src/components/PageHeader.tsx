@@ -1,0 +1,36 @@
+import { type LucideIcon } from "lucide-react";
+
+interface PageHeaderProps {
+  icon?: LucideIcon;
+  title: string;
+  subtitle?: string;
+  actions?: React.ReactNode;
+  className?: string;
+}
+
+const PageHeader = ({
+  icon: Icon,
+  title,
+  subtitle,
+  actions,
+  className = "",
+}: PageHeaderProps) => {
+  return (
+    <div className={`mb-8 ${className}`}>
+      <div className="mb-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          {Icon && <Icon className="text-primary h-6 w-6" />}
+          <div>
+            <h1 className="text-3xl font-bold">{title}</h1>
+            {subtitle && (
+              <p className="text-muted-foreground mt-1">{subtitle}</p>
+            )}
+          </div>
+        </div>
+        {actions && <div>{actions}</div>}
+      </div>
+    </div>
+  );
+};
+
+export default PageHeader;
