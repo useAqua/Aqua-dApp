@@ -1,5 +1,6 @@
 import { type ReactNode } from "react";
 import { type LucideIcon } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 interface MetricCardProps {
   label: string;
@@ -10,6 +11,7 @@ interface MetricCardProps {
   className?: string;
   valueColor?: "default" | "accent" | "green" | "red";
   children?: ReactNode;
+  type?: "bare" | "card";
 }
 
 const MetricCard = ({
@@ -21,6 +23,7 @@ const MetricCard = ({
   className = "",
   valueColor = "default",
   children,
+  type = "bare",
 }: MetricCardProps) => {
   const getValueColorClass = () => {
     switch (valueColor) {
@@ -36,7 +39,15 @@ const MetricCard = ({
   };
 
   return (
-    <div className={`text-card-foreground ${className}`}>
+    <div
+      className={cn(
+        "text-card-foreground",
+        {
+          "bg-card rounded-lg p-4 shadow-[var(--shadow-card)]": type === "card",
+        },
+        className,
+      )}
+    >
       <div className="mb-2 flex w-full items-center gap-2">
         {Icon && <Icon className="text-card-foreground/70 h-4 w-4" />}
         <span className="text-card-foreground/70 flex-1 text-sm">{label}</span>
