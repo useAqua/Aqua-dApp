@@ -17,7 +17,7 @@ const Header = () => {
   ];
 
   return (
-    <header className="">
+    <header className="py-4">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-8">
           <Link
@@ -39,7 +39,7 @@ const Header = () => {
 
                 href={item.path}
                 className={cn(
-                  "text-foreground nav_link rounded-md py-2 px-0.5 transition-colors",
+                  "text-foreground nav_link rounded-md py-1 px-0.5 transition-colors",
 
                   { active: router.pathname === item.path },
                 )}
