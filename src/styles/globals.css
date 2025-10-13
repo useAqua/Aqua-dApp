@@ -13,6 +13,7 @@ All colors MUST be HSL.
 
   /* Aqua Brand Colors: Old Lace, Dark Cerulean (#01387C), Topaz (#F1C67C) */
   --color-background: hsl(48 72% 95%); /* Old Lace #FAF8E9 */
+  --color-background-lighter: hsl(48 72% 99%);
   --color-foreground: hsl(211 98% 24%); /* Dark Cerulean */
 
   --color-card: hsl(0 0% 100%);
@@ -100,7 +101,8 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground font-inter;
+    @apply text-foreground font-inter;
+    background: linear-gradient(to bottom, var(--color-background-lighter), var(--color-background), var(--color-background-lighter));
   }
 
   h1,
