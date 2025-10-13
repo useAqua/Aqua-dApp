@@ -10,13 +10,13 @@ const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
   return (
     <div className="bg-card border-border/50 hidden overflow-hidden rounded-lg border md:block">
       <table className="w-full">
-        <thead>
+        <thead className="bg-primary/5">
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="border-border/50 border-b">
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="text-muted-foreground hover:text-foreground cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider uppercase transition-colors"
+                  className="text-muted-foreground hover:text-foreground hover:bg-primary/10 cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider uppercase transition-colors"
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className="flex items-center gap-2">
