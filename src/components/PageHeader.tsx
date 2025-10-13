@@ -1,4 +1,5 @@
 import { type LucideIcon } from "lucide-react";
+import { cn } from "~/lib/utils";
 
 interface PageHeaderProps {
   icon?: LucideIcon;
@@ -6,6 +7,7 @@ interface PageHeaderProps {
   subtitle?: string;
   actions?: React.ReactNode;
   className?: string;
+  iconBeforeTitle?: boolean;
 }
 
 const PageHeader = ({
@@ -14,11 +16,16 @@ const PageHeader = ({
   subtitle,
   actions,
   className = "",
+  iconBeforeTitle,
 }: PageHeaderProps) => {
   return (
     <div className={`mb-8 ${className}`}>
       <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div
+          className={cn("flex items-center gap-3", {
+            "flex-row-reverse": iconBeforeTitle,
+          })}
+        >
           {Icon && <Icon className="text-primary h-6 w-6" />}
           <div>
             <h1 className="text-3xl font-bold">{title}</h1>
