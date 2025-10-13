@@ -23,6 +23,7 @@ const Footer = () => {
                   className={cn(
                     "text-foreground nav_link rounded-md px-0.5 py-1 transition-colors",
                   )}
+                  target={"_blank"}
                 >
                   {item.label}
                 </Link>

@@ -13,7 +13,7 @@ const Header = () => {
   const navItems = [
     { path: "/", label: "Vaults" },
     { path: "/dashboard", label: "Dashboard" },
-    { path: "/docs", label: "Docs" },
+    { path: "https://docs.useaqua.xyz", label: "Docs" },
   ];
 
   return (
@@ -43,6 +43,7 @@ const Header = () => {
 
                   { active: router.pathname === item.path },
                 )}
+                target={item.label === "Docs" ? "_blank": undefined}
               >
                 {item.label}
               </Link>
