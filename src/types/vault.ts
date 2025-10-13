@@ -12,7 +12,7 @@ export interface Vault {
   nowUsd: string;
   yield: string;
   yieldUsd: string;
-  pnl: string;
+  wallet: string;
   pnlPercent: string;
   apy: string;
   apyPercent: string;

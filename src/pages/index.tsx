@@ -9,6 +9,7 @@ import TabNavigation from "~/components/TabNavigation";
 import SearchBar from "~/components/SearchBar";
 import { useState } from "react";
 import { useVaultSearch } from "~/hooks/use-vault-search";
+import VaultTable from "~/components/VaultTable";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -71,7 +72,7 @@ export default function Home() {
           />
         </div>
 
-        {/*<VaultListing vaults={filteredVaults} />*/}
+        <VaultTable data={filteredVaults} />
       </div>
     </PageLayout>
   );
