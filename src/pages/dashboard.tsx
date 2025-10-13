@@ -10,7 +10,7 @@ const Dashboard = () => {
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();
 
   return (
-    <PageLayout title="AQUA DeFi - Dashboard" description="Your DeFi dashboard">
+    <PageLayout title="AQUA - Dashboard" description="Your DeFi dashboard">
       <PageHeader title="Dashboard" subtitle="(0x5b...b73b)" />
 
       <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">

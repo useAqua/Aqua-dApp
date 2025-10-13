@@ -33,7 +33,7 @@ export default function Home() {
 
   return (
     <PageLayout
-      title="AQUA DeFi - Portfolio"
+      title="AQUA - Portfolio"
       description="Manage your DeFi portfolio"
     >
       <div className="flex justify-between">

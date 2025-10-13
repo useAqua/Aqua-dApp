@@ -10,8 +10,8 @@ interface PageLayoutProps {
 }
 
 const PageLayout = ({
-  title = "AQUA DeFi",
-  description = "Decentralized Finance Protocol",
+  title = "AQUA",
+  description = "Your Gateway to Onchain Yield",
   children,
   className = "",
 }: PageLayoutProps) => {
