@@ -7,7 +7,7 @@ import { SecondaryCard } from "~/components/common/SecondaryCard";
 
 const VaultTradingPanel = () => {
   return (
-    <Card className={`sticky top-20 min-h-[500px] p-6`}>
+    <Card className={`sticky top-20 min-h-[500px] p-6 max-md:py-8`}>
       <Tabs defaultValue="deposit" className="w-full">
         <TabsList className="bg-secondary ring-border text-secondary-foreground mb-6 grid w-full grid-cols-2 ring">
           <TabsTrigger value="deposit">Deposit</TabsTrigger>
@@ -15,7 +15,7 @@ const VaultTradingPanel = () => {
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="deposit" className="space-y-4">
+        <TabsContent value="deposit" className="space-y-6">
           <div>
             <p className="text-card-foreground/70 mb-2 text-sm">
               💰 Select token
