@@ -13,7 +13,7 @@ const VaultStrategy = ({
 }: VaultStrategyProps) => {
   return (
     <Card className="p-6">
-      <h2 className="text-card-foreground mb-4 text-xl font-bold">Strategy</h2>
+      <h2 className="text-card-foreground mb-6 text-xl font-bold">Strategy</h2>
       <p className="text-card-foreground/80 mb-4 leading-relaxed">
         {description}
       </p>

@@ -19,9 +19,9 @@ const APYBreakdownGrid = ({ items = defaultItems }: APYBreakdownGridProps) => {
   return (
     <div className="mt-6">
       <h3 className="text-card-foreground mb-3 font-semibold">APY breakdown</h3>
-      <div className="grid grid-cols-3 gap-4">
+      <div className="flex justify-between gap-4 max-md:flex-wrap">
         {items.map((item) => (
-          <SecondaryCard key={item.label} className="p-4">
+          <SecondaryCard key={item.label} className="flex-1 p-4">
             <p className="text-secondary-foreground/70 mb-1 text-xs">
               {item.label}
             </p>
