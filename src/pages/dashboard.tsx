@@ -1,10 +1,10 @@
-import PageLayout from "~/components/PageLayout";
-import PageHeader from "~/components/PageHeader";
-import MetricCard from "~/components/MetricCard";
-import SearchBar from "~/components/SearchBar";
+import PageLayout from "~/components/layout/PageLayout";
+import PageHeader from "~/components/layout/PageHeader";
+import MetricCard from "~/components/common/MetricCard";
+import SearchBar from "~/components/common/SearchBar";
 import { useVaultSearch } from "~/hooks/use-vault-search";
 import { Wallet, Database, Award, TrendingUp } from "lucide-react";
-import VaultTable from "~/components/VaultTable";
+import VaultTable from "~/components/vault/VaultTable";
 
 const Dashboard = () => {
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();

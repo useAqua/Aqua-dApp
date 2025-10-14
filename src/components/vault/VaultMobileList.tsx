@@ -1,6 +1,7 @@
 import { type Table as TableType } from "@tanstack/react-table";
 import VaultMobileCard from "./VaultMobileCard";
 import type { Vault } from "~/types";
+import { Card } from "~/components/ui/card";
 
 interface VaultMobileListProps {
   table: TableType<Vault>;
@@ -8,11 +9,11 @@ interface VaultMobileListProps {
 
 const VaultMobileList = ({ table }: VaultMobileListProps) => {
   return (
-    <div className="bg-card rounded-lg shadow-[var(--shadow-card)] md:hidden">
+    <Card className="md:hidden">
       {table.getRowModel().rows.map((row) => (
         <VaultMobileCard key={row.id} vault={row.original} />
       ))}
-    </div>
+    </Card>
   );
 };
 

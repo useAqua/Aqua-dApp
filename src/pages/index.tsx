@@ -1,15 +1,15 @@
 import { useAccount } from "wagmi";
 
 import { api } from "~/utils/api";
-import PageLayout from "~/components/PageLayout";
-import PageHeader from "~/components/PageHeader";
+import PageLayout from "~/components/layout/PageLayout";
+import PageHeader from "~/components/layout/PageHeader";
 import { Eye } from "lucide-react";
-import MetricCard from "~/components/MetricCard";
-import TabNavigation from "~/components/TabNavigation";
-import SearchBar from "~/components/SearchBar";
+import MetricCard from "~/components/common/MetricCard";
+import TabNavigation from "~/components/common/TabNavigation";
+import SearchBar from "~/components/common/SearchBar";
 import { useState } from "react";
 import { useVaultSearch } from "~/hooks/use-vault-search";
-import VaultTable from "~/components/VaultTable";
+import VaultTable from "~/components/vault/VaultTable";
 
 const portfolioTabs = [
   { id: "all", label: "All" },

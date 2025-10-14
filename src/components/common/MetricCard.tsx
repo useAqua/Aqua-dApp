@@ -51,17 +51,19 @@ const MetricCard = ({
     >
       <div className="mb-2 flex w-full items-center gap-2">
         {Icon && <Icon className="text-card-foreground/70 h-4 w-4" />}
-        <span className="text-card-foreground/70 flex-1 text-sm">{label}</span>
+        <span className="text-card-foreground/70 flex-1 text-sm font-medium">
+          {label}
+        </span>
         {helpIcon && (
-          <div className="border-card-foreground/70 flex h-3 w-3 items-center justify-center rounded-full border">
-            <span className="text-card-foreground/70 text-xs">?</span>
+          <div className="border-card-foreground/70 flex h-4 w-4 items-center justify-center rounded-full border">
+            <span className="text-card-foreground/70 text-[10px]">?</span>
           </div>
         )}
       </div>
 
       {children ?? (
         <>
-          <p className={`text-3xl font-bold ${getValueColorClass()}`}>
+          <p className={`text-2xl font-bold ${getValueColorClass()}`}>
             {value}
           </p>
           {subValue && (
