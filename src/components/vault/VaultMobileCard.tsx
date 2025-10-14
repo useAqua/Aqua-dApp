@@ -11,7 +11,7 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
   return (
     <Link
       href={`/vault/${vault.id}`}
-      className="bg-card hover:bg-primary/10 border-border/50 block border-b p-8 transition-colors first:rounded-t-lg last:rounded-b-lg"
+      className="bg-card hover:bg-primary/10 border-border/50 block border-b px-6 py-8 transition-colors first:rounded-t-lg last:rounded-b-lg"
     >
       {/* Vault Header */}
       <div className="mb-4 flex items-center gap-3 pb-4">

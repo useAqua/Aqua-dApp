@@ -51,7 +51,7 @@ const MetricCard = ({
     >
       <div className="mb-2 flex w-full items-center gap-2">
         {Icon && <Icon className="text-card-foreground/70 h-4 w-4" />}
-        <span className="text-card-foreground/70 flex-1 text-sm font-medium">
+        <span className="text-card-foreground/70 flex-1 text-sm font-medium md:text-xs">
           {label}
         </span>
         {helpIcon && (
@@ -63,7 +63,9 @@ const MetricCard = ({
 
       {children ?? (
         <>
-          <p className={`text-2xl font-bold ${getValueColorClass()}`}>
+          <p
+            className={`text-lg font-bold md:text-2xl ${getValueColorClass()}`}
+          >
             {value}
           </p>
           {subValue && (

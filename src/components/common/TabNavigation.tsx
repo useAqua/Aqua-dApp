@@ -22,7 +22,7 @@ const TabNavigation = ({
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}
-          className={`rounded-lg px-4 py-2 font-medium transition-colors ${
+          className={`rounded-lg px-4 py-2 font-medium transition-colors max-md:text-sm ${
             activeTab === tab.id
               ? "bg-primary text-primary-foreground"
               : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer"

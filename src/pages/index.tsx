@@ -43,16 +43,17 @@ export default function Home() {
           iconBeforeTitle
           className="!mb-0"
         />
-        <PageHeader title="Platform" className="!mb-0" />
+        <PageHeader title="Platform" className="!mb-0 max-md:hidden" />
       </div>
 
-      <div className="mb-8 flex justify-between">
-        <div className="flex gap-8">
+      <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
+        <div className="flex flex-wrap gap-8">
           <MetricCard label="DEPOSITED" value="$0" />
           <MetricCard label="AVG. APY" value="0%" />
           <MetricCard label="ACCRUED POINTS" value="200" />
         </div>
-        <div className="flex gap-8">
+        <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
+        <div className="flex flex-wrap gap-8">
           <MetricCard label="TVL" value="$0" className="text-right" />
           <MetricCard label="Vaults" value="1" className="text-right" />
         </div>
