@@ -43,6 +43,8 @@ All colors MUST be HSL.
   --color-input: hsl(0 0% 100%);
   --color-ring: hsl(211 98% 24%);
 
+  --color-footer-muted: hsl(54, 32%, 87%);
+
   --radius-lg: 0.75rem;
   --radius-md: calc(0.75rem - 2px);
   --radius-sm: calc(0.75rem - 4px);
@@ -56,8 +58,6 @@ All colors MUST be HSL.
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-fade-in: fade-in 0.3s ease-out;
   --animate-glow: glow 2s ease-in-out infinite;
-
-
 }
 
 @keyframes accordion-down {
@@ -106,7 +106,12 @@ All colors MUST be HSL.
 
   body {
     @apply text-foreground font-inter;
-    background: linear-gradient(to bottom, var(--color-background), var(--color-background), var(--color-background-lighter));
+    background: linear-gradient(
+      to bottom,
+      var(--color-background),
+      var(--color-background),
+      var(--color-background-lighter)
+    );
   }
 
   h1,
