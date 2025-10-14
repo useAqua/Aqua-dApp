@@ -21,7 +21,7 @@ const inputVariants = cva(
           "bg-background border-input",
           "text-foreground",
           "placeholder:text-muted-foreground",
-          "focus-visible:ring-ring",
+          "focus-visible:ring-border",
         ],
         secondary: [
           "bg-secondary border-input",

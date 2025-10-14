@@ -9,7 +9,7 @@ const VaultTradingPanel = () => {
   return (
     <Card className={`sticky top-20 min-h-[500px] p-6`}>
       <Tabs defaultValue="deposit" className="w-full">
-        <TabsList className="bg-secondary ring-primary text-secondary-foreground mb-6 grid w-full grid-cols-2 ring">
+        <TabsList className="bg-secondary ring-border text-secondary-foreground mb-6 grid w-full grid-cols-2 ring">
           <TabsTrigger value="deposit">Deposit</TabsTrigger>
           {/*<TabsTrigger value="boost">Boost</TabsTrigger>*/}
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
