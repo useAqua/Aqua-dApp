@@ -1,0 +1,26 @@
+import { Card } from "~/components/ui/card";
+import APYBreakdownGrid from "~/components/charts/APYBreakdownGrid";
+
+interface VaultStrategyProps {
+  description?: string;
+}
+
+const defaultDescription =
+  "The vault deposits the user's vAMM-SYND/WETH in a Aerodrome farm, earning the platform's governance token. Earned token is swapped for SYND and WETH in order to acquire more of the same LP token. To complete the compounding cycle, the new vAMM-SYND/WETH is added to the farm, ready to go for the next earning event. The transaction cost required to do all this is socialized among the vault's users.";
+
+const VaultStrategy = ({
+  description = defaultDescription,
+}: VaultStrategyProps) => {
+  return (
+    <Card className="p-6">
+      <h2 className="text-card-foreground mb-4 text-xl font-bold">Strategy</h2>
+      <p className="text-card-foreground/80 mb-4 leading-relaxed">
+        {description}
+      </p>
+
+      <APYBreakdownGrid />
+    </Card>
+  );
+};
+
+export default VaultStrategy;
