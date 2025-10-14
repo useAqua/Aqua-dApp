@@ -8,7 +8,7 @@ interface VaultDesktopTableProps {
 
 const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
   return (
-    <div className="bg-card border-border/50 hidden overflow-hidden rounded-lg border md:block">
+    <div className="bg-card border-secondary hidden overflow-hidden rounded-lg border md:block">
       <table className="w-full">
         <thead className="bg-primary/5">
           {table.getHeaderGroups().map((headerGroup) => (

@@ -25,7 +25,9 @@ All colors MUST be HSL.
   --color-primary: hsl(211 98% 24%); /* Dark Cerulean #01387C */
   --color-primary-foreground: hsl(0 0% 100%);
 
-  --color-secondary: hsl(48 72% 95%); /* Old Lace */
+  /*--color-secondary: hsl(211 98% 24%); !* Old Lace *!*/
+  --color-secondary: hsl(211 50% 95%); /* Old Lace */
+  /*--color-secondary-foreground: hsl(0, 0%, 100%);*/
   --color-secondary-foreground: hsl(211 98% 24%);
 
   --color-muted: hsl(48 60% 90%);
@@ -54,6 +56,8 @@ All colors MUST be HSL.
   --animate-accordion-up: accordion-up 0.2s ease-out;
   --animate-fade-in: fade-in 0.3s ease-out;
   --animate-glow: glow 2s ease-in-out infinite;
+
+
 }
 
 @keyframes accordion-down {
