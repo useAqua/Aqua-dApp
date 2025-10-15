@@ -33,10 +33,7 @@ export default function Home() {
   });
 
   return (
-    <PageLayout
-      title="AQUA - Portfolio"
-      description="Manage your DeFi portfolio"
-    >
+    <PageLayout title="Vaults | Aqua" description="Manage your DeFi portfolio">
       <div className="flex justify-between">
         <PageHeader
           icon={Eye}

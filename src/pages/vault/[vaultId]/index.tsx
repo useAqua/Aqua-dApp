@@ -32,7 +32,7 @@ const VaultDetail = () => {
 
   return (
     <PageLayout
-      title={`${vault.name} - AQUA DeFi`}
+      title={`${vault.name} | Aqua`}
       description={`${vault.name} vault details and management`}
     >
       <VaultHeader

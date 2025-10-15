@@ -11,8 +11,8 @@ const Header = () => {
   const router = useRouter();
 
   const navItems = [
-    { path: "/", label: "Vaults" },
     { path: "/dashboard", label: "Dashboard" },
+    { path: "/", label: "Vaults" },
     { path: "https://docs.useaqua.xyz", label: "Docs" },
   ];
 
@@ -32,23 +32,21 @@ const Header = () => {
           </Link>
         </div>
 
-        <nav className="hidden items-center md:flex gap-5">
+        <nav className="hidden items-center gap-5 md:flex">
           {navItems.map((item) => (
             <div key={item.path} className="py-1">
               <Link
-
                 href={item.path}
                 className={cn(
-                  "text-foreground nav_link rounded-md py-1 px-0.5 transition-colors",
+                  "text-foreground nav_link rounded-md px-0.5 py-1 transition-colors",
 
                   { active: router.pathname === item.path },
                 )}
-                target={item.label === "Docs" ? "_blank": undefined}
+                target={item.label === "Docs" ? "_blank" : undefined}
               >
                 {item.label}
               </Link>
             </div>
-
           ))}
         </nav>
 
