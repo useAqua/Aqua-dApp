@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <footer className="relative mt-16 overflow-x-clip">
       <div className="mx-auto mb-8">
-        <div className="absolute bottom-full left-1/2 -z-[1] flex -translate-x-1/2 items-center justify-center blur-[1px]">
+        <div className="absolute bottom-full left-1/2 -z-[1] flex -translate-x-1/2 items-center justify-center">
           {[1, 2, 3].map((i) => (
             <span
               key={i}
