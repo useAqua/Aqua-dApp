@@ -10,15 +10,16 @@ import SearchBar from "~/components/common/SearchBar";
 import { useState } from "react";
 import { useVaultSearch } from "~/hooks/use-vault-search";
 import VaultTable from "~/components/vault/VaultTable";
+import { Tabs } from "@radix-ui/react-tabs";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
   { id: "saved", label: "Saved" },
   { id: "positions", label: "My Positions" },
-];
+] as const;
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [, setActiveTab] = useState("all");
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();
   const { address } = useAccount();
 
@@ -59,22 +60,24 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        <TabNavigation
-          tabs={portfolioTabs}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-        />
+      <Tabs
+        defaultValue={portfolioTabs[0].id}
+        className="w-full space-y-4"
+        onValueChange={(tab) => setActiveTab(tab)}
+      >
+        <div className="flex justify-between gap-6 max-md:flex-col">
+          <TabNavigation tabs={portfolioTabs} />
 
-        <div className="max-w-[500px]">
-          <SearchBar
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+          <div className="flex-1 md:max-w-[500px]">
+            <SearchBar
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+            />
+          </div>
         </div>
 
         <VaultTable data={filteredVaults} />
-      </div>
+      </Tabs>
     </PageLayout>
   );
 }

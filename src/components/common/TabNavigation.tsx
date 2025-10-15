@@ -1,37 +1,26 @@
+import { TabsList, TabsTrigger } from "~/components/ui/tabs";
+
 interface Tab {
   id: string;
   label: string;
 }
 
 interface TabNavigationProps {
-  tabs: Tab[];
-  activeTab: string;
-  onTabChange: (tabId: string) => void;
+  tabs: readonly Tab[];
   className?: string;
 }
 
-const TabNavigation = ({
-  tabs,
-  activeTab,
-  onTabChange,
-  className = "",
-}: TabNavigationProps) => {
+const TabNavigation = ({ tabs, className = "" }: TabNavigationProps) => {
   return (
-    <div className={`mb-4 flex items-center gap-4 ${className}`}>
-      {tabs.map((tab) => (
-        <button
-          key={tab.id}
-          onClick={() => onTabChange(tab.id)}
-          className={`rounded-lg px-4 py-2 font-medium transition-colors max-md:text-sm ${
-            activeTab === tab.id
-              ? "bg-primary text-primary-foreground"
-              : "bg-secondary text-muted-foreground hover:text-foreground hover:bg-accent cursor-pointer"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
+    <TabsList className="bg-secondary ring-border text-secondary-foreground w-max ring">
+      <div className={`flex items-center gap-4 ${className}`}>
+        {tabs.map((tab) => (
+          <TabsTrigger key={tab.id} value={tab.id}>
+            {tab.label}
+          </TabsTrigger>
+        ))}
+      </div>
+    </TabsList>
   );
 };
 
