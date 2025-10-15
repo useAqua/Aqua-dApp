@@ -20,7 +20,7 @@ const Footer = () => {
                 "font-redaction text-[16.6666667vw] italic lg:text-[200px]",
                 i === 2
                   ? "z-[1] -mx-[3%]"
-                  : "text-footer-muted animate-glow animation-duration-[5000ms]",
+                  : "text-footer-muted animate-glow animation-duration-[3000ms]",
               )}
             >
               Aqua
