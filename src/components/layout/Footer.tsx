@@ -11,14 +11,14 @@ const Footer = () => {
 
   return (
     <footer className="relative mt-16 overflow-x-clip">
-      <div className="mx-auto mb-8 h-[150px] sm:h-[196px] md:h-[258px] lg:h-[300px]">
-        <div className="absolute top-0 left-1/2 flex -translate-x-1/2 items-center justify-center">
+      <div className="mx-auto mb-8">
+        <div className="absolute bottom-full left-1/2 -z-[1] flex -translate-x-1/2 items-center justify-center blur-[4px] lg:-translate-y-10">
           {[1, 2, 3].map((i) => (
             <span
               key={i}
               className={cn(
                 "font-redaction text-[16.6666667vw] italic lg:text-[200px]",
-                i === 2 ? "z-[1] -mx-[3%]" : "text-footer-muted",
+                i === 2 ? "-mx-[3%]" : "text-footer-muted",
               )}
             >
               Aqua
