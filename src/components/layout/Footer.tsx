@@ -12,7 +12,7 @@ const Footer = () => {
   return (
     <footer className="relative mt-16 overflow-x-clip">
       <div className="mx-auto mb-8">
-        <div className="absolute bottom-full left-1/2 -z-[1] flex -translate-x-1/2 items-center justify-center blur-[4px] lg:-translate-y-10">
+        <div className="absolute bottom-full left-1/2 -z-[1] flex -translate-x-1/2 items-center justify-center blur-[1px]">
           {[1, 2, 3].map((i) => (
             <span
               key={i}
@@ -20,7 +20,7 @@ const Footer = () => {
                 "font-redaction text-[16.6666667vw] italic lg:text-[200px]",
                 i === 2
                   ? "z-[1] -mx-[3%]"
-                  : "text-footer-muted animate-glow animation-duration-[3000ms]",
+                  : "text-footer-muted animate-glow animation-duration-[2500ms]",
               )}
             >
               Aqua
