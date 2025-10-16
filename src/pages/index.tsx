@@ -5,7 +5,7 @@ import { Eye } from "lucide-react";
 import MetricCard from "~/components/common/MetricCard";
 import TabNavigation from "~/components/common/TabNavigation";
 import SearchBar from "~/components/common/SearchBar";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useVaultSearch } from "~/hooks/use-vault-search";
 import VaultTable from "~/components/vault/VaultTable";
 import { Tabs } from "@radix-ui/react-tabs";
@@ -23,13 +23,25 @@ export default function Home() {
     vaultData: vaultTable,
   });
 
-  const { data: vaultConfigs } = api.contracts.getConfigs.useQuery();
-  const { data: vaultTVLs } = api.contracts.getTvls.useQuery();
-
-  console.log({
-    vaultConfigs,
-    vaultTVLs,
-  });
+  const { totalDeposited, totalAPY, totalTVL, totalVaults } = useMemo(
+    () =>
+      (vaultTable ?? []).reduce(
+        (acc, vault) => {
+          acc.totalDeposited += vault.userDepositUsd;
+          acc.totalAPY += vault.apy;
+          acc.totalTVL += vault.tvlUsd;
+          acc.totalVaults += 1;
+          return acc;
+        },
+        {
+          totalDeposited: 0,
+          totalAPY: 0,
+          totalTVL: 0,
+          totalVaults: 0,
+        },
+      ),
+    [vaultTable],
+  );
 
   return (
     <PageLayout title="Vaults | Aqua" description="Manage your DeFi portfolio">
@@ -45,14 +57,22 @@ export default function Home() {
 
       <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
         <div className="flex flex-wrap gap-8">
-          <MetricCard label="DEPOSITED" value="$0" />
-          <MetricCard label="AVG. APY" value="0%" />
-          <MetricCard label="ACCRUED POINTS" value="200" />
+          <MetricCard label="DEPOSITED" value={`$${totalDeposited}`} />
+          <MetricCard label="AVG. APY" value={`${totalAPY}%`} />
+          <MetricCard label="ACCRUED POINTS" value="0" />
         </div>
         <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
         <div className="flex flex-wrap gap-8">
-          <MetricCard label="TVL" value="$0" className="text-right" />
-          <MetricCard label="Vaults" value="1" className="text-right" />
+          <MetricCard
+            label="TVL"
+            value={`$${totalTVL}`}
+            className="text-right"
+          />
+          <MetricCard
+            label="Vaults"
+            value={`${totalVaults}`}
+            className="text-right"
+          />
         </div>
       </div>
 
