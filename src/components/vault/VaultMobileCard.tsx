@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import VaultIcon from "./VaultIcon";
 import type { VaultTableEntry } from "~/types";
+import { formatNumber } from "~/utils/numbers";
 
 interface VaultMobileCardProps {
   vault: VaultTableEntry;
@@ -30,25 +31,29 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             WALLET
           </div>
-          <div className="font-semibold">{vault.walletBalanceUsd}</div>
+          <div className="font-semibold">
+            ${formatNumber(vault.walletBalanceUsd)}
+          </div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             DEPOSIT
           </div>
-          <div className="font-medium">{vault.userDepositUsd}</div>
+          <div className="font-medium">
+            ${formatNumber(vault.userDepositUsd)}
+          </div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             APY
           </div>
-          <div className="font-semibold">{vault.apy}</div>
+          <div className="font-semibold">{vault.apy}%</div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             TVL
           </div>
-          <div className="font-semibold">{vault.tvlUsd}</div>
+          <div className="font-semibold">${formatNumber(vault.tvlUsd)}</div>
         </div>
       </div>
     </Link>

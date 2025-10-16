@@ -9,6 +9,7 @@ import { useMemo, useState } from "react";
 import { useVaultSearch } from "~/hooks/use-vault-search";
 import VaultTable from "~/components/vault/VaultTable";
 import { Tabs } from "@radix-ui/react-tabs";
+import { formatNumber } from "~/utils/numbers";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -57,15 +58,18 @@ export default function Home() {
 
       <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
         <div className="flex flex-wrap gap-8">
-          <MetricCard label="DEPOSITED" value={`$${totalDeposited}`} />
-          <MetricCard label="AVG. APY" value={`${totalAPY}%`} />
+          <MetricCard
+            label="DEPOSITED"
+            value={`$${formatNumber(totalDeposited)}`}
+          />
+          <MetricCard label="AVG. APY" value={`${formatNumber(totalAPY)}`} />
           <MetricCard label="ACCRUED POINTS" value="0" />
         </div>
         <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
         <div className="flex flex-wrap gap-8">
           <MetricCard
             label="TVL"
-            value={`$${totalTVL}`}
+            value={`$${formatNumber(totalTVL)}`}
             className="text-right"
           />
           <MetricCard
