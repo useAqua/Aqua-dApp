@@ -13,3 +13,13 @@ export interface VaultInfo {
 }
 
 export type VaultConfigs = Map<Address, VaultInfo>;
+
+export type VaultTvls = Map<
+  Address,
+  {
+    value: bigint;
+    usdValue: number;
+    lpPrice: number;
+    decimals: number;
+  }
+>;

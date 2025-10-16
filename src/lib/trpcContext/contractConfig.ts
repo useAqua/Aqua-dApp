@@ -1,5 +1,5 @@
 import "server-only";
-import { rpcViemClient } from "./viemClient";
+import { rpcViemClient } from "../viemClient";
 import aquaRegistry from "~/lib/contracts/aquaRegistry";
 import {
   type Address,

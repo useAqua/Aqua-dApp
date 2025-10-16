@@ -21,9 +21,11 @@ export default function Home() {
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();
 
   const { data: vaultConfigs } = api.contracts.getConfigs.useQuery();
+  const { data: vaultTVLs } = api.contracts.getTvls.useQuery();
 
   console.log({
     vaultConfigs,
+    vaultTVLs,
   });
 
   return (

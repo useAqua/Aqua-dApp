@@ -14,6 +14,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "test", "production"]),
     RPC_URL: z.string().url().optional(),
     AQUA_REGISTRY_ADDRESS: addressSchema,
+    LP_SHARE_CALCULATION_ORACLE: addressSchema,
   },
 
   /**
@@ -34,6 +35,7 @@ export const env = createEnv({
     NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
     RPC_URL: process.env.RPC_URL,
     AQUA_REGISTRY_ADDRESS: process.env.AQUA_REGISTRY_ADDRESS,
+    LP_SHARE_CALCULATION_ORACLE: process.env.LP_SHARE_CALCULATION_ORACLE,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
