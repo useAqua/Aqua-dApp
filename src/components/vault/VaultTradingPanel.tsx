@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { HelpCircle } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { SecondaryCard } from "~/components/common/SecondaryCard";
+import ContractActionButton from "~/components/common/ContractActionButton";
 
 const VaultTradingPanel = () => {
   return (
@@ -62,9 +63,9 @@ const VaultTradingPanel = () => {
             </div>
           </SecondaryCard>
 
-          <Button className="h-10 w-full" size="sm">
-            Connect Wallet
-          </Button>
+          <ContractActionButton className="h-10 w-full" size="sm">
+            Deposit
+          </ContractActionButton>
 
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
