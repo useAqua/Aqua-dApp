@@ -3,10 +3,10 @@ import "server-only";
 // Don't let client use viem client
 // Make all rpc calls on backend
 import { createPublicClient, http } from "viem";
-import { arbitrum } from "viem/chains";
+import chainToUse from "~/lib/chainToUse";
 
 const viemClient = createPublicClient({
-  chain: arbitrum,
+  chain: chainToUse,
   transport: http(),
 });
 
