@@ -1,5 +1,4 @@
-import { w3testRouter } from "~/server/routers/w3test";
-// import { contractsRouter } from "~/server/routers/contracts";
+import { contractsRouter } from "~/server/routers/contracts";
 import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
 
 /**
@@ -8,8 +7,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-  w3test: w3testRouter,
-  // contracts: contractsRouter,
+  contracts: contractsRouter,
 });
 
 // export type definition of API

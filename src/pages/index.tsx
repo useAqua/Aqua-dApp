@@ -1,5 +1,3 @@
-import { useAccount } from "wagmi";
-
 import { api } from "~/utils/api";
 import PageLayout from "~/components/layout/PageLayout";
 import PageHeader from "~/components/layout/PageHeader";
@@ -21,15 +19,11 @@ const portfolioTabs = [
 export default function Home() {
   const [, setActiveTab] = useState("all");
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();
-  const { address } = useAccount();
 
-  const balance = api.w3test.balance.useQuery(address ?? "", {
-    enabled: !!address, // Only run the query if address is available
-  });
+  const { data: vaultConfigs } = api.contracts.getConfigs.useQuery();
 
   console.log({
-    filteredVaults,
-    balance,
+    vaultConfigs,
   });
 
   return (
