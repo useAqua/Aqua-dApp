@@ -10,6 +10,7 @@ export interface VaultInfo {
   blockNumber: bigint;
   retired: boolean;
   gasOverhead: bigint;
+  icon: string;
 }
 
 export type VaultConfigs = Map<Address, VaultInfo>;

@@ -1,10 +1,10 @@
 import { type Table as TableType } from "@tanstack/react-table";
 import VaultMobileCard from "./VaultMobileCard";
-import type { Vault } from "~/types";
+import type { VaultTableEntry } from "~/types";
 import { Card } from "~/components/ui/card";
 
 interface VaultMobileListProps {
-  table: TableType<Vault>;
+  table: TableType<VaultTableEntry>;
 }
 
 const VaultMobileList = ({ table }: VaultMobileListProps) => {

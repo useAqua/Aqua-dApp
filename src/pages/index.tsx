@@ -18,7 +18,10 @@ const portfolioTabs = [
 
 export default function Home() {
   const [, setActiveTab] = useState("all");
-  const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch();
+  const { data: vaultTable } = api.vaults.getVaultTable.useQuery();
+  const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
+    vaultData: vaultTable,
+  });
 
   const { data: vaultConfigs } = api.contracts.getConfigs.useQuery();
   const { data: vaultTVLs } = api.contracts.getTvls.useQuery();

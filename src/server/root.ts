@@ -1,5 +1,6 @@
 import { contractsRouter } from "~/server/routers/contracts";
 import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
+import { vaultsRouter } from "~/server/routers/vaults";
 
 /**
  * This is the primary router for your server.
@@ -8,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
  */
 export const appRouter = createTRPCRouter({
   contracts: contractsRouter,
+  vaults: vaultsRouter,
 });
 
 // export type definition of API

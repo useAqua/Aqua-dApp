@@ -1,17 +1,20 @@
 import { useState, useMemo } from "react";
-import { mockVaults } from "~/lib/mockData";
-import type { Vault } from "~/types/vault";
+import type { VaultTableEntry } from "~/types/vault";
 
 interface UseVaultSearchProps {
   limit?: number;
+  vaultData?: VaultTableEntry[];
 }
 
-export const useVaultSearch = ({ limit }: UseVaultSearchProps = {}) => {
+export const useVaultSearch = ({
+  limit,
+  vaultData,
+}: UseVaultSearchProps = {}) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredVaults = useMemo(() => {
-    let filtered = mockVaults.filter((vault: Vault) =>
-      vault.name.toLowerCase().includes(searchQuery.toLowerCase())
+    let filtered = (vaultData ?? []).filter((vault: VaultTableEntry) =>
+      vault.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
 
     if (limit) {
@@ -19,7 +22,7 @@ export const useVaultSearch = ({ limit }: UseVaultSearchProps = {}) => {
     }
 
     return filtered;
-  }, [searchQuery, limit]);
+  }, [vaultData, limit, searchQuery]);
 
   return {
     searchQuery,

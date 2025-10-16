@@ -1,9 +1,9 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import type { Vault } from "~/types";
+import type { VaultTableEntry } from "~/types";
 
 interface VaultDesktopTableProps {
-  table: TableType<Vault>;
+  table: TableType<VaultTableEntry>;
 }
 
 const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {

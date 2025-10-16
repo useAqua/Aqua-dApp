@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import VaultIcon from "./VaultIcon";
-import type { Vault } from "~/types";
+import type { VaultTableEntry } from "~/types";
 
 interface VaultNameCellProps {
-  vault: Vault;
+  vault: VaultTableEntry;
 }
 
 const VaultNameCell = ({ vault }: VaultNameCellProps) => {
@@ -17,7 +17,7 @@ const VaultNameCell = ({ vault }: VaultNameCellProps) => {
       <div className="min-w-0">
         <div className="mb-0.5 font-semibold">{vault.name}</div>
         <Badge variant="secondary" className="text-xs">
-          {vault.protocol}
+          {vault.platformId}
         </Badge>
       </div>
     </Link>

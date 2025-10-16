@@ -72,6 +72,7 @@ export async function getContractConfigs(): Promise<VaultConfigs> {
           blockNumber,
           retired,
           gasOverhead,
+          icon: "⟠",
         });
       }
     });

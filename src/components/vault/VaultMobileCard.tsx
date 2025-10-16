@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import VaultIcon from "./VaultIcon";
-import type { Vault } from "~/types";
+import type { VaultTableEntry } from "~/types";
 
 interface VaultMobileCardProps {
-  vault: Vault;
+  vault: VaultTableEntry;
 }
 
 const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
@@ -19,7 +19,7 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
         <div className="min-w-0 flex-1">
           <div className="mb-1 font-semibold">{vault.name}</div>
           <Badge variant="secondary" className="text-xs">
-            {vault.protocol}
+            {vault.platformId}
           </Badge>
         </div>
       </div>
@@ -30,13 +30,13 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             WALLET
           </div>
-          <div className="font-semibold">{vault.wallet}</div>
+          <div className="font-semibold">{vault.walletBalanceUsd}</div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             DEPOSIT
           </div>
-          <div className="font-medium">{vault.deposit}</div>
+          <div className="font-medium">{vault.userDepositUsd}</div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
@@ -48,7 +48,7 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             TVL
           </div>
-          <div className="font-semibold">{vault.tvl}</div>
+          <div className="font-semibold">{vault.tvlUsd}</div>
         </div>
       </div>
     </Link>

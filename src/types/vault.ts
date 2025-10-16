@@ -1,3 +1,5 @@
+import type { Address } from "viem";
+
 export type Protocol = string;
 
 export interface Vault {
@@ -21,6 +23,18 @@ export interface Vault {
   apyValue: string;
   deposit: string;
   lastHarvest: string;
+}
+
+export interface VaultTableEntry {
+  address: Address;
+  name: string;
+  platformId: string;
+  tvlUsd: number;
+  walletBalanceUsd: number;
+  userDepositUsd: number;
+  apy: number;
+  id: string;
+  icon: string;
 }
 
 export type Vaults = Vault[];

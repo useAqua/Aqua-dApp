@@ -7,13 +7,13 @@ import {
   type ColumnFiltersState,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import type { Vault } from "~/types";
+import type { VaultTableEntry } from "~/types";
 import { vaultTableColumns } from "./VaultTableColumns";
 import VaultDesktopTable from "./VaultDesktopTable";
 import VaultMobileList from "./VaultMobileList";
 
 interface VaultTableProps {
-  data: Vault[];
+  data: VaultTableEntry[];
 }
 
 const VaultTable = ({ data }: VaultTableProps) => {
