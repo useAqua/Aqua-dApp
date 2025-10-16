@@ -81,7 +81,7 @@ export const CustomConnectButton = () => {
                   {account.displayBalance ? (
                     <>
                       <Wallet className="ml-4 h-4 w-4" />
-                      <span>${account.displayBalance}</span>
+                      <span>{account.displayBalance}</span>
                     </>
                   ) : (
                     ""
