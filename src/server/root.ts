@@ -1,5 +1,6 @@
-import { w3testRouter } from "~/server/api/routers/w3test";
-import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
+import { w3testRouter } from "~/server/routers/w3test";
+// import { contractsRouter } from "~/server/routers/contracts";
+import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
 
 /**
  * This is the primary router for your server.

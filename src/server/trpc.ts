@@ -32,8 +32,13 @@ type CreateContextOptions = Record<string, never>;
  *
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
-const createInnerTRPCContext = (_opts: CreateContextOptions) => {
-  return {};
+const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
+  // Fetch contract addresses from registry contract
+  // const contractAddresses = await getContractAddresses();
+
+  return {
+    // contracts: contractAddresses,
+  };
 };
 
 /**
@@ -42,7 +47,7 @@ const createInnerTRPCContext = (_opts: CreateContextOptions) => {
  *
  * @see https://trpc.io/docs/context
  */
-export const createTRPCContext = (_opts: CreateNextContextOptions) => {
+export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
   return createInnerTRPCContext({});
 };
 

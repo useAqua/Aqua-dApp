@@ -1,7 +1,7 @@
 import { getAddress } from "viem";
 import z from "zod";
 import { rpcViemClient } from "~/lib/viemClient";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, publicProcedure } from "~/server/trpc";
 
 const addressSchema = z.string().startsWith("0x").length(42);
 
