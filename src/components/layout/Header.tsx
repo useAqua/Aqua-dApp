@@ -1,11 +1,10 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Button } from "~/components/ui/button";
-import { Wallet } from "lucide-react";
 import aquaLogo from "~/assets/aqua-logo.svg";
 import Image from "next/image";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { cn } from "~/lib/utils";
+import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 
 const Header = () => {
   const router = useRouter();
@@ -50,10 +49,7 @@ const Header = () => {
           ))}
         </nav>
 
-        <Button>
-          <Wallet className="mr-2 h-4 w-4" />
-          Connect Wallet
-        </Button>
+        <CustomConnectButton />
       </div>
     </header>
   );
