@@ -2,7 +2,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
-import { Wallet } from "lucide-react";
+import { LoaderCircleIcon, Wallet } from "lucide-react";
 export const CustomConnectButton = () => {
   return (
     <ConnectButton.Custom>
@@ -63,14 +63,18 @@ export const CustomConnectButton = () => {
               }
               return (
                 <Button onClick={openAccountModal} type="button" className="">
-                  {chain.iconUrl && (
-                    <Image
-                      src={chain.iconUrl ?? ""}
-                      width={24}
-                      height={24}
-                      alt={chain.name ?? "Chain Image"}
-                      className="rounded-full"
-                    />
+                  {account.hasPendingTransactions ? (
+                    <LoaderCircleIcon className="h-6 w-6 animate-spin" />
+                  ) : (
+                    chain.iconUrl && (
+                      <Image
+                        src={chain.iconUrl ?? ""}
+                        width={24}
+                        height={24}
+                        alt={chain.name ?? "Chain Image"}
+                        className="rounded-full"
+                      />
+                    )
                   )}
                   {account.ensName ?? account.displayName}
 
