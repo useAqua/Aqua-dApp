@@ -9,6 +9,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
  */
 export const appRouter = createTRPCRouter({
   w3test: w3testRouter,
+  // contracts: contractsRouter,
 });
 
 // export type definition of API

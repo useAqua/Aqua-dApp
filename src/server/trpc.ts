@@ -11,6 +11,7 @@ import { initTRPC } from "@trpc/server";
 import { type CreateNextContextOptions } from "@trpc/server/adapters/next";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { getCachedContractConfigs } from "~/lib/contractConfig";
 
 /**
  * 1. CONTEXT
@@ -33,11 +34,12 @@ type CreateContextOptions = Record<string, never>;
  * @see https://create.t3.gg/en/usage/trpc#-serverapitrpcts
  */
 const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
-  // Fetch contract addresses from registry contract
-  // const contractAddresses = await getContractAddresses();
+  // Fetch contract configs from registry contract
+  const vaultConfigs = await getCachedContractConfigs();
 
   return {
-    // contracts: contractAddresses,
+    text: "Hello from tRPC context",
+    vaultConfigs,
   };
 };
 
