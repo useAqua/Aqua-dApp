@@ -22,5 +22,6 @@ export type VaultTvls = Map<
     usdValue: number;
     lpPrice: number;
     decimals: number;
+    lpTokenAddress: Address;
   }
 >;

@@ -10,6 +10,7 @@ import { useVaultSearch } from "~/hooks/use-vault-search";
 import VaultTable from "~/components/vault/VaultTable";
 import { Tabs } from "@radix-ui/react-tabs";
 import { formatNumber } from "~/utils/numbers";
+import { useAccount } from "wagmi";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -19,7 +20,10 @@ const portfolioTabs = [
 
 export default function Home() {
   const [, setActiveTab] = useState("all");
-  const { data: vaultTable } = api.vaults.getVaultTable.useQuery();
+  const { address: connectedUser } = useAccount();
+  const { data: vaultTable } = api.vaults.getVaultTable.useQuery({
+    user: connectedUser,
+  });
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTable,
   });

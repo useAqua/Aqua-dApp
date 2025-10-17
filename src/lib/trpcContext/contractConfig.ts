@@ -53,6 +53,7 @@ export async function getContractConfigs(): Promise<VaultConfigs> {
         gasOverhead,
       ] = result as VaultInfoTuple;
       const [lpToken, token0, token1] = tokens;
+      if (isPaused) return; // Skip paused vaults
       if (
         lpToken === undefined &&
         token0 === undefined &&

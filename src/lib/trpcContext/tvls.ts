@@ -71,7 +71,7 @@ export async function getTvls(vaultConfigs: VaultConfigs): Promise<VaultTvls> {
     vaultBalanceCalls.length + lpValueCalls.length,
   );
 
-  data.forEach(({ vault }, index) => {
+  data.forEach(({ vault, lpToken }, index) => {
     const balanceResult = balanceResults[index];
     const lpValueResult = lpValueResults[index];
     const decimalsResult = decimalsResults[index];
@@ -108,6 +108,7 @@ export async function getTvls(vaultConfigs: VaultConfigs): Promise<VaultTvls> {
       value: balance,
       usdValue,
       lpPrice: lpPriceNumber,
+      lpTokenAddress: lpToken,
       decimals,
     });
   });
