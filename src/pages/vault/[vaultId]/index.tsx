@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import PageLayout from "~/components/layout/PageLayout";
 import VaultHeader from "~/components/vault/VaultHeader";
 import VaultActions from "~/components/vault/VaultActions";
@@ -6,17 +5,17 @@ import VaultMetrics from "~/components/vault/VaultMetrics";
 import VaultLPBreakdown from "~/components/vault/VaultLPBreakdown";
 import VaultStrategy from "~/components/vault/VaultStrategy";
 import VaultTradingPanel from "~/components/vault/VaultTradingPanel";
-import { api } from "~/utils/api";
 import { enrichVaultWithMockData } from "~/utils/vaultHelpers";
+import type { GetServerSideProps } from "next";
+import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types";
+import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 
-const VaultDetail = () => {
-  const router = useRouter();
-  const { vaultId } = router.query;
-  const { data: vaultData } = api.vaults.getSingleVaultInfo.useQuery({
-    id: vaultId?.toString() ?? "",
-  });
+interface VaultDetailProps {
+  vault: EnrichedVaultInfo | null;
+}
 
-  if (!vaultData) {
+const VaultDetail = ({ vault }: VaultDetailProps) => {
+  if (!vault) {
     return (
       <PageLayout title="Vault Not Found">
         <div className="flex min-h-[60vh] items-center justify-center">
@@ -32,8 +31,6 @@ const VaultDetail = () => {
       </PageLayout>
     );
   }
-
-  const vault = enrichVaultWithMockData(vaultData);
 
   return (
     <PageLayout
@@ -65,6 +62,51 @@ const VaultDetail = () => {
       </div>
     </PageLayout>
   );
+};
+
+export const getServerSideProps: GetServerSideProps<VaultDetailProps> = async (
+  context,
+) => {
+  const vaultId = context.params?.vaultId as string | undefined;
+
+  if (!vaultId) {
+    return {
+      props: {
+        vault: null,
+      },
+    };
+  }
+
+  try {
+    const vaultData = await fetchTRPCQuery<{ id: string }, VaultDetailInfo>(
+      context.req,
+      "vaults.getSingleVaultInfo",
+      { id: vaultId },
+    );
+
+    if (!vaultData) {
+      return {
+        props: {
+          vault: null,
+        },
+      };
+    }
+
+    const enrichedVault = enrichVaultWithMockData(vaultData);
+
+    return {
+      props: {
+        vault: enrichedVault,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching vault data:", error);
+    return {
+      props: {
+        vault: null,
+      },
+    };
+  }
 };
 
 export default VaultDetail;

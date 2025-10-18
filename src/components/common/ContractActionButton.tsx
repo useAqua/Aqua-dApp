@@ -7,13 +7,25 @@ const ContractActionButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ children, onClick, ...props }, ref) => {
     const { openConnectModal } = useConnectModal();
     const { isConnected } = useAccount();
-    if (!isConnected) {
+    const [mounted, setMounted] = React.useState(false);
+
+    React.useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    if (!mounted || !isConnected) {
       return (
-        <Button {...props} ref={ref} onClick={openConnectModal}>
-          {"Connect Wallet"}
+        <Button
+          {...props}
+          ref={ref}
+          onClick={mounted ? (openConnectModal ?? undefined) : undefined}
+          disabled={!mounted}
+        >
+          Connect Wallet
         </Button>
       );
     }
+
     return (
       <Button {...props} ref={ref} onClick={onClick}>
         {children}
@@ -21,6 +33,6 @@ const ContractActionButton = React.forwardRef<HTMLButtonElement, ButtonProps>(
     );
   },
 );
-ContractActionButton.displayName = "Button";
+ContractActionButton.displayName = "ContractActionButton";
 
 export default ContractActionButton;
