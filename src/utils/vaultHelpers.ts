@@ -4,13 +4,17 @@ import { formatUnits } from "viem";
 export function enrichVaultWithMockData(
   vault: VaultDetailInfo,
 ): EnrichedVaultInfo {
-  const lastHarvestTime = vault.strategy.lastHarvest
-    ? formatLastHarvest(vault.strategy.lastHarvest)
-    : "Never";
+  console.log({
+    lastHarvestTime: vault.strategy.lastHarvest,
+  });
+  const lastHarvestTime =
+    vault.strategy.lastHarvest && vault.strategy.lastHarvest > BigInt(0)
+      ? formatLastHarvest(vault.strategy.lastHarvest)
+      : "Never";
 
-  const tvl = `$${vault.tvlUsd.toLocaleString("en-US", { 
+  const tvl = `$${vault.tvlUsd.toLocaleString("en-US", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0 
+    maximumFractionDigits: 0,
   })}`;
   const mockApy = "2,680%";
   const mockDeposit = "$0";
