@@ -1,7 +1,7 @@
 import "server-only";
 import { rpcViemClient } from "../viemClient";
 import lpShareCalculationOracle from "~/lib/contracts/lpShareCalculationOracle";
-import type { VaultConfigs, VaultTvls } from "~/types/contracts";
+import type { VaultConfigs, VaultTVLMap } from "~/types/contracts";
 import type { Address, ContractFunctionParameters } from "viem";
 import vault_abi from "~/lib/contracts/vault_abi";
 import { erc20Abi } from "viem";
@@ -22,75 +22,73 @@ type DecimalsCall = ContractFunctionParameters<
   "decimals"
 >;
 
-export async function getTvls(vaultConfigs: VaultConfigs): Promise<VaultTvls> {
-  const vaultTvls: VaultTvls = new Map();
-  const data: Record<"vault" | "lpToken", Address>[] = [];
+export async function getTvls(
+  vaultConfigs: VaultConfigs,
+): Promise<VaultTVLMap> {
+  const vaultTvls: VaultTVLMap = new Map();
+
+  const vaults: Address[] = [];
+  const lpTokens: Address[] = [];
 
   vaultConfigs.forEach(({ lpToken }, vault) => {
-    data.push({
-      vault,
-      lpToken,
-    });
+    vaults.push(vault);
+    lpTokens.push(lpToken);
   });
+
+  const numVaults = vaults.length;
 
   const vaultBalanceCalls: VaultBalanceCall[] = [];
   const lpValueCalls: LPValueCall[] = [];
   const decimalsCalls: DecimalsCall[] = [];
 
-  data.forEach(({ lpToken, vault }) => {
+  for (let i = 0; i < numVaults; i++) {
     vaultBalanceCalls.push({
       abi: vault_abi,
-      address: vault,
+      address: vaults[i]!,
       functionName: "balance",
       args: [],
     });
     lpValueCalls.push({
       ...lpShareCalculationOracle,
       functionName: "calculateLPValue",
-      args: [lpToken],
+      args: [lpTokens[i]!],
     });
     decimalsCalls.push({
       abi: erc20Abi,
-      address: lpToken,
+      address: lpTokens[i]!,
       functionName: "decimals",
       args: [],
     });
-  });
+  }
 
   const results = await rpcViemClient.multicall({
     contracts: [...vaultBalanceCalls, ...lpValueCalls, ...decimalsCalls],
   });
 
-  // Split results into vault balances, LP values, and decimals
-  const balanceResults = results.slice(0, vaultBalanceCalls.length);
-  const lpValueResults = results.slice(
-    vaultBalanceCalls.length,
-    vaultBalanceCalls.length + lpValueCalls.length,
-  );
-  const decimalsResults = results.slice(
-    vaultBalanceCalls.length + lpValueCalls.length,
-  );
+  const balanceResults = results.slice(0, numVaults);
+  const lpValueResults = results.slice(numVaults, numVaults * 2);
+  const decimalsResults = results.slice(numVaults * 2);
 
-  data.forEach(({ vault, lpToken }, index) => {
-    const balanceResult = balanceResults[index];
-    const lpValueResult = lpValueResults[index];
-    const decimalsResult = decimalsResults[index];
+  for (let i = 0; i < numVaults; i++) {
+    const balanceResult = balanceResults[i];
+    const lpValueResult = lpValueResults[i];
+    const decimalsResult = decimalsResults[i];
 
     if (balanceResult?.status === "failure") {
       throw new Error(
-        `Failed to fetch vault balance for ${vault}: ${balanceResult.error}`,
+        `Failed to fetch vault balance for ${vaults[i]}: ${balanceResult.error}`,
       );
     }
 
     if (lpValueResult?.status === "failure") {
       throw new Error(
-        `Failed to fetch LP value for ${vault}: ${lpValueResult.error}`,
+        `Failed to fetch LP value for ${vaults[i]}: ${lpValueResult.error}`,
       );
     }
 
     if (decimalsResult?.status === "failure") {
       throw new Error(
-        `Failed to fetch decimals for ${vault}: ${decimalsResult.error}`,
+        `Failed to fetch decimals for ${vaults[i]}: ${decimalsResult.error}`,
       );
     }
 
@@ -98,54 +96,44 @@ export async function getTvls(vaultConfigs: VaultConfigs): Promise<VaultTvls> {
     const lpPrice = lpValueResult!.result as bigint;
     const decimals = decimalsResult!.result as number;
 
-    // Calculate USD value: (balance * lpPrice) / (10 ** decimals) / 1e18
     const decimalDivisor = BigInt(10 ** decimals);
     const usdValueBigInt = (balance * lpPrice) / decimalDivisor;
     const usdValue = Number(usdValueBigInt) / 1e18;
     const lpPriceNumber = Number(lpPrice) / 1e18;
 
-    vaultTvls.set(vault, {
+    vaultTvls.set(vaults[i]!, {
       value: balance,
       usdValue,
       lpPrice: lpPriceNumber,
-      lpTokenAddress: lpToken,
+      lpTokenAddress: lpTokens[i]!,
       decimals,
     });
-  });
+  }
 
   return vaultTvls;
 }
 
-/**
- * Cache for TVL data with TTL
- */
 let cachedTvls: {
-  tvls: VaultTvls | null;
+  tvls: VaultTVLMap | null;
   timestamp: number;
 } = {
   tvls: null,
   timestamp: 0,
 };
 
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+const CACHE_TTL = 15 * 60 * 1000;
 
-/**
- * Gets TVL data with caching
- */
 export async function getCachedTvls(
   vaultConfigs: VaultConfigs,
-): Promise<VaultTvls> {
+): Promise<VaultTVLMap> {
   const now = Date.now();
 
-  // Return cached TVLs if still valid
   if (cachedTvls.tvls && now - cachedTvls.timestamp < CACHE_TTL) {
     return cachedTvls.tvls;
   }
 
-  // Fetch fresh TVLs
   const tvls = await getTvls(vaultConfigs);
 
-  // Update cache
   cachedTvls = {
     tvls,
     timestamp: now,
@@ -154,10 +142,6 @@ export async function getCachedTvls(
   return tvls;
 }
 
-/**
- * Invalidates the TVL cache
- * Call this if you need to force a refresh
- */
 export function invalidateTvlCache(): void {
   cachedTvls = {
     tvls: null,

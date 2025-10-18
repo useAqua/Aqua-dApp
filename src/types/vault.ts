@@ -37,6 +37,60 @@ export interface VaultTableEntry {
   icon: string;
 }
 
+export interface TokenInfo {
+  address: Address;
+  name: string;
+  symbol: string;
+  decimals: number;
+}
+
+export interface StrategyInfo {
+  address: Address;
+  lastHarvest: bigint | null;
+  depositFee: bigint | null;
+  withdrawFee: bigint | null;
+}
+
+export interface VaultDetailInfo {
+  name: string;
+  id: string;
+  platformId: string;
+  strategy: StrategyInfo;
+  address: Address;
+  tokens: {
+    token0: TokenInfo;
+    token1: TokenInfo;
+    lpToken: TokenInfo;
+  };
+}
+
+/**
+ * Enriched vault data with computed/mock fields for UI display
+ * This extends VaultDetailInfo with additional display-ready fields
+ * All enriched fields are required (not optional)
+ */
+export interface EnrichedVaultInfo extends VaultDetailInfo {
+  tvl: string;
+  apyValue: string;
+  deposit: string;
+  lastHarvest: string;
+  lpBreakdown: {
+    token0Percentage: number;
+    token1Percentage: number;
+    token0Amount: string;
+    token1Amount: string;
+    token0UsdValue: string;
+    token1UsdValue: string;
+    lpAmount: string;
+    lpUsdValue: string;
+  };
+  apyBreakdown: {
+    totalApy: string;
+    vaultApr: string;
+    boostApr: string;
+  };
+}
+
 export type Vaults = Vault[];
 
 export interface VaultStats {

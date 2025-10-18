@@ -1,82 +1,15 @@
 import { createTRPCRouter, publicProcedure } from "~/server/trpc";
-import {
-  type Address,
-  type ContractFunctionParameters,
-  erc20Abi,
-  formatUnits,
-  getAddress,
-} from "viem";
-import type { VaultTableEntry } from "~/types";
-import type { VaultTvls } from "~/types/contracts";
-import { rpcViemClient } from "~/lib/viemClient";
+import { type Address, getAddress } from "viem";
+import type { VaultTableEntry, VaultDetailInfo } from "~/types";
 import { z } from "zod";
 import { addressSchema } from "~/env";
+import {
+  getUserLPWalletBalances,
+  getTokenDetails,
+  getStrategyInfo,
+} from "~/server/helpers/vaults";
 
-type BalanceCall = ContractFunctionParameters<
-  typeof erc20Abi,
-  "view",
-  "balanceOf"
->;
-
-type UserLPWalletBalances = Map<
-  Address,
-  {
-    balance: number;
-    balanceUsd: number;
-  }
->;
-
-const getUserLPWalletBalances = async (
-  vaultTvl: VaultTvls,
-  user?: Address,
-): Promise<UserLPWalletBalances> => {
-  const walletLpBalance: UserLPWalletBalances = new Map();
-  if (!user) return walletLpBalance;
-  const entries = Array.from(vaultTvl.entries());
-  const calls = entries.map(
-    ([, { lpTokenAddress }]): BalanceCall => ({
-      abi: erc20Abi,
-      address: lpTokenAddress,
-      functionName: "balanceOf",
-      args: [user],
-    }),
-  );
-
-  const result = await rpcViemClient.multicall({
-    contracts: calls,
-  });
-
-  entries.forEach(([vaultAddress, { decimals, lpPrice }], index) => {
-    const balanceResult = result[index];
-
-    if (!balanceResult || balanceResult?.status === "failure") {
-      throw new Error(`Unable to get Lp balance: ${balanceResult?.error}`);
-    }
-
-    const balance = +formatUnits(balanceResult.result, decimals);
-    const balanceUsd = balance * lpPrice;
-
-    console.log({
-      balanceUsd,
-      balance,
-    });
-
-    walletLpBalance.set(vaultAddress, {
-      balance,
-      balanceUsd,
-    });
-  });
-
-  return walletLpBalance;
-};
-
-/**
- * Example router showing how to use contract addresses from context
- */
 export const vaultsRouter = createTRPCRouter({
-  /**
-   * Get all contract configs from the registry
-   */
   getVaultTable: publicProcedure
     .input(
       z.object({
@@ -105,12 +38,70 @@ export const vaultsRouter = createTRPCRouter({
             userDepositUsd: 0,
             apy: 0,
             platformId: platformId ?? "Unknown",
-            id: config.name,
+            id: config.name.toLowerCase(),
             icon: config.icon,
           });
         }
       });
 
       return data;
+    }),
+
+  getSingleVaultInfo: publicProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
+    .query(async ({ ctx, input }): Promise<VaultDetailInfo | undefined> => {
+      const vaultAddress = ctx.vaultNameToAddress.get(input.id);
+
+      if (!vaultAddress) return undefined;
+
+      const vaultConfig = ctx.vaultConfigs.get(vaultAddress);
+      const tvlData = ctx.vaultTVL.get(vaultAddress);
+
+      if (!tvlData || !vaultConfig) return undefined;
+
+      const [platformId, long, short] = vaultConfig.name.split("-");
+
+      const [tokenDetails, strategyInfo] = await Promise.all([
+        getTokenDetails([
+          vaultConfig.token0,
+          vaultConfig.token1,
+          vaultConfig.lpToken,
+        ]),
+        getStrategyInfo(vaultConfig.strategy),
+      ]);
+
+      if (tokenDetails.length !== 3) {
+        throw new Error(
+          `Expected 3 tokens but got ${tokenDetails.length} for vault ${input.id}`,
+        );
+      }
+
+      const token0 = tokenDetails[0];
+      const token1 = tokenDetails[1];
+      const lpToken = tokenDetails[2];
+
+      if (!token0 || !token1 || !lpToken) {
+        throw new Error(`Missing token details for vault ${input.id}`);
+      }
+
+      return {
+        name: `${long}/${short}`,
+        id: vaultConfig.name.toLowerCase(),
+        platformId: platformId ?? "Unknown",
+        strategy: {
+          ...strategyInfo,
+          address: vaultConfig.strategy,
+        },
+        address: vaultAddress,
+        tokens: {
+          token0,
+          token1,
+          lpToken,
+        },
+      };
     }),
 });

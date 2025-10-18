@@ -19,8 +19,12 @@ type GetVaultInfoCall = ContractFunctionParameters<
   "getVaultInfo"
 >;
 
-export async function getContractConfigs(): Promise<VaultConfigs> {
+export async function getContractConfigs(): Promise<{
+  vaultConfigs: VaultConfigs;
+  vaultNameToAddress: Map<string, Address>;
+}> {
   const vaultConfigs: VaultConfigs = new Map();
+  const vaultNameToAddress = new Map<string, Address>();
   try {
     const allVaultAddresses = await rpcViemClient.readContract({
       ...aquaRegistry,
@@ -39,10 +43,13 @@ export async function getContractConfigs(): Promise<VaultConfigs> {
       contracts: vaultInfoCalls,
     });
 
-    results.forEach(({ status, result, error }, i) => {
+    for (let i = 0; i < results.length; i++) {
+      const { status, result, error } = results[i]!;
+
       if (status === "failure") {
         throw new Error(`Contract call failed: ${error}`);
       }
+
       const [
         name,
         strategy,
@@ -52,66 +59,65 @@ export async function getContractConfigs(): Promise<VaultConfigs> {
         retired,
         gasOverhead,
       ] = result as VaultInfoTuple;
+
+      if (isPaused) continue;
+
       const [lpToken, token0, token1] = tokens;
-      if (isPaused) return; // Skip paused vaults
-      if (
-        lpToken === undefined &&
-        token0 === undefined &&
-        token1 === undefined
-      ) {
+      const vaultAddress = allVaultAddresses[i]!;
+
+      if (!lpToken || !token0 || !token1) {
         throw new Error(
-          `Invalid token data for vault at address: ${allVaultAddresses[i]}`,
+          `Invalid token data for vault at address: ${vaultAddress}`,
         );
-      } else {
-        vaultConfigs.set(allVaultAddresses[i]!, {
-          name,
-          strategy,
-          isPaused,
-          token0: token0!,
-          token1: token1!,
-          lpToken: lpToken!,
-          blockNumber,
-          retired,
-          gasOverhead,
-          icon: "⟠",
-        });
       }
-    });
-    return vaultConfigs;
+
+      vaultConfigs.set(vaultAddress, {
+        name,
+        strategy,
+        isPaused,
+        token0,
+        token1,
+        lpToken,
+        blockNumber,
+        retired,
+        gasOverhead,
+        icon: "⟠",
+      });
+      vaultNameToAddress.set(name.toLowerCase(), vaultAddress);
+    }
+
+    return { vaultConfigs, vaultNameToAddress };
   } catch (error) {
     console.error("Failed to fetch contract configs:", error);
     throw error;
   }
 }
 
-/**
- * Cache for contract addresses with TTL
- */
 let cachedConfigs: {
-  configs: VaultConfigs | null;
+  configs: {
+    vaultConfigs: VaultConfigs;
+    vaultNameToAddress: Map<string, Address>;
+  } | null;
   timestamp: number;
 } = {
   configs: null,
   timestamp: 0,
 };
 
-const CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const CACHE_TTL = 30 * 60 * 1000;
 
-/**
- * Gets contract configs with caching
- */
-export async function getCachedContractConfigs(): Promise<VaultConfigs> {
+export async function getCachedContractConfigs(): Promise<{
+  vaultConfigs: VaultConfigs;
+  vaultNameToAddress: Map<string, Address>;
+}> {
   const now = Date.now();
 
-  // Return cached configs if still valid
   if (cachedConfigs.configs && now - cachedConfigs.timestamp < CACHE_TTL) {
     return cachedConfigs.configs;
   }
 
-  // Fetch fresh configs
   const configs = await getContractConfigs();
 
-  // Update cache
   cachedConfigs = {
     configs,
     timestamp: now,
@@ -120,10 +126,6 @@ export async function getCachedContractConfigs(): Promise<VaultConfigs> {
   return configs;
 }
 
-/**
- * Invalidates the config cache
- * Call this if you need to force a refresh
- */
 export function invalidateConfigCache(): void {
   cachedConfigs = {
     configs: null,

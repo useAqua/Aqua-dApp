@@ -5,14 +5,23 @@ import { HelpCircle } from "lucide-react";
 import { Card } from "~/components/ui/card";
 import { SecondaryCard } from "~/components/common/SecondaryCard";
 import ContractActionButton from "~/components/common/ContractActionButton";
+import type { EnrichedVaultInfo } from "~/types";
+import { formatFeePercentage } from "~/utils/vaultHelpers";
 
-const VaultTradingPanel = () => {
+interface VaultTradingPanelProps {
+  vault: EnrichedVaultInfo;
+}
+
+const VaultTradingPanel = ({ vault }: VaultTradingPanelProps) => {
+  const depositFee = formatFeePercentage(vault.strategy.depositFee);
+  const withdrawFee = formatFeePercentage(vault.strategy.withdrawFee);
+  const lpTokenSymbol = vault.tokens.lpToken.symbol ?? "LP Token";
+
   return (
     <Card className={`sticky top-20 min-h-[500px] p-6 max-md:py-8`}>
       <Tabs defaultValue="deposit" className="w-full">
         <TabsList className="bg-secondary ring-border text-secondary-foreground mb-6 grid w-full grid-cols-2 ring">
           <TabsTrigger value="deposit">Deposit</TabsTrigger>
-          {/*<TabsTrigger value="boost">Boost</TabsTrigger>*/}
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
         </TabsList>
 
@@ -32,7 +41,7 @@ const VaultTradingPanel = () => {
               size="sm"
               className="w-full justify-between"
             >
-              <span>Select</span>
+              <span>{lpTokenSymbol}</span>
               <span>▼</span>
             </Button>
           </div>
@@ -58,7 +67,7 @@ const VaultTradingPanel = () => {
             <p className="text-secondary-foreground/80 text-xs">$0</p>
             <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
               <p className="text-secondary-foreground/80 text-xs">
-                vAMM-SYND/WETH
+                {vault.name}
               </p>
             </div>
           </SecondaryCard>
@@ -72,13 +81,13 @@ const VaultTradingPanel = () => {
               <span className="text-card-foreground/70 flex items-center gap-1">
                 DEPOSIT FEE <HelpCircle className="h-3 w-3" />
               </span>
-              <span className="text-card-foreground">0%</span>
+              <span className="text-card-foreground">{depositFee}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-card-foreground/70 flex items-center gap-1">
                 WITHDRAWAL FEE <HelpCircle className="h-3 w-3" />
               </span>
-              <span className="text-card-foreground">0%</span>
+              <span className="text-card-foreground">{withdrawFee}</span>
             </div>
           </div>
 

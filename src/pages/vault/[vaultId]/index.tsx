@@ -6,14 +6,17 @@ import VaultMetrics from "~/components/vault/VaultMetrics";
 import VaultLPBreakdown from "~/components/vault/VaultLPBreakdown";
 import VaultStrategy from "~/components/vault/VaultStrategy";
 import VaultTradingPanel from "~/components/vault/VaultTradingPanel";
-import { mockVaults } from "~/lib/mockData";
+import { api } from "~/utils/api";
+import { enrichVaultWithMockData } from "~/utils/vaultHelpers";
 
 const VaultDetail = () => {
   const router = useRouter();
   const { vaultId } = router.query;
-  const vault = mockVaults.find((v) => v.id === vaultId);
+  const { data: vaultData } = api.vaults.getSingleVaultInfo.useQuery({
+    id: vaultId?.toString() ?? "",
+  });
 
-  if (!vault) {
+  if (!vaultData) {
     return (
       <PageLayout title="Vault Not Found">
         <div className="flex min-h-[60vh] items-center justify-center">
@@ -30,15 +33,17 @@ const VaultDetail = () => {
     );
   }
 
+  const vault = enrichVaultWithMockData(vaultData);
+
   return (
     <PageLayout
       title={`${vault.name} | Aqua`}
       description={`${vault.name} vault details and management`}
     >
       <VaultHeader
-        icon={vault.icon}
+        icon={<></>} // TODO: Add Icon for Vaults
         name={vault.name}
-        platform={vault.protocol}
+        platform={vault.platformId}
         actions={<VaultActions />}
       />
 
@@ -49,13 +54,13 @@ const VaultDetail = () => {
         <div className="space-y-6 max-lg:order-1 lg:col-span-2">
           <div className="max-lg:hidden">
             <VaultMetrics vault={vault} />
-          </div>{" "}
-          <VaultLPBreakdown />
-          <VaultStrategy />
+          </div>
+          <VaultLPBreakdown vault={vault} />
+          <VaultStrategy vault={vault} />
         </div>
 
         <div className="lg:col-span-1">
-          <VaultTradingPanel />
+          <VaultTradingPanel vault={vault} />
         </div>
       </div>
     </PageLayout>
