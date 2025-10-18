@@ -5,13 +5,24 @@ import { Card } from "~/components/ui/card";
 
 interface VaultMobileListProps {
   table: TableType<VaultTableEntry>;
+  isLoadingWallet?: boolean;
+  isLoadingDeposit?: boolean;
 }
 
-const VaultMobileList = ({ table }: VaultMobileListProps) => {
+const VaultMobileList = ({
+  table,
+  isLoadingWallet = false,
+  isLoadingDeposit = false,
+}: VaultMobileListProps) => {
   return (
     <Card className="md:hidden">
       {table.getRowModel().rows.map((row) => (
-        <VaultMobileCard key={row.id} vault={row.original} />
+        <VaultMobileCard
+          key={row.id}
+          vault={row.original}
+          isLoadingWallet={isLoadingWallet}
+          isLoadingDeposit={isLoadingDeposit}
+        />
       ))}
     </Card>
   );

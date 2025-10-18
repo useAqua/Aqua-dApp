@@ -10,18 +10,9 @@ import {
 } from "~/server/helpers/vaults";
 
 export const vaultsRouter = createTRPCRouter({
-  getVaultTable: publicProcedure
-    .input(
-      z.object({
-        user: addressSchema.optional(),
-      }),
-    )
-    .query(async ({ ctx, input }): Promise<VaultTableEntry[]> => {
+  getVaultTable: publicProcedure.query(
+    async ({ ctx }): Promise<VaultTableEntry[]> => {
       const vaultAddresses = Array.from(ctx.vaultConfigs.keys());
-      const userLpWalletBalances = await getUserLPWalletBalances(
-        ctx.vaultTVL,
-        input.user ? getAddress(input.user) : undefined,
-      );
 
       const data: VaultTableEntry[] = [];
 
@@ -33,8 +24,7 @@ export const vaultsRouter = createTRPCRouter({
             address,
             name: `${long}/${short}`,
             tvlUsd: ctx.vaultTVL.get(address)?.usdValue ?? 0,
-            walletBalanceUsd:
-              userLpWalletBalances.get(address)?.balanceUsd ?? 0,
+            walletBalanceUsd: 0,
             userDepositUsd: 0,
             apy: 0,
             platformId: platformId ?? "Unknown",
@@ -45,6 +35,29 @@ export const vaultsRouter = createTRPCRouter({
       });
 
       return data;
+    },
+  ),
+
+  getUserLPBalances: publicProcedure
+    .input(
+      z.object({
+        user: addressSchema,
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const userLpWalletBalances = await getUserLPWalletBalances(
+        ctx.vaultTVL,
+        getAddress(input.user),
+      );
+
+      const balances: Record<string, { balance: number; balanceUsd: number }> =
+        {};
+
+      userLpWalletBalances.forEach((value, key) => {
+        balances[key] = value;
+      });
+
+      return balances;
     }),
 
   getSingleVaultInfo: publicProcedure
@@ -104,6 +117,7 @@ export const vaultsRouter = createTRPCRouter({
           lpToken: {
             ...lpToken,
             lpPrice: tvlData.lpPrice,
+            // name: `${long}/${short}`,
           },
         },
       };

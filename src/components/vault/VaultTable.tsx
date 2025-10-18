@@ -8,22 +8,30 @@ import {
 } from "@tanstack/react-table";
 import { useState } from "react";
 import type { VaultTableEntry } from "~/types";
-import { vaultTableColumns } from "./VaultTableColumns";
+import { createVaultTableColumns } from "./VaultTableColumns";
 import VaultDesktopTable from "./VaultDesktopTable";
 import VaultMobileList from "./VaultMobileList";
 
 interface VaultTableProps {
   data: VaultTableEntry[];
+  isLoadingWallet?: boolean;
+  isLoadingDeposit?: boolean;
 }
 
-const VaultTable = ({ data }: VaultTableProps) => {
+const VaultTable = ({
+  data,
+  isLoadingWallet = false,
+  isLoadingDeposit = false,
+}: VaultTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
+  const columns = createVaultTableColumns(isLoadingWallet, isLoadingDeposit);
+
   const table = useReactTable({
     data,
-    columns: vaultTableColumns,
+    columns,
     state: {
       sorting,
       columnFilters,
@@ -40,7 +48,11 @@ const VaultTable = ({ data }: VaultTableProps) => {
   return (
     <div className="space-y-4">
       <VaultDesktopTable table={table} />
-      <VaultMobileList table={table} />
+      <VaultMobileList
+        table={table}
+        isLoadingWallet={isLoadingWallet}
+        isLoadingDeposit={isLoadingDeposit}
+      />
     </div>
   );
 };

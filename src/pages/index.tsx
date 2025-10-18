@@ -11,6 +11,9 @@ import VaultTable from "~/components/vault/VaultTable";
 import { Tabs } from "@radix-ui/react-tabs";
 import { formatNumber } from "~/utils/numbers";
 import { useAccount } from "wagmi";
+import type { GetServerSideProps } from "next";
+import type { VaultTableEntry } from "~/types";
+import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -18,19 +21,36 @@ const portfolioTabs = [
   { id: "positions", label: "My Positions" },
 ] as const;
 
-export default function Home() {
+interface HomeProps {
+  vaultTable: VaultTableEntry[];
+}
+
+export default function Home({ vaultTable }: HomeProps) {
   const [, setActiveTab] = useState("all");
   const { address: connectedUser } = useAccount();
-  const { data: vaultTable } = api.vaults.getVaultTable.useQuery({
-    user: connectedUser,
-  });
+
+  const { data: userLPBalances, isLoading: isLoadingUserLPBalance } =
+    api.vaults.getUserLPBalances.useQuery(
+      { user: connectedUser! },
+      { enabled: !!connectedUser },
+    );
+
+  const vaultTableWithBalances = useMemo(() => {
+    if (!userLPBalances) return vaultTable;
+
+    return vaultTable.map((vault) => ({
+      ...vault,
+      walletBalanceUsd: userLPBalances[vault.address]?.balanceUsd ?? 0,
+    }));
+  }, [vaultTable, userLPBalances]);
+
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
-    vaultData: vaultTable,
+    vaultData: vaultTableWithBalances,
   });
 
   const { totalDeposited, totalAPY, totalTVL, totalVaults } = useMemo(
     () =>
-      (vaultTable ?? []).reduce(
+      (vaultTableWithBalances ?? []).reduce(
         (acc, vault) => {
           acc.totalDeposited += vault.userDepositUsd;
           acc.totalAPY += vault.apy;
@@ -45,7 +65,7 @@ export default function Home() {
           totalVaults: 0,
         },
       ),
-    [vaultTable],
+    [vaultTableWithBalances],
   );
 
   return (
@@ -100,8 +120,37 @@ export default function Home() {
           </div>
         </div>
 
-        <VaultTable data={filteredVaults} />
+        <VaultTable
+          data={filteredVaults}
+          isLoadingWallet={isLoadingUserLPBalance}
+          isLoadingDeposit={false} // TODO: Set to true after adding deposit fetching
+        />
       </Tabs>
     </PageLayout>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+  context,
+) => {
+  try {
+    const vaultTable = await fetchTRPCQuery<void, VaultTableEntry[]>(
+      context.req,
+      "vaults.getVaultTable",
+      undefined,
+    );
+
+    return {
+      props: {
+        vaultTable: vaultTable ?? [],
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching vault table:", error);
+    return {
+      props: {
+        vaultTable: [],
+      },
+    };
+  }
+};

@@ -1,5 +1,4 @@
 import "server-only";
-// import { env } from "~/env";
 // Don't let client use viem client
 // Make all rpc calls on backend
 import { createPublicClient, http } from "viem";

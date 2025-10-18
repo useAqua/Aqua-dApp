@@ -3,12 +3,19 @@ import { Badge } from "~/components/ui/badge";
 import VaultIcon from "./VaultIcon";
 import type { VaultTableEntry } from "~/types";
 import { formatNumber } from "~/utils/numbers";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface VaultMobileCardProps {
   vault: VaultTableEntry;
+  isLoadingWallet?: boolean;
+  isLoadingDeposit?: boolean;
 }
 
-const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
+const VaultMobileCard = ({
+  vault,
+  isLoadingWallet = false,
+  isLoadingDeposit = false,
+}: VaultMobileCardProps) => {
   return (
     <Link
       href={`/vault/${vault.id}`}
@@ -31,17 +38,21 @@ const VaultMobileCard = ({ vault }: VaultMobileCardProps) => {
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             WALLET
           </div>
-          <div className="font-semibold">
-            ${formatNumber(vault.walletBalanceUsd)}
-          </div>
+          <Skeleton isLoading={isLoadingWallet} className="h-5 w-full">
+            <div className="font-semibold">
+              ${formatNumber(vault.walletBalanceUsd)}
+            </div>
+          </Skeleton>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             DEPOSIT
           </div>
-          <div className="font-medium">
-            ${formatNumber(vault.userDepositUsd)}
-          </div>
+          <Skeleton isLoading={isLoadingDeposit} className="h-5 w-full">
+            <div className="font-medium">
+              ${formatNumber(vault.userDepositUsd)}
+            </div>
+          </Skeleton>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
