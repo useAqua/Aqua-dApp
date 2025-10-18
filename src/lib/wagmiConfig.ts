@@ -5,6 +5,7 @@ import {
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
+  walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
 export const wagmiConfig = getDefaultConfig({
@@ -14,7 +15,12 @@ export const wagmiConfig = getDefaultConfig({
   wallets: [
     {
       groupName: "Suggested",
-      wallets: [metaMaskWallet, rabbyWallet, rainbowWallet],
+      wallets: [
+        metaMaskWallet,
+        rabbyWallet,
+        rainbowWallet,
+        // walletConnectWallet,
+      ],
     },
   ],
 });
