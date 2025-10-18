@@ -97,10 +97,14 @@ export const vaultsRouter = createTRPCRouter({
           address: vaultConfig.strategy,
         },
         address: vaultAddress,
+        tvlUsd: tvlData.usdValue,
         tokens: {
           token0,
           token1,
-          lpToken,
+          lpToken: {
+            ...lpToken,
+            lpPrice: tvlData.lpPrice,
+          },
         },
       };
     }),

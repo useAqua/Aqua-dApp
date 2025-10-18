@@ -8,7 +8,10 @@ export function enrichVaultWithMockData(
     ? formatLastHarvest(vault.strategy.lastHarvest)
     : "Never";
 
-  const mockTvl = "$780,180";
+  const tvl = `$${vault.tvlUsd.toLocaleString("en-US", { 
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0 
+  })}`;
   const mockApy = "2,680%";
   const mockDeposit = "$0";
 
@@ -20,7 +23,7 @@ export function enrichVaultWithMockData(
     token0UsdValue: "$388,731",
     token1UsdValue: "$391,449",
     lpAmount: "13,323.777",
-    lpUsdValue: mockTvl,
+    lpUsdValue: tvl,
   };
 
   const apyBreakdown = {
@@ -31,7 +34,7 @@ export function enrichVaultWithMockData(
 
   return {
     ...vault,
-    tvl: mockTvl,
+    tvl,
     apyValue: mockApy,
     deposit: mockDeposit,
     lastHarvest: lastHarvestTime,

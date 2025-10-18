@@ -110,6 +110,7 @@ export const getTokenDetails = async (tokens: Address[]) => {
       name: nameResult.result as string,
       symbol: symbolResult.result as string,
       decimals: decimalsResult.result as number,
+      lpPrice: 0,
     };
   });
 };
