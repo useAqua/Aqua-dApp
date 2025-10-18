@@ -7,12 +7,14 @@ interface VaultMobileListProps {
   table: TableType<VaultTableEntry>;
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
+  isLoadingPoints?: boolean;
 }
 
 const VaultMobileList = ({
   table,
   isLoadingWallet = false,
   isLoadingDeposit = false,
+  isLoadingPoints = false,
 }: VaultMobileListProps) => {
   return (
     <Card className="md:hidden">
@@ -22,6 +24,7 @@ const VaultMobileList = ({
           vault={row.original}
           isLoadingWallet={isLoadingWallet}
           isLoadingDeposit={isLoadingDeposit}
+          isLoadingPoints={isLoadingPoints}
         />
       ))}
     </Card>

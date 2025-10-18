@@ -9,6 +9,7 @@ const columnHelper = createColumnHelper<VaultTableEntry>();
 export const createVaultTableColumns = (
   isLoadingWallet = false,
   isLoadingDeposit = false,
+  isLoadingPoints = false,
 ) => [
   columnHelper.accessor("name", {
     header: "VAULT",
@@ -27,6 +28,14 @@ export const createVaultTableColumns = (
     cell: (info) => (
       <Skeleton isLoading={isLoadingDeposit} className="h-5 w-full">
         <div className="font-medium">${formatNumber(info.getValue())}</div>
+      </Skeleton>
+    ),
+  }),
+  columnHelper.accessor("userPoints", {
+    header: "POINTS",
+    cell: (info) => (
+      <Skeleton isLoading={isLoadingPoints} className="h-5 w-full">
+        <div className="font-medium">{formatNumber(info.getValue())}</div>
       </Skeleton>
     ),
   }),

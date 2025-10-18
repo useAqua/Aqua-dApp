@@ -16,18 +16,24 @@ interface VaultTableProps {
   data: VaultTableEntry[];
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
+  isLoadingPoints?: boolean;
 }
 
 const VaultTable = ({
   data,
   isLoadingWallet = false,
   isLoadingDeposit = false,
+  isLoadingPoints = false,
 }: VaultTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const columns = createVaultTableColumns(isLoadingWallet, isLoadingDeposit);
+  const columns = createVaultTableColumns(
+    isLoadingWallet,
+    isLoadingDeposit,
+    isLoadingPoints,
+  );
 
   const table = useReactTable({
     data,
@@ -52,6 +58,7 @@ const VaultTable = ({
         table={table}
         isLoadingWallet={isLoadingWallet}
         isLoadingDeposit={isLoadingDeposit}
+        isLoadingPoints={isLoadingPoints}
       />
     </div>
   );

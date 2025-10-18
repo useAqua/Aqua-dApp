@@ -9,12 +9,14 @@ interface VaultMobileCardProps {
   vault: VaultTableEntry;
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
+  isLoadingPoints?: boolean;
 }
 
 const VaultMobileCard = ({
   vault,
   isLoadingWallet = false,
   isLoadingDeposit = false,
+  isLoadingPoints = false,
 }: VaultMobileCardProps) => {
   return (
     <Link
@@ -52,6 +54,14 @@ const VaultMobileCard = ({
             <div className="font-medium">
               ${formatNumber(vault.userDepositUsd)}
             </div>
+          </Skeleton>
+        </div>
+        <div>
+          <div className="text-muted-foreground mb-1 text-xs uppercase">
+            POINTS
+          </div>
+          <Skeleton isLoading={isLoadingPoints} className="h-5 w-full">
+            <div className="font-medium">{formatNumber(vault.userPoints)}</div>
           </Skeleton>
         </div>
         <div>

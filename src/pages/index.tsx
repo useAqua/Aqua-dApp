@@ -132,6 +132,7 @@ export default function Home({ vaultTable }: HomeProps) {
           data={filteredVaults}
           isLoadingWallet={isLoadingUserVaultData}
           isLoadingDeposit={false} // TODO: Set to true after adding deposit fetching
+          isLoadingPoints={isLoadingUserVaultData}
         />
       </Tabs>
     </PageLayout>
