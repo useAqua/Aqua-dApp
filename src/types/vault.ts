@@ -32,6 +32,7 @@ export interface VaultTableEntry {
   tvlUsd: number;
   walletBalanceUsd: number;
   userDepositUsd: number;
+  userPoints: number;
   apy: number;
   id: string;
   icon: string;

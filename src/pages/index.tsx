@@ -29,44 +29,49 @@ export default function Home({ vaultTable }: HomeProps) {
   const [, setActiveTab] = useState("all");
   const { address: connectedUser } = useAccount();
 
-  const { data: userLPBalances, isLoading: isLoadingUserLPBalance } =
-    api.vaults.getUserLPBalances.useQuery(
+  const { data: userVaultData, isLoading: isLoadingUserVaultData } =
+    api.vaults.getUserVaultData.useQuery(
       { user: connectedUser! },
       { enabled: !!connectedUser },
     );
 
+  // Merge vault table with user vault data
   const vaultTableWithBalances = useMemo(() => {
-    if (!userLPBalances) return vaultTable;
+    if (!userVaultData) return vaultTable;
 
     return vaultTable.map((vault) => ({
       ...vault,
-      walletBalanceUsd: userLPBalances[vault.address]?.balanceUsd ?? 0,
+      walletBalanceUsd: userVaultData[vault.address]?.balanceUsd ?? 0,
+      userPoints: userVaultData[vault.address]?.points ?? 0,
     }));
-  }, [vaultTable, userLPBalances]);
+  }, [vaultTable, userVaultData]);
 
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
   });
 
-  const { totalDeposited, totalAPY, totalTVL, totalVaults } = useMemo(
-    () =>
-      (vaultTableWithBalances ?? []).reduce(
-        (acc, vault) => {
-          acc.totalDeposited += vault.userDepositUsd;
-          acc.totalAPY += vault.apy;
-          acc.totalTVL += vault.tvlUsd;
-          acc.totalVaults += 1;
-          return acc;
-        },
-        {
-          totalDeposited: 0,
-          totalAPY: 0,
-          totalTVL: 0,
-          totalVaults: 0,
-        },
-      ),
-    [vaultTableWithBalances],
-  );
+  const { totalDeposited, totalAPY, totalTVL, totalVaults, totalPoints } =
+    useMemo(
+      () =>
+        (vaultTableWithBalances ?? []).reduce(
+          (acc, vault) => {
+            acc.totalDeposited += vault.userDepositUsd;
+            acc.totalAPY += vault.apy;
+            acc.totalTVL += vault.tvlUsd;
+            acc.totalVaults += 1;
+            acc.totalPoints += vault.userPoints;
+            return acc;
+          },
+          {
+            totalDeposited: 0,
+            totalAPY: 0,
+            totalTVL: 0,
+            totalVaults: 0,
+            totalPoints: 0,
+          },
+        ),
+      [vaultTableWithBalances],
+    );
 
   return (
     <PageLayout title="Vaults | Aqua" description="Manage your DeFi portfolio">
@@ -87,7 +92,10 @@ export default function Home({ vaultTable }: HomeProps) {
             value={`$${formatNumber(totalDeposited)}`}
           />
           <MetricCard label="AVG. APY" value={`${formatNumber(totalAPY)}`} />
-          <MetricCard label="ACCRUED POINTS" value="0" />
+          <MetricCard
+            label="ACCRUED POINTS"
+            value={formatNumber(totalPoints)}
+          />
         </div>
         <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
         <div className="flex flex-wrap gap-8">
@@ -122,7 +130,7 @@ export default function Home({ vaultTable }: HomeProps) {
 
         <VaultTable
           data={filteredVaults}
-          isLoadingWallet={isLoadingUserLPBalance}
+          isLoadingWallet={isLoadingUserVaultData}
           isLoadingDeposit={false} // TODO: Set to true after adding deposit fetching
         />
       </Tabs>

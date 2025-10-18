@@ -4,7 +4,7 @@ import type { VaultTableEntry, VaultDetailInfo } from "~/types";
 import { z } from "zod";
 import { addressSchema } from "~/env";
 import {
-  getUserLPWalletBalances,
+  getUserVaultData,
   getTokenDetails,
   getStrategyInfo,
 } from "~/server/helpers/vaults";
@@ -26,6 +26,7 @@ export const vaultsRouter = createTRPCRouter({
             tvlUsd: ctx.vaultTVL.get(address)?.usdValue ?? 0,
             walletBalanceUsd: 0,
             userDepositUsd: 0,
+            userPoints: 0,
             apy: 0,
             platformId: platformId ?? "Unknown",
             id: config.name.toLowerCase(),
@@ -38,26 +39,26 @@ export const vaultsRouter = createTRPCRouter({
     },
   ),
 
-  getUserLPBalances: publicProcedure
+  getUserVaultData: publicProcedure
     .input(
       z.object({
         user: addressSchema,
       }),
     )
     .query(async ({ ctx, input }) => {
-      const userLpWalletBalances = await getUserLPWalletBalances(
-        ctx.vaultTVL,
-        getAddress(input.user),
-      );
+      const userVaultData = await getUserVaultData(ctx, getAddress(input.user));
 
-      const balances: Record<string, { balance: number; balanceUsd: number }> =
-        {};
+      // Convert Map to Record for easier client-side usage
+      const data: Record<
+        string,
+        { balance: number; balanceUsd: number; points: number }
+      > = {};
 
-      userLpWalletBalances.forEach((value, key) => {
-        balances[key] = value;
+      userVaultData.forEach((value, key) => {
+        data[key] = value;
       });
 
-      return balances;
+      return data;
     }),
 
   getSingleVaultInfo: publicProcedure

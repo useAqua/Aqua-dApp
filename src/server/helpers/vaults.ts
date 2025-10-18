@@ -2,11 +2,12 @@ import {
   type Address,
   type ContractFunctionParameters,
   erc20Abi,
+  formatEther,
   formatUnits,
 } from "viem";
-import type { VaultTVLMap } from "~/types/contracts";
 import { rpcViemClient } from "~/lib/viemClient";
 import strategy_abi from "~/lib/contracts/strategy_gte_points";
+import { type createTRPCContext } from "~/server/trpc";
 
 type ERC20Call<
   T extends
@@ -18,54 +19,81 @@ type ERC20Call<
     | "totalSupply",
 > = ContractFunctionParameters<typeof erc20Abi, "view", T>;
 
-type StrategyCall<T extends "lastHarvest" | "depositFee" | "withdrawFee"> =
-  ContractFunctionParameters<typeof strategy_abi, "view", T>;
+type StrategyCall<
+  T extends "lastHarvest" | "depositFee" | "withdrawFee" | "getUserPoints",
+> = ContractFunctionParameters<typeof strategy_abi, "view", T>;
 
-type UserLPWalletBalances = Map<
+type UserVaultData = Map<
   Address,
   {
     balance: number;
     balanceUsd: number;
+    points: number;
   }
 >;
 
-export const getUserLPWalletBalances = async (
-  vaultTvl: VaultTVLMap,
+export const getUserVaultData = async (
+  ctx: Awaited<ReturnType<typeof createTRPCContext>>,
   user?: Address,
-): Promise<UserLPWalletBalances> => {
-  const walletLpBalance: UserLPWalletBalances = new Map();
-  if (!user) return walletLpBalance;
-  const entries = Array.from(vaultTvl.entries());
-  const calls = entries.map(
-    ([, { lpTokenAddress }]): ERC20Call<"balanceOf"> => ({
-      abi: erc20Abi,
-      address: lpTokenAddress,
-      functionName: "balanceOf",
-      args: [user],
-    }),
-  );
+): Promise<UserVaultData> => {
+  const userVaultData: UserVaultData = new Map();
+  if (!user) return userVaultData;
 
-  const result = await rpcViemClient.multicall({
-    contracts: calls,
-  });
+  const entries = Array.from(ctx.vaultTVL.entries());
+  const vaultConfigs = Array.from(ctx.vaultConfigs.entries());
+
+  // Create all calls in a single array for one multicall
+  const calls = [
+    // First add all balance calls
+    ...entries.map(
+      ([, { lpTokenAddress }]): ERC20Call<"balanceOf"> => ({
+        abi: erc20Abi,
+        address: lpTokenAddress,
+        functionName: "balanceOf",
+        args: [user],
+      }),
+    ),
+    // Then add all points calls
+    ...vaultConfigs.map(
+      ([, config]): StrategyCall<"getUserPoints"> => ({
+        abi: strategy_abi,
+        address: config.strategy,
+        functionName: "getUserPoints",
+        args: [user],
+      }),
+    ),
+  ];
+
+  // Execute single multicall
+  const results = await rpcViemClient.multicall({ contracts: calls });
+
+  // Extract results: first half is balances, second half is points
+  const balanceResults = results.slice(0, entries.length);
+  const pointsResults = results.slice(entries.length);
 
   entries.forEach(([vaultAddress, { decimals, lpPrice }], index) => {
-    const balanceResult = result[index];
+    const balanceResult = balanceResults[index];
+    const pointsResult = pointsResults[index];
 
     if (!balanceResult || balanceResult?.status === "failure") {
-      throw new Error(`Unable to get Lp balance: ${balanceResult?.error}`);
+      throw new Error(`Unable to get LP balance: ${balanceResult?.error}`);
     }
 
     const balance = +formatUnits(balanceResult.result, decimals);
     const balanceUsd = balance * lpPrice;
+    const points =
+      pointsResult?.status === "success"
+        ? +formatEther(pointsResult.result)
+        : 0;
 
-    walletLpBalance.set(vaultAddress, {
+    userVaultData.set(vaultAddress, {
       balance,
       balanceUsd,
+      points,
     });
   });
 
-  return walletLpBalance;
+  return userVaultData;
 };
 
 export const getTokenDetails = async (tokens: Address[]) => {
