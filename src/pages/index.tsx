@@ -89,19 +89,19 @@ export default function Home({ vaultTable }: HomeProps) {
         <div className="flex flex-wrap gap-8">
           <MetricCard
             label="DEPOSITED"
-            value={`$${formatNumber(totalDeposited)}`}
+            value={<>${formatNumber(totalDeposited)}</>}
           />
-          <MetricCard label="AVG. APY" value={`${formatNumber(totalAPY)}`} />
+          <MetricCard label="AVG. APY" value={<>{formatNumber(totalAPY)}%</>} />
           <MetricCard
             label="ACCRUED POINTS"
-            value={formatNumber(totalPoints)}
+            value={<>{formatNumber(totalPoints)}</>}
           />
         </div>
         <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
         <div className="flex flex-wrap gap-8">
           <MetricCard
             label="TVL"
-            value={`$${formatNumber(totalTVL)}`}
+            value={<>${formatNumber(totalTVL)}</>}
             className="text-right"
           />
           <MetricCard

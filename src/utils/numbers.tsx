@@ -1,5 +1,6 @@
 import { formatUnits } from "viem";
 import numeral from "numeral";
+import type { ReactNode } from "react";
 
 export function roundDown(float: number, decimals: number) {
   const factor = Math.pow(10, decimals);
@@ -15,7 +16,7 @@ export function inputPatternMatch(s: string, decimals = 18) {
   return pattern.test(s) && decimalPattern.test(s);
 }
 
-export function formatNumber(number: number | string, decimals = 3): string {
+export function formatNumber(number: number | string, decimals = 3): ReactNode {
   if (typeof number === "string") {
     number = Number.parseFloat(number);
     if (!Number.isFinite(number)) {
@@ -61,9 +62,6 @@ export function formatNumber(number: number | string, decimals = 3): string {
   }
   if (n < 0.001) {
     return formatSmallNumber(n);
-    // const factor = Math.pow(10, 10);
-    // const roundedDown = Math.floor(n * factor) / factor;
-    // return roundedDown.toExponential();
   }
   if (n > 999) {
     const num = numeral(n);
@@ -88,21 +86,20 @@ export function formatNumber(number: number | string, decimals = 3): string {
   return n.toString();
 }
 
-export function formatSmallNumber(number: number) {
+export function formatSmallNumber(number: number): ReactNode {
   const num = number.toString();
-  console.log(num, "NUM");
   if (num.includes("e")) {
-    console.log("e", num);
     // number is in scientific notation
     const sige = parseInt(num.split("e")[1] ?? "0");
     const nums = parseInt(
       num.split("e")[0]?.replace(".", "").slice(0, 3) ?? "0",
     );
 
-    console.log({ sige }, parseInt(num.split("e")[0] ?? "0"));
-    const result = "0.0" + `v${Math.abs(sige).toString()}` + nums;
-    console.log({ result });
-    return result;
+    return (
+      <>
+        0.0<sub>{Math.abs(sige).toString()}</sub>{nums}
+      </>
+    );
   }
   const decimalPart = num.split(".")[1];
   if (decimalPart === undefined) {
@@ -119,7 +116,11 @@ export function formatSmallNumber(number: number) {
   }
   const sig = decimalPart.slice(zeros, zeros + 3);
 
-  return "0.0" + `v${zeros.toString()}` + sig;
+  return (
+    <>
+      0.0<sub>{zeros.toString()}</sub>{sig}
+    </>
+  );
 }
 export function formatBigInt(b: bigint | undefined, fixed: number) {
   const parsed =
