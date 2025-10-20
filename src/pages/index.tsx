@@ -26,7 +26,7 @@ interface HomeProps {
 }
 
 export default function Home({ vaultTable }: HomeProps) {
-  const [, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("all");
   const { address: connectedUser } = useAccount();
 
   const { data: userVaultData, isLoading: isLoadingUserVaultData } =
@@ -46,8 +46,17 @@ export default function Home({ vaultTable }: HomeProps) {
     }));
   }, [vaultTable, userVaultData]);
 
+  const filterFn = useMemo<
+    ((vault: VaultTableEntry) => boolean) | undefined
+  >(() => {
+    if (activeTab === "all") return undefined;
+    if (activeTab === "saved") return undefined;
+    return (vault) => vault.userDepositUsd > 0;
+  }, [activeTab]);
+
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
+    filterFn,
   });
 
   const { totalDeposited, totalAPY, totalTVL, totalVaults, totalPoints } =
@@ -133,6 +142,13 @@ export default function Home({ vaultTable }: HomeProps) {
           isLoadingWallet={isLoadingUserVaultData}
           isLoadingDeposit={false} // TODO: Set to true after adding deposit fetching
           isLoadingPoints={isLoadingUserVaultData}
+          customEmptyTableMessage={
+            activeTab === "positions"
+              ? "You don't have any deposits in vaults yet."
+              : searchQuery
+                ? "No vaults found matching your search."
+                : "No vaults available at the moment."
+          }
         />
       </Tabs>
     </PageLayout>
