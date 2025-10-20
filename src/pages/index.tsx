@@ -14,6 +14,7 @@ import { useAccount } from "wagmi";
 import type { GetServerSideProps } from "next";
 import type { VaultTableEntry } from "~/types";
 import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
+import { useSavedVaults } from "~/hooks/use-saved-vaults";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -28,6 +29,7 @@ interface HomeProps {
 export default function Home({ vaultTable }: HomeProps) {
   const [activeTab, setActiveTab] = useState("all");
   const { address: connectedUser } = useAccount();
+  const { savedVaults } = useSavedVaults();
 
   const { data: userVaultData, isLoading: isLoadingUserVaultData } =
     api.vaults.getUserVaultData.useQuery(
@@ -50,9 +52,11 @@ export default function Home({ vaultTable }: HomeProps) {
     ((vault: VaultTableEntry) => boolean) | undefined
   >(() => {
     if (activeTab === "all") return undefined;
-    if (activeTab === "saved") return undefined;
+    if (activeTab === "saved") {
+      return (vault) => savedVaults.includes(vault.address);
+    }
     return (vault) => vault.userDepositUsd > 0;
-  }, [activeTab]);
+  }, [activeTab, savedVaults]);
 
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
@@ -145,9 +149,13 @@ export default function Home({ vaultTable }: HomeProps) {
           customEmptyTableMessage={
             activeTab === "positions"
               ? "You don't have any deposits in vaults yet."
-              : searchQuery
-                ? "No vaults found matching your search."
-                : "No vaults available at the moment."
+              : activeTab === "saved"
+                ? searchQuery
+                  ? "No saved vaults found matching your search."
+                  : "You haven't saved any vaults yet. Click the bookmark icon on a vault to save it."
+                : searchQuery
+                  ? "No vaults found matching your search."
+                  : "No vaults available at the moment."
           }
         />
       </Tabs>
