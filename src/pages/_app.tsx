@@ -7,6 +7,7 @@ import { Toaster } from "~/components/ui/toaster";
 import { Toaster as Sonner } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import merge from "lodash.merge";
+import TopProgressBar from "~/components/common/TopProgressBar";
 
 import "~/styles/globals.css";
 import { WagmiProvider } from "wagmi";
@@ -118,6 +119,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
           showRecentTransactions={true}
         >
           <TooltipProvider>
+            <TopProgressBar />
             <Toaster />
             <Sonner />
             <Component {...pageProps} />
