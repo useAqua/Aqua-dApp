@@ -9,12 +9,15 @@ import { enrichVaultWithMockData } from "~/utils/vaultHelpers";
 import type { GetServerSideProps } from "next";
 import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types";
 import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
+import { useSavedVaults } from "~/hooks/use-saved-vaults";
 
 interface VaultDetailProps {
   vault: EnrichedVaultInfo | null;
 }
 
 const VaultDetail = ({ vault }: VaultDetailProps) => {
+  const { isSaved, toggleSaveVault } = useSavedVaults();
+
   if (!vault) {
     return (
       <PageLayout title="Vault Not Found">
@@ -41,7 +44,14 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
         icon={<></>} // TODO: Add Icon for Vaults
         name={vault.name}
         platform={vault.platformId}
-        actions={<VaultActions />}
+        actions={
+          <VaultActions
+            vaultAddress={vault.address}
+            vaultName={vault.name}
+            isBookmarked={isSaved(vault.address)}
+            onBookmarkToggle={toggleSaveVault}
+          />
+        }
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
