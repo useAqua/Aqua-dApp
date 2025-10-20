@@ -43,7 +43,8 @@ export interface TokenInfo {
   name: string;
   symbol: string;
   decimals: number;
-  lpPrice: number;
+  price: number;
+  reserve: number;
 }
 
 export interface StrategyInfo {

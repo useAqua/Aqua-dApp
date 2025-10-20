@@ -1,7 +1,7 @@
 import "server-only";
 import { rpcViemClient } from "../viemClient";
 import lpShareCalculationOracle from "~/lib/contracts/lpShareCalculationOracle";
-import type { VaultConfigs, VaultTVLMap } from "~/types/contracts";
+import type { VaultConfigs, VaultTVLMap, LPInfo } from "~/types/contracts";
 import type { Address, ContractFunctionParameters } from "viem";
 import vault_abi from "~/lib/contracts/vault_abi";
 import { erc20Abi } from "viem";
@@ -9,7 +9,7 @@ import { erc20Abi } from "viem";
 type LPValueCall = ContractFunctionParameters<
   typeof lpShareCalculationOracle.abi,
   "view",
-  "calculateLPValue"
+  "getLPInfo"
 >;
 type VaultBalanceCall = ContractFunctionParameters<
   typeof vault_abi,
@@ -50,7 +50,7 @@ export async function getTvls(
     });
     lpValueCalls.push({
       ...lpShareCalculationOracle,
-      functionName: "calculateLPValue",
+      functionName: "getLPInfo",
       args: [lpTokens[i]!],
     });
     decimalsCalls.push({
@@ -93,13 +93,36 @@ export async function getTvls(
     }
 
     const balance = balanceResult!.result as bigint;
-    const lpPrice = lpValueResult!.result as bigint;
+    const lpInfoResult = lpValueResult!.result as readonly [
+      Address, // token0
+      Address, // token1
+      string, // symbol0
+      string, // symbol1
+      bigint, // reserve0
+      bigint, // reserve1
+      bigint, // price0
+      bigint, // price1
+      bigint, // fairValue
+    ];
     const decimals = decimalsResult!.result as number;
 
+    const lpInfo: LPInfo = {
+      token0: lpInfoResult[0],
+      token1: lpInfoResult[1],
+      symbol0: lpInfoResult[2],
+      symbol1: lpInfoResult[3],
+      reserve0: lpInfoResult[4],
+      reserve1: lpInfoResult[5],
+      price0: lpInfoResult[6],
+      price1: lpInfoResult[7],
+      fairValue: lpInfoResult[8],
+    };
+
+    const fairValue = lpInfo.fairValue;
     const decimalDivisor = BigInt(10 ** decimals);
-    const usdValueBigInt = (balance * lpPrice) / decimalDivisor;
+    const usdValueBigInt = (balance * fairValue) / decimalDivisor;
     const usdValue = Number(usdValueBigInt) / 1e18;
-    const lpPriceNumber = Number(lpPrice) / 1e18;
+    const lpPriceNumber = Number(fairValue) / 1e18;
 
     vaultTvls.set(vaults[i]!, {
       value: balance,
@@ -107,6 +130,7 @@ export async function getTvls(
       lpPrice: lpPriceNumber,
       lpTokenAddress: lpTokens[i]!,
       decimals,
+      lpInfo,
     });
   }
 

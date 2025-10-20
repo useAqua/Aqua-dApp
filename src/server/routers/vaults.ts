@@ -1,5 +1,5 @@
 import { createTRPCRouter, publicProcedure } from "~/server/trpc";
-import { type Address, getAddress } from "viem";
+import { type Address, formatEther, formatUnits, getAddress } from "viem";
 import type { VaultTableEntry, VaultDetailInfo } from "~/types";
 import { z } from "zod";
 import { addressSchema } from "~/env";
@@ -113,12 +113,20 @@ export const vaultsRouter = createTRPCRouter({
         address: vaultAddress,
         tvlUsd: tvlData.usdValue,
         tokens: {
-          token0,
-          token1,
+          token0: {
+            ...token0,
+            reserve: +formatUnits(tvlData.lpInfo.reserve0, token0.decimals),
+            price: +formatEther(tvlData.lpInfo.price0),
+          },
+          token1: {
+            ...token1,
+            reserve: +formatUnits(tvlData.lpInfo.reserve1, token1.decimals),
+            price: +formatEther(tvlData.lpInfo.price1),
+          },
           lpToken: {
             ...lpToken,
-            lpPrice: tvlData.lpPrice,
-            // name: `${long}/${short}`,
+            reserve: 0,
+            price: +formatEther(tvlData.lpInfo.fairValue),
           },
         },
       };

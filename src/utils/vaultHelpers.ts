@@ -19,15 +19,66 @@ export function enrichVaultWithMockData(
   const mockApy = "2,680%";
   const mockDeposit = "$0";
 
+  // Use actual token reserves and prices from TokenInfo
+  const token0Reserve = vault.tokens.token0.reserve;
+  const token1Reserve = vault.tokens.token1.reserve;
+  const lpReserve = vault.tokens.lpToken.reserve;
+
+  const token0UsdValue = token0Reserve * vault.tokens.token0.price;
+  const token1UsdValue = token1Reserve * vault.tokens.token1.price;
+
+  // Calculate lpUsdValue and projected lpReserve
+  let lpUsdValue: number;
+  let calculatedLpReserve: number;
+
+  if (lpReserve === 0) {
+    // If lpReserve is zero, calculate from token0 and token1 USD values
+    lpUsdValue = token0UsdValue + token1UsdValue;
+    // Calculate projected lpReserve based on LP token price
+    calculatedLpReserve =
+      vault.tokens.lpToken.price > 0
+        ? lpUsdValue / vault.tokens.lpToken.price
+        : 0;
+  } else {
+    // Use actual lpReserve value
+    calculatedLpReserve = lpReserve;
+    lpUsdValue = lpReserve * vault.tokens.lpToken.price;
+  }
+
+  // Calculate percentages based on token values
+  const totalTokenValue = token0UsdValue + token1UsdValue;
+  const token0Percentage =
+    totalTokenValue > 0 ? (token0UsdValue / totalTokenValue) * 100 : 50;
+  const token1Percentage =
+    totalTokenValue > 0 ? (token1UsdValue / totalTokenValue) * 100 : 50;
+
   const lpBreakdown = {
-    token0Percentage: 49.82,
-    token1Percentage: 50.18,
-    token0Amount: "1,734,349.9",
-    token1Amount: "102.37056",
-    token0UsdValue: "$388,731",
-    token1UsdValue: "$391,449",
-    lpAmount: "13,323.777",
-    lpUsdValue: tvl,
+    token0Percentage: parseFloat(token0Percentage.toFixed(2)),
+    token1Percentage: parseFloat(token1Percentage.toFixed(2)),
+    token0Amount: token0Reserve.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }),
+    token1Amount: token1Reserve.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 5,
+    }),
+    token0UsdValue: `$${token0UsdValue.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`,
+    token1UsdValue: `$${token1UsdValue.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`,
+    lpAmount: calculatedLpReserve.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3,
+    }),
+    lpUsdValue: `$${lpUsdValue.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    })}`,
   };
 
   const apyBreakdown = {
