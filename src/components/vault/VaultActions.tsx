@@ -60,7 +60,7 @@ const VaultActions = ({
         variant="outline"
         size="icon"
         onClick={handleBookmark}
-        className={isBookmarked ? "bg-accent/20 text-accent" : ""}
+        className={isBookmarked ? "bg-primary/20 text-primary" : ""}
         disabled={!vaultAddress}
       >
         <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />

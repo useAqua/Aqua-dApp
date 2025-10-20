@@ -12,7 +12,7 @@ interface VaultHeaderProps {
 const VaultHeader = ({
   icon,
   name,
-  chain = "BASE",
+  chain = "MEGAETH",
   platform,
   actions,
   className = "",
@@ -26,7 +26,7 @@ const VaultHeader = ({
           </div>
           <div>
             <h1 className="text-lg font-bold md:text-3xl">{name}</h1>
-            <div className="mt-2 flex items-center gap-2">
+            <div className="mt-2 flex items-center gap-8">
               <span className="text-muted-foreground text-sm">
                 CHAIN: <span className="text-foreground">{chain}</span>
               </span>
