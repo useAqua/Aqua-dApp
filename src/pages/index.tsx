@@ -72,28 +72,32 @@ export default function Home({ vaultTable }: HomeProps) {
     filterFn,
   });
 
-  const { totalDeposited, totalAPY, totalTVL, totalVaults, totalPoints } =
-    useMemo(
-      () =>
-        (vaultTableWithBalances ?? []).reduce(
-          (acc, vault) => {
-            acc.totalDeposited += vault.userDepositUsd;
-            acc.totalAPY += vault.apy;
-            acc.totalTVL += vault.tvlUsd;
-            acc.totalVaults += 1;
-            acc.totalPoints += vault.userPoints;
-            return acc;
-          },
-          {
-            totalDeposited: 0,
-            totalAPY: 0,
-            totalTVL: 0,
-            totalVaults: 0,
-            totalPoints: 0,
-          },
-        ),
-      [vaultTableWithBalances],
-    );
+  const { totalDeposited, avgApy, totalTVL, totalVaults, totalPoints } =
+    useMemo(() => {
+      const totals = (vaultTableWithBalances ?? []).reduce(
+        (acc, vault) => {
+          acc.totalDeposited += vault.userDepositUsd;
+          acc.totalApySum += vault.apy;
+          acc.totalTVL += vault.tvlUsd;
+          acc.totalVaults += 1;
+          acc.totalPoints += vault.userPoints;
+          return acc;
+        },
+        {
+          totalDeposited: 0,
+          totalApySum: 0,
+          totalTVL: 0,
+          totalVaults: 0,
+          totalPoints: 0,
+        },
+      );
+
+      return {
+        ...totals,
+        avgApy:
+          totals.totalVaults > 0 ? totals.totalApySum / totals.totalVaults : 0,
+      };
+    }, [vaultTableWithBalances]);
 
   return (
     <PageLayout title="Vaults | Aqua" description="Manage your DeFi portfolio">
@@ -113,7 +117,7 @@ export default function Home({ vaultTable }: HomeProps) {
             label="DEPOSITED"
             value={<>${formatNumber(totalDeposited)}</>}
           />
-          <MetricCard label="AVG. APY" value={<>{formatNumber(totalAPY)}%</>} />
+          <MetricCard label="AVG. APY" value={<>{formatNumber(avgApy)}%</>} />
           <MetricCard
             label="ACCRUED POINTS"
             value={<>{formatNumber(totalPoints)}</>}
