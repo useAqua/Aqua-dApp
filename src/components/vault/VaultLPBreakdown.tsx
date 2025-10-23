@@ -44,6 +44,10 @@ const VaultLPBreakdown = ({ vault }: VaultLPBreakdownProps) => {
         <LPChart
           primaryPercentage={lpBreakdown?.token0Percentage}
           accentPercentage={lpBreakdown?.token1Percentage}
+          primaryLabel={tokens?.token0?.symbol}
+          accentLabel={tokens?.token1?.symbol}
+          primaryIcon={"🔷"}
+          accentIcon={"⟠"}
         />
         <TokenBreakdownList tokens={tokenData} />
       </div>
