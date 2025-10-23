@@ -62,7 +62,7 @@ const VaultDepositTab = ({
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between">
           <p className="text-card-foreground/70 mb-2 text-sm">
             💰 Enter Amount
           </p>
