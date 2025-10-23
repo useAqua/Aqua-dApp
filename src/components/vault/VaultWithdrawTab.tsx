@@ -165,7 +165,7 @@ const VaultWithdrawTab = ({
             mining: `Withdrawing ${lpTokenSymbol} from ${vault.name}...`,
           }}
           className="w-full"
-          onRefresh={refreshVaultData}
+          onSuccess={refreshVaultData}
         >
           Withdraw
         </WriteButton>

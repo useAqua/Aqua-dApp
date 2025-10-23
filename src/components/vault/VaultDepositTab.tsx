@@ -155,7 +155,7 @@ const VaultDepositTab = ({
             mining: `Depositing ${lpTokenSymbol} into ${vault.name}...`,
           }}
           className="w-full"
-          onRefresh={refreshVaultData}
+          onSuccess={refreshVaultData}
         >
           Deposit
         </WriteButtonWithAllowance>
