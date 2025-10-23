@@ -3,18 +3,18 @@ import { rpcViemClient } from "../viemClient";
 import lpShareCalculationOracle from "~/lib/contracts/lpShareCalculationOracle";
 import type { VaultConfigs, VaultTVLMap, LPInfo } from "~/types/contracts";
 import type { Address, ContractFunctionParameters } from "viem";
+import vault_abi from "~/lib/contracts/vault_abi";
 import { erc20Abi } from "viem";
-import aqua_poinst_pool from "~/lib/contracts/aqua_poinst_pool";
 
 type LPValueCall = ContractFunctionParameters<
   typeof lpShareCalculationOracle.abi,
   "view",
   "getLPInfo"
 >;
-type VaultTVLCall = ContractFunctionParameters<
-  typeof aqua_poinst_pool.abi,
+type VaultBalanceCall = ContractFunctionParameters<
+  typeof vault_abi,
   "view",
-  "getUserLPStake"
+  "balance"
 >;
 type DecimalsCall = ContractFunctionParameters<
   typeof erc20Abi,
@@ -28,26 +28,25 @@ export async function getTvls(
   const vaultTvls: VaultTVLMap = new Map();
 
   const vaults: Address[] = [];
-  const strategys: Address[] = [];
   const lpTokens: Address[] = [];
 
-  vaultConfigs.forEach(({ lpToken, strategy }, vault) => {
+  vaultConfigs.forEach(({ lpToken }, vault) => {
     vaults.push(vault);
     lpTokens.push(lpToken);
-    strategys.push(strategy);
   });
 
   const numVaults = vaults.length;
 
-  const vaultBalanceCalls: VaultTVLCall[] = [];
+  const vaultBalanceCalls: VaultBalanceCall[] = [];
   const lpValueCalls: LPValueCall[] = [];
   const decimalsCalls: DecimalsCall[] = [];
 
   for (let i = 0; i < numVaults; i++) {
     vaultBalanceCalls.push({
-      ...aqua_poinst_pool,
-      functionName: "getUserLPStake",
-      args: [strategys[i]!, lpTokens[i]!],
+      abi: vault_abi,
+      address: vaults[i]!,
+      functionName: "balance",
+      args: [],
     });
     lpValueCalls.push({
       ...lpShareCalculationOracle,
