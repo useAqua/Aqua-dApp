@@ -34,6 +34,14 @@ const VaultDepositTab = ({
   const depositFee = formatFeePercentage(vault.strategy.depositFee);
   const lpTokenSymbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
 
+  const calculateAmountByPercentage = (percentage: number) => {
+    if (!lpTokenBalance) return "0";
+    return formatUnits(
+      (lpTokenBalance * BigInt(percentage * 100)) / BigInt(100),
+      vault.tokens.lpToken.decimals,
+    );
+  };
+
   const disableConditions = useMemo(() => {
     const conditions = [];
     if (!amount || parseFloat(amount) === 0) {
@@ -88,9 +96,7 @@ const VaultDepositTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() =>
-              setAmount((formattedLpTokenBalance * 0.25).toString())
-            }
+            onClick={() => setAmount(calculateAmountByPercentage(0.25))}
           >
             25%
           </Button>
@@ -98,9 +104,7 @@ const VaultDepositTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() =>
-              setAmount((formattedLpTokenBalance * 0.5).toString())
-            }
+            onClick={() => setAmount(calculateAmountByPercentage(0.5))}
           >
             50%
           </Button>
@@ -108,9 +112,7 @@ const VaultDepositTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() =>
-              setAmount((formattedLpTokenBalance * 0.75).toString())
-            }
+            onClick={() => setAmount(calculateAmountByPercentage(0.75))}
           >
             75%
           </Button>
@@ -118,7 +120,7 @@ const VaultDepositTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() => setAmount(formattedLpTokenBalance.toString())}
+            onClick={() => setAmount(calculateAmountByPercentage(1))}
           >
             100%
           </Button>

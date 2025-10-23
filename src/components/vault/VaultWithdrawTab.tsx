@@ -58,6 +58,14 @@ const VaultWithdrawTab = ({
     return conditions;
   }, [amount, formattedVaultBalance, userAddress]);
 
+  const calculateAmountByPercentage = (percentage: number) => {
+    if (!vaultBalance) return "0";
+    return formatUnits(
+      (vaultBalance * BigInt(percentage * 100)) / BigInt(100),
+      vault.tokens.lpToken.decimals,
+    );
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -97,7 +105,7 @@ const VaultWithdrawTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() => setAmount((formattedVaultBalance * 0.25).toString())}
+            onClick={() => setAmount(calculateAmountByPercentage(0.25))}
             disabled={!userAddress}
           >
             25%
@@ -106,7 +114,7 @@ const VaultWithdrawTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() => setAmount((formattedVaultBalance * 0.5).toString())}
+            onClick={() => setAmount(calculateAmountByPercentage(0.5))}
             disabled={!userAddress}
           >
             50%
@@ -115,7 +123,7 @@ const VaultWithdrawTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() => setAmount((formattedVaultBalance * 0.75).toString())}
+            onClick={() => setAmount(calculateAmountByPercentage(0.75))}
             disabled={!userAddress}
           >
             75%
@@ -124,7 +132,7 @@ const VaultWithdrawTab = ({
             variant="secondary"
             size="sm"
             className="flex-1"
-            onClick={() => setAmount(formattedVaultBalance.toString())}
+            onClick={() => setAmount(calculateAmountByPercentage(1))}
             disabled={!userAddress}
           >
             100%
