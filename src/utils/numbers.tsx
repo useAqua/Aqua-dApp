@@ -16,7 +16,7 @@ export function inputPatternMatch(s: string, decimals = 18) {
   return pattern.test(s) && decimalPattern.test(s);
 }
 
-export function formatNumber(number: number | string, decimals = 3): ReactNode {
+export function formatNumber(number: number | string, decimals = 4): ReactNode {
   if (typeof number === "string") {
     number = Number.parseFloat(number);
     if (!Number.isFinite(number)) {

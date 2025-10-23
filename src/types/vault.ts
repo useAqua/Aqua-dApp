@@ -75,19 +75,19 @@ export interface VaultDetailInfo {
  * All enriched fields are required (not optional)
  */
 export interface EnrichedVaultInfo extends VaultDetailInfo {
-  tvl: string;
+  tvl: number;
   apyValue: string;
-  deposit: string;
+  deposit: number;
   lastHarvest: string;
   lpBreakdown: {
     token0Percentage: number;
     token1Percentage: number;
-    token0Amount: string;
-    token1Amount: string;
-    token0UsdValue: string;
-    token1UsdValue: string;
-    lpAmount: string;
-    lpUsdValue: string;
+    token0Amount: number;
+    token1Amount: number;
+    token0UsdValue: number;
+    token1UsdValue: number;
+    lpAmount: number;
+    lpUsdValue: number;
   };
   apyBreakdown: {
     totalApy: string;

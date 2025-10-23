@@ -9,10 +9,7 @@ export function enrichVaultWithMockData(
       ? formatLastHarvest(vault.strategy.lastHarvest)
       : "Never";
 
-  const tvl = `$${vault.tvlUsd.toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })}`;
+  const tvl = vault.tvlUsd;
   const mockApy = "2,680%";
 
   // Use actual token reserves and prices from TokenInfo
@@ -52,39 +49,15 @@ export function enrichVaultWithMockData(
   const token1Percentage =
     totalTokenValue > 0 ? (token1UsdValue / totalTokenValue) * 100 : 50;
 
-  console.log({
-    token0Reserve,
-    token1Reserve,
-    lpReserve,
-  });
-
   const lpBreakdown = {
     token0Percentage: parseFloat(token0Percentage.toFixed(2)),
     token1Percentage: parseFloat(token1Percentage.toFixed(2)),
-    token0Amount: token0Reserve.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 5,
-    }),
-    token1Amount: token1Reserve.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 5,
-    }),
-    token0UsdValue: `$${token0UsdValue.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 5,
-    })}`,
-    token1UsdValue: `$${token1UsdValue.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    })}`,
-    lpAmount: lpReserve.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    }),
-    lpUsdValue: `$${lpUsdValue.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    })}`,
+    token0Amount: token0Reserve,
+    token1Amount: token1Reserve,
+    token0UsdValue: token0UsdValue,
+    token1UsdValue: token1UsdValue,
+    lpAmount: lpReserve,
+    lpUsdValue: lpUsdValue,
   };
 
   const apyBreakdown = {
@@ -96,7 +69,7 @@ export function enrichVaultWithMockData(
   return {
     ...vault,
     tvl,
-    deposit: "$0.00",
+    deposit: 0,
     apyValue: mockApy,
     lastHarvest: lastHarvestTime,
     lpBreakdown,

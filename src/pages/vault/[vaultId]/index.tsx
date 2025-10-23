@@ -45,16 +45,11 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
   });
 
   const depositedUsd = useMemo(() => {
-    if (!vault || !vaultBalance) return "$0";
-    const usdWorth =
-      +formatEther(vaultBalance) *
-      vault.sharePrice *
-      vault.tokens.lpToken.price;
+    if (!vault || !vaultBalance) return 0;
 
-    return `$${usdWorth.toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 4,
-    })}`;
+    return (
+      +formatEther(vaultBalance) * vault.sharePrice * vault.tokens.lpToken.price
+    );
   }, [vault, vaultBalance]);
 
   if (!vault) {
@@ -144,11 +139,6 @@ export const getServerSideProps: GetServerSideProps<VaultDetailProps> = async (
         },
       };
     }
-
-    console.log({
-      vaultData,
-      tokens: vaultData.tokens,
-    });
 
     const enrichedVault = enrichVaultWithMockData(vaultData);
 
