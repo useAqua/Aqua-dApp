@@ -2,7 +2,7 @@ import { type Abi, getAddress } from "viem";
 import { env } from "~/env";
 
 const contract = {
-  address: getAddress(env.AQUA_POINTS_POOL_ADDRESS),
+  address: getAddress(env.AQUA_POINTS_POOL_ADDRESS ?? "0x"),
   abi: [
     {
       inputs: [
