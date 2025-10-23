@@ -58,7 +58,7 @@ const VaultDepositTab = ({
           <p className="text-card-foreground/70 mb-2 text-sm">
             💰 Enter Amount
           </p>
-          <p className="text-card-foreground/70 mb-2 text-sm">
+          <p className="text-card-foreground/70 mb-2 text-sm max-sm:hidden">
             Balance: {lpTokenBalanceReactNode} {lpTokenSymbol}
           </p>
         </div>
@@ -79,42 +79,51 @@ const VaultDepositTab = ({
           <span>{lpTokenSymbol}</span>
         </Button>
       </div>
-
-      <div className="flex gap-2">
-        <Button
-          variant="secondary"
-          size="sm"
-          className="flex-1"
-          onClick={() => setAmount((formattedLpTokenBalance * 0.25).toString())}
-        >
-          25%
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="flex-1"
-          onClick={() => setAmount((formattedLpTokenBalance * 0.5).toString())}
-        >
-          50%
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="flex-1"
-          onClick={() => setAmount((formattedLpTokenBalance * 0.75).toString())}
-        >
-          75%
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          className="flex-1"
-          onClick={() => setAmount(formattedLpTokenBalance.toString())}
-        >
-          100%
-        </Button>
+      <div>
+        <p className="text-card-foreground/70 mb-2 text-sm sm:hidden">
+          Balance: {lpTokenBalanceReactNode} {lpTokenSymbol}
+        </p>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() =>
+              setAmount((formattedLpTokenBalance * 0.25).toString())
+            }
+          >
+            25%
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() =>
+              setAmount((formattedLpTokenBalance * 0.5).toString())
+            }
+          >
+            50%
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() =>
+              setAmount((formattedLpTokenBalance * 0.75).toString())
+            }
+          >
+            75%
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1"
+            onClick={() => setAmount(formattedLpTokenBalance.toString())}
+          >
+            100%
+          </Button>
+        </div>
       </div>
-
       <SecondaryCard className="p-4">
         <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
