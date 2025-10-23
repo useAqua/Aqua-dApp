@@ -76,7 +76,7 @@ export interface VaultDetailInfo {
  */
 export interface EnrichedVaultInfo extends VaultDetailInfo {
   tvl: number;
-  apyValue: string;
+  apyValue: number;
   deposit: number;
   lastHarvest: string;
   lpBreakdown: {
@@ -90,9 +90,8 @@ export interface EnrichedVaultInfo extends VaultDetailInfo {
     lpUsdValue: number;
   };
   apyBreakdown: {
-    totalApy: string;
-    vaultApr: string;
-    boostApr: string;
+    totalApy: number;
+    vaultApr: number;
   };
 }
 

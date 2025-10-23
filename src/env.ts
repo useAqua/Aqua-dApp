@@ -13,7 +13,7 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     RPC_URL: z.string().url().optional(),
-    GTE_API: z.string().url().optional(),
+    GTE_API: z.string().url(),
     AQUA_REGISTRY_ADDRESS: addressSchema,
     AQUA_POINTS_POOL_ADDRESS: addressSchema.optional(), // TODO: Make required
     LP_SHARE_CALCULATION_ORACLE: addressSchema,

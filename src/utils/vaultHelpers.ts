@@ -3,6 +3,10 @@ import { formatUnits } from "viem";
 
 export function enrichVaultWithMockData(
   vault: VaultDetailInfo,
+  apyData: {
+    apy: number;
+    apr: number;
+  },
 ): EnrichedVaultInfo {
   const lastHarvestTime =
     vault.strategy.lastHarvest && vault.strategy.lastHarvest > BigInt(0)
@@ -10,7 +14,6 @@ export function enrichVaultWithMockData(
       : "Never";
 
   const tvl = vault.tvlUsd;
-  const mockApy = "2,680%";
 
   // Use actual token reserves and prices from TokenInfo
   let token0Reserve = vault.tokens.token0.reserve;
@@ -61,16 +64,15 @@ export function enrichVaultWithMockData(
   };
 
   const apyBreakdown = {
-    totalApy: mockApy,
-    vaultApr: "330.28%",
-    boostApr: "68.15%",
+    totalApy: apyData.apy,
+    vaultApr: apyData.apr,
   };
 
   return {
     ...vault,
     tvl,
     deposit: 0,
-    apyValue: mockApy,
+    apyValue: apyData.apy,
     lastHarvest: lastHarvestTime,
     lpBreakdown,
     apyBreakdown,

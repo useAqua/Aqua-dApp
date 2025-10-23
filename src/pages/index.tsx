@@ -31,6 +31,8 @@ export default function Home({ vaultTable }: HomeProps) {
   const { address: connectedUser } = useAccount();
   const { savedVaults } = useSavedVaults();
 
+  const { data: apys } = api.gte.getMarketAPYs.useQuery();
+
   const { data: userVaultData, isLoading: isLoadingUserVaultData } =
     api.vaults.getUserVaultData.useQuery(
       { user: connectedUser! },
@@ -43,14 +45,16 @@ export default function Home({ vaultTable }: HomeProps) {
 
     return vaultTable.map((vault) => {
       const vaultData = userVaultData[vault.address];
+      const apy = apys ? (apys[vault.address]?.apy ?? 0) : 0;
       return {
         ...vault,
         walletBalanceUsd: vaultData?.balanceUsd ?? 0,
         userDepositUsd: vaultData?.vaultBalanceUsd ?? 0,
         userPoints: vaultData?.points ?? 0,
+        apy: apy * 100,
       };
     });
-  }, [vaultTable, userVaultData]);
+  }, [userVaultData, vaultTable, apys]);
 
   const filterFn = useMemo<
     ((vault: VaultTableEntry) => boolean) | undefined

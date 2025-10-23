@@ -41,7 +41,9 @@ export const createVaultTableColumns = (
   }),
   columnHelper.accessor("apy", {
     header: "APY",
-    cell: (info) => <div className="font-medium">{info.getValue()}%</div>,
+    cell: (info) => (
+      <div className="font-medium">{formatNumber(info.getValue())}%</div>
+    ),
   }),
   columnHelper.accessor("tvlUsd", {
     header: "TVL",

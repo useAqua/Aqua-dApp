@@ -18,8 +18,7 @@ const VaultMetrics = ({ vault }: VaultMetricsProps) => {
 
       <MetricCard
         label="APY"
-        value={vault.apyValue}
-        valueColor="accent"
+        value={<>{formatNumber(vault.apyValue * 100)}%</>}
         helpIcon
         type="card"
       />

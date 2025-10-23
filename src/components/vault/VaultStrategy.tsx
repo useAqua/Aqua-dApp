@@ -1,6 +1,7 @@
 import { Card } from "~/components/ui/card";
 import APYBreakdownGrid from "~/components/charts/APYBreakdownGrid";
 import type { EnrichedVaultInfo } from "~/types";
+import { formatNumber } from "~/utils/numbers";
 
 interface VaultStrategyProps {
   vault: EnrichedVaultInfo;
@@ -16,9 +17,14 @@ const VaultStrategy = ({
 }: VaultStrategyProps) => {
   const apyItems = vault.apyBreakdown
     ? [
-        { label: "TOTAL APY", value: vault.apyBreakdown.totalApy },
-        { label: "VAULT APR", value: vault.apyBreakdown.vaultApr },
-        { label: "BOOST APR", value: vault.apyBreakdown.boostApr },
+        {
+          label: "TOTAL APY",
+          value: <>{formatNumber(vault.apyBreakdown.totalApy * 100)}%</>,
+        },
+        {
+          label: "VAULT APR",
+          value: <>{formatNumber(vault.apyBreakdown.vaultApr * 100)}%</>,
+        },
       ]
     : undefined;
 

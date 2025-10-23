@@ -140,7 +140,21 @@ export const getServerSideProps: GetServerSideProps<VaultDetailProps> = async (
       };
     }
 
-    const enrichedVault = enrichVaultWithMockData(vaultData);
+    const apyData = await fetchTRPCQuery<
+      string,
+      {
+        apy: number;
+        apr: number;
+      }
+    >(context.req, "gte.getSingleMarketAPY", vaultData.tokens.lpToken.address);
+
+    const enrichedVault = enrichVaultWithMockData(
+      vaultData,
+      apyData ?? {
+        apy: 0,
+        apr: 0,
+      },
+    );
 
     return {
       props: {

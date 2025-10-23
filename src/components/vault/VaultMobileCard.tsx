@@ -68,7 +68,7 @@ const VaultMobileCard = ({
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             APY
           </div>
-          <div className="font-semibold">{vault.apy}%</div>
+          <div className="font-semibold">{formatNumber(vault.apy)}%</div>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">
