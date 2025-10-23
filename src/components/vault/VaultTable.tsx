@@ -21,6 +21,7 @@ interface VaultTableProps {
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
   isLoadingPoints?: boolean;
+  isLoadingAPY?: boolean;
   customEmptyTableMessage?: string;
 }
 
@@ -29,6 +30,7 @@ const VaultTable = ({
   isLoadingWallet = false,
   isLoadingDeposit = false,
   isLoadingPoints = false,
+  isLoadingAPY = false,
   customEmptyTableMessage = "You don't have any deposits in vaults yet.",
 }: VaultTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -43,6 +45,7 @@ const VaultTable = ({
     isLoadingWallet,
     isLoadingDeposit,
     isLoadingPoints,
+    isLoadingAPY,
   );
 
   const table = useReactTable({
@@ -82,6 +85,7 @@ const VaultTable = ({
             isLoadingWallet={isLoadingWallet}
             isLoadingDeposit={isLoadingDeposit}
             isLoadingPoints={isLoadingPoints}
+            isLoadingAPY={isLoadingAPY}
           />
 
           {table.getPageCount() > 1 && (

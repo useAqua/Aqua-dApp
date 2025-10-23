@@ -31,7 +31,8 @@ export default function Home({ vaultTable }: HomeProps) {
   const { address: connectedUser } = useAccount();
   const { savedVaults } = useSavedVaults();
 
-  const { data: apys } = api.gte.getMarketAPYs.useQuery();
+  const { data: apys, isLoading: isLoadingAPY } =
+    api.gte.getMarketAPYs.useQuery();
 
   const { data: userVaultData, isLoading: isLoadingUserVaultData } =
     api.vaults.getUserVaultData.useQuery(
@@ -152,8 +153,9 @@ export default function Home({ vaultTable }: HomeProps) {
         <VaultTable
           data={filteredVaults}
           isLoadingWallet={isLoadingUserVaultData}
-          isLoadingDeposit={false} // TODO: Set to true after adding deposit fetching
+          isLoadingDeposit={isLoadingUserVaultData}
           isLoadingPoints={isLoadingUserVaultData}
+          isLoadingAPY={isLoadingAPY}
           customEmptyTableMessage={
             activeTab === "positions"
               ? "You don't have any deposits in vaults yet."

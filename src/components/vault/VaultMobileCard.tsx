@@ -10,6 +10,7 @@ interface VaultMobileCardProps {
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
   isLoadingPoints?: boolean;
+  isLoadingAPY?: boolean;
 }
 
 const VaultMobileCard = ({
@@ -17,6 +18,7 @@ const VaultMobileCard = ({
   isLoadingWallet = false,
   isLoadingDeposit = false,
   isLoadingPoints = false,
+  isLoadingAPY = false,
 }: VaultMobileCardProps) => {
   return (
     <Link
@@ -68,7 +70,9 @@ const VaultMobileCard = ({
           <div className="text-muted-foreground mb-1 text-xs uppercase">
             APY
           </div>
-          <div className="font-semibold">{formatNumber(vault.apy)}%</div>
+          <Skeleton isLoading={isLoadingAPY} className="h-5 w-full">
+            <div className="font-semibold">{formatNumber(vault.apy)}%</div>
+          </Skeleton>
         </div>
         <div>
           <div className="text-muted-foreground mb-1 text-xs uppercase">

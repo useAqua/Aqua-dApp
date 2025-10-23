@@ -8,6 +8,7 @@ interface VaultMobileListProps {
   isLoadingWallet?: boolean;
   isLoadingDeposit?: boolean;
   isLoadingPoints?: boolean;
+  isLoadingAPY?: boolean;
 }
 
 const VaultMobileList = ({
@@ -15,6 +16,7 @@ const VaultMobileList = ({
   isLoadingWallet = false,
   isLoadingDeposit = false,
   isLoadingPoints = false,
+  isLoadingAPY = false,
 }: VaultMobileListProps) => {
   return (
     <Card className="md:hidden">
@@ -25,6 +27,7 @@ const VaultMobileList = ({
           isLoadingWallet={isLoadingWallet}
           isLoadingDeposit={isLoadingDeposit}
           isLoadingPoints={isLoadingPoints}
+          isLoadingAPY={isLoadingAPY}
         />
       ))}
     </Card>
