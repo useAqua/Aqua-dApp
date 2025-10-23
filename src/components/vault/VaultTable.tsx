@@ -3,15 +3,18 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getFilteredRowModel,
+  getPaginationRowModel,
   type SortingState,
   type ColumnFiltersState,
+  type PaginationState,
 } from "@tanstack/react-table";
 import { useState } from "react";
 import type { VaultTableEntry } from "~/types";
 import { createVaultTableColumns } from "./VaultTableColumns";
 import VaultDesktopTable from "./VaultDesktopTable";
 import VaultMobileList from "./VaultMobileList";
-import { Database } from "lucide-react";
+import { Database, ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "~/components/ui/button";
 
 interface VaultTableProps {
   data: VaultTableEntry[];
@@ -31,6 +34,10 @@ const VaultTable = ({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 5,
+  });
 
   const columns = createVaultTableColumns(
     isLoadingWallet,
@@ -45,13 +52,16 @@ const VaultTable = ({
       sorting,
       columnFilters,
       globalFilter,
+      pagination,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setGlobalFilter,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -73,6 +83,48 @@ const VaultTable = ({
             isLoadingDeposit={isLoadingDeposit}
             isLoadingPoints={isLoadingPoints}
           />
+
+          {table.getPageCount() > 1 && (
+            <div className="flex items-center justify-between px-2">
+              <div className="text-muted-foreground text-sm tracking-wide">
+                Showing{" "}
+                {table.getState().pagination.pageIndex *
+                  table.getState().pagination.pageSize +
+                  1}
+                -
+                {Math.min(
+                  (table.getState().pagination.pageIndex + 1) *
+                    table.getState().pagination.pageSize,
+                  table.getFilteredRowModel().rows.length,
+                )}{" "}
+                of {table.getFilteredRowModel().rows.length} vaults
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <div className="text-sm">
+                  Page {table.getState().pagination.pageIndex + 1} of{" "}
+                  {table.getPageCount()}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
