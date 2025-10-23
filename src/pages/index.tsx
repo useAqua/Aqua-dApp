@@ -77,7 +77,7 @@ export default function Home({ vaultTable }: HomeProps) {
       const totals = (vaultTableWithBalances ?? []).reduce(
         (acc, vault) => {
           acc.totalDeposited += vault.userDepositUsd;
-          acc.totalApySum += vault.apy;
+          acc.weightedApySum += vault.apy * vault.tvlUsd;
           acc.totalTVL += vault.tvlUsd;
           acc.totalVaults += 1;
           acc.totalPoints += vault.userPoints;
@@ -85,7 +85,7 @@ export default function Home({ vaultTable }: HomeProps) {
         },
         {
           totalDeposited: 0,
-          totalApySum: 0,
+          weightedApySum: 0,
           totalTVL: 0,
           totalVaults: 0,
           totalPoints: 0,
@@ -95,7 +95,7 @@ export default function Home({ vaultTable }: HomeProps) {
       return {
         ...totals,
         avgApy:
-          totals.totalVaults > 0 ? totals.totalApySum / totals.totalVaults : 0,
+          totals.totalTVL > 0 ? totals.weightedApySum / totals.totalTVL : 0,
       };
     }, [vaultTableWithBalances]);
 
