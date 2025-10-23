@@ -20,29 +20,33 @@ export function enrichVaultWithMockData(
   const mockDeposit = "$0";
 
   // Use actual token reserves and prices from TokenInfo
-  const token0Reserve = vault.tokens.token0.reserve;
-  const token1Reserve = vault.tokens.token1.reserve;
-  const lpReserve = vault.tokens.lpToken.reserve;
+  let token0Reserve = vault.tokens.token0.reserve;
+  let token1Reserve = vault.tokens.token1.reserve;
+  let lpReserve = vault.tokens.lpToken.reserve;
 
-  const token0UsdValue = token0Reserve * vault.tokens.token0.price;
-  const token1UsdValue = token1Reserve * vault.tokens.token1.price;
+  let token0UsdValue = token0Reserve * vault.tokens.token0.price;
+  let token1UsdValue = token1Reserve * vault.tokens.token1.price;
 
   // Calculate lpUsdValue and projected lpReserve
   let lpUsdValue: number;
-  let calculatedLpReserve: number;
 
   if (lpReserve === 0) {
     // If lpReserve is zero, calculate from token0 and token1 USD values
     lpUsdValue = token0UsdValue + token1UsdValue;
     // Calculate projected lpReserve based on LP token price
-    calculatedLpReserve =
+    lpReserve =
       vault.tokens.lpToken.price > 0
         ? lpUsdValue / vault.tokens.lpToken.price
         : 0;
   } else {
-    // Use actual lpReserve value
-    calculatedLpReserve = lpReserve;
+    // Determine the actual values from the tvl worth of the LP token
     lpUsdValue = lpReserve * vault.tokens.lpToken.price;
+    const totalTokenValue = token0UsdValue + token1UsdValue;
+    token0UsdValue = lpUsdValue * (token0UsdValue / totalTokenValue);
+    token1UsdValue = lpUsdValue * (token1UsdValue / totalTokenValue);
+
+    token0Reserve = token0UsdValue / vault.tokens.token0.price;
+    token1Reserve = token1UsdValue / vault.tokens.token1.price;
   }
 
   // Calculate percentages based on token values
@@ -71,7 +75,7 @@ export function enrichVaultWithMockData(
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     })}`,
-    lpAmount: calculatedLpReserve.toLocaleString("en-US", {
+    lpAmount: lpReserve.toLocaleString("en-US", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 3,
     }),

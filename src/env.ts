@@ -13,7 +13,9 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     RPC_URL: z.string().url().optional(),
+    GTE_API: z.string().url().optional(),
     AQUA_REGISTRY_ADDRESS: addressSchema,
+    AQUA_POINTS_POOL_ADDRESS: addressSchema,
     LP_SHARE_CALCULATION_ORACLE: addressSchema,
   },
 
@@ -33,8 +35,10 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_PROJECT_ID: process.env.NEXT_PUBLIC_PROJECT_ID,
+    GTE_API: process.env.GTE_API,
     RPC_URL: process.env.RPC_URL,
     AQUA_REGISTRY_ADDRESS: process.env.AQUA_REGISTRY_ADDRESS,
+    AQUA_POINTS_POOL_ADDRESS: process.env.AQUA_POINTS_POOL_ADDRESS,
     LP_SHARE_CALCULATION_ORACLE: process.env.LP_SHARE_CALCULATION_ORACLE,
   },
   /**

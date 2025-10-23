@@ -125,7 +125,7 @@ export const vaultsRouter = createTRPCRouter({
           },
           lpToken: {
             ...lpToken,
-            reserve: 0,
+            reserve: +formatUnits(tvlData.value, lpToken.decimals),
             price: +formatEther(tvlData.lpInfo.fairValue),
           },
         },
