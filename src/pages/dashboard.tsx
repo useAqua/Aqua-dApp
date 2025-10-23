@@ -27,6 +27,9 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
       { enabled: !!connectedUser },
     );
 
+  const { data: apys, isLoading: isLoadingAPY } =
+    api.gte.getMarketAPYs.useQuery();
+
   // Merge vault table with user vault data and filter only vaults with deposits
   const vaultTableWithBalances = useMemo(() => {
     if (!userVaultData) return [];
@@ -37,9 +40,10 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
         walletBalanceUsd: userVaultData[vault.address]?.balanceUsd ?? 0,
         userDepositUsd: userVaultData[vault.address]?.vaultBalanceUsd ?? 0,
         userPoints: userVaultData[vault.address]?.points ?? 0,
+        apy: apys ? (apys[vault.address]?.apy ?? 0) * 100 : 0,
       }))
       .filter((vault) => vault.userDepositUsd > 0);
-  }, [vaultTable, userVaultData]);
+  }, [userVaultData, vaultTable, apys]);
 
   const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
@@ -145,7 +149,8 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
             <VaultTable
               data={filteredVaults}
               isLoadingWallet={isLoadingUserVaultData}
-              isLoadingDeposit={false}
+              isLoadingDeposit={isLoadingUserVaultData}
+              isLoadingAPY={isLoadingAPY}
               isLoadingPoints={isLoadingUserVaultData}
               customEmptyTableMessage={
                 searchQuery
