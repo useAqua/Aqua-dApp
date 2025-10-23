@@ -3,7 +3,6 @@ import { Bricolage_Grotesque, Inter } from "next/font/google";
 import localFont from "next/font/local";
 import "@rainbow-me/rainbowkit/styles.css";
 import { api } from "~/utils/api";
-import { Toaster } from "~/components/ui/toaster";
 import { Toaster as Sonner } from "~/components/ui/sonner";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import merge from "lodash.merge";
@@ -120,7 +119,6 @@ const MyApp: AppType = ({ Component, pageProps }) => {
         >
           <TooltipProvider>
             <TopProgressBar />
-            <Toaster />
             <Sonner />
             <Component {...pageProps} />
           </TooltipProvider>
