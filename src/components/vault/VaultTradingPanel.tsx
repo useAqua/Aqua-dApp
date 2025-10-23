@@ -148,9 +148,12 @@ const VaultTradingPanel = ({ vault }: VaultTradingPanelProps) => {
 
           <SecondaryCard className="p-4">
             <p className="mb-2 text-sm">You deposit</p>
-            <p className="mb-1 text-2xl font-bold">{amount}</p>
+            <p className="mb-1 text-2xl font-bold">
+              {amount.length > 1 ? amount : "0"}
+            </p>
             <p className="text-secondary-foreground/80 text-xs">
-              ${formatNumber(Number(amount) * vault.tokens.lpToken.price)}
+              $
+              {formatNumber(Number(amount) * vault.tokens.lpToken.price) ?? "0"}
             </p>
             <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
               <p className="text-secondary-foreground/80 text-xs">

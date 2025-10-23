@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Button, type ButtonProps } from "./button";
 import {
   useAccount,
@@ -74,6 +74,12 @@ export const WriteButton = React.forwardRef<
     const { isConnected } = useAccount();
     const [txHash, setTxHash] = useState<Address | undefined>();
     const [callsId, setCallsId] = useState<string | undefined>();
+    const [isMounted, setIsMounted] = useState(false);
+
+    // Prevent hydration mismatch by tracking when component mounts
+    useEffect(() => {
+      setIsMounted(true);
+    }, []);
 
     const isBatched = !!contracts;
 
@@ -285,14 +291,17 @@ export const WriteButton = React.forwardRef<
     };
 
     // Dismiss mining toast when transaction is complete
-    React.useEffect(() => {
+    useEffect(() => {
       if (isTxSuccess || txError) {
         toast.dismiss("tx-mining");
       }
     }, [isTxSuccess, txError]);
 
     // Get button text based on state
-    const getButtonText = () => {
+    const getButtonText = useCallback(() => {
+      if (!isMounted) {
+        return children;
+      }
       if (!isConnected) {
         return "Connect Wallet";
       }
@@ -303,7 +312,7 @@ export const WriteButton = React.forwardRef<
         return "Processing...";
       }
       return children;
-    };
+    }, [isConnected, isLoading, isMounted, isPending, children]);
 
     return (
       <Button
