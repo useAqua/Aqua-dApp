@@ -61,6 +61,7 @@ export interface VaultDetailInfo {
   strategy: StrategyInfo;
   address: Address;
   tvlUsd: number;
+  sharePrice: number;
   tokens: {
     token0: TokenInfo;
     token1: TokenInfo;

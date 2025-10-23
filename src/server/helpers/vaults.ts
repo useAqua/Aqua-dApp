@@ -7,6 +7,7 @@ import {
 import { rpcViemClient } from "~/lib/viemClient";
 import strategy_abi from "~/lib/contracts/strategy_gte_points";
 import { type createTRPCContext } from "~/server/trpc";
+import vault_abi from "~/lib/contracts/vault_abi";
 
 type ERC20Call<
   T extends
@@ -21,6 +22,12 @@ type ERC20Call<
 type StrategyCall<
   T extends "lastHarvest" | "depositFee" | "withdrawFee" | "getUserPoints",
 > = ContractFunctionParameters<typeof strategy_abi, "view", T>;
+
+type VaultSharePriceCall = ContractFunctionParameters<
+  typeof vault_abi,
+  "view",
+  "getPricePerFullShare"
+>;
 
 type UserVaultData = Map<
   Address,
@@ -140,7 +147,10 @@ export const getTokenDetails = async (tokens: Address[]) => {
   });
 };
 
-export const getStrategyInfo = async (strategyAddress: Address) => {
+export const getStrategyInfoAndVaultSharePrice = async (
+  strategyAddress: Address,
+  vaultAddress: Address,
+) => {
   const calls: StrategyCall<"lastHarvest" | "depositFee" | "withdrawFee">[] = [
     {
       abi: strategy_abi,
@@ -159,16 +169,26 @@ export const getStrategyInfo = async (strategyAddress: Address) => {
     },
   ];
 
+  const vaultSharePriceCall: VaultSharePriceCall = {
+    abi: vault_abi,
+    address: vaultAddress,
+    functionName: "getPricePerFullShare",
+  };
+
   const result = await rpcViemClient.multicall({
-    contracts: calls,
+    contracts: [...calls, vaultSharePriceCall],
   });
 
   return {
-    lastHarvest:
-      result[0]?.status === "success" ? (result[0].result as bigint) : null,
-    depositFee:
-      result[1]?.status === "success" ? (result[1].result as bigint) : null,
-    withdrawFee:
-      result[2]?.status === "success" ? (result[2].result as bigint) : null,
+    strategyInfo: {
+      lastHarvest:
+        result[0]?.status === "success" ? (result[0].result as bigint) : null,
+      depositFee:
+        result[1]?.status === "success" ? (result[1].result as bigint) : null,
+      withdrawFee:
+        result[2]?.status === "success" ? (result[2].result as bigint) : null,
+    },
+    sharePrice:
+      result[3]?.status === "success" ? (result[3].result as bigint) : null,
   };
 };

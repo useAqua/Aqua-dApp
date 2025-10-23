@@ -6,7 +6,7 @@ import { addressSchema } from "~/env";
 import {
   getUserVaultData,
   getTokenDetails,
-  getStrategyInfo,
+  getStrategyInfoAndVaultSharePrice,
 } from "~/server/helpers/vaults";
 
 export const vaultsRouter = createTRPCRouter({
@@ -79,13 +79,13 @@ export const vaultsRouter = createTRPCRouter({
 
       const [platformId, long, short] = vaultConfig.name.split("-");
 
-      const [tokenDetails, strategyInfo] = await Promise.all([
+      const [tokenDetails, { strategyInfo, sharePrice }] = await Promise.all([
         getTokenDetails([
           vaultConfig.token0,
           vaultConfig.token1,
           vaultConfig.lpToken,
         ]),
-        getStrategyInfo(vaultConfig.strategy),
+        getStrategyInfoAndVaultSharePrice(vaultConfig.strategy, vaultAddress),
       ]);
 
       if (tokenDetails.length !== 3) {
@@ -112,6 +112,7 @@ export const vaultsRouter = createTRPCRouter({
         },
         address: vaultAddress,
         tvlUsd: tvlData.usdValue,
+        sharePrice: +formatEther(sharePrice ?? BigInt(0)),
         tokens: {
           token0: {
             ...token0,

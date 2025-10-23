@@ -30,7 +30,7 @@ const VaultDepositTab = ({
   }, [lpTokenBalance, vault.tokens.lpToken.decimals]);
 
   const depositFee = formatFeePercentage(vault.strategy.depositFee);
-  const lpTokenSymbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol} LP`;
+  const lpTokenSymbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
 
   const disableConditions = useMemo(() => {
     const conditions = [];
@@ -114,16 +114,16 @@ const VaultDepositTab = ({
       </div>
 
       <SecondaryCard className="p-4">
-        <p className="mb-2 text-sm">You deposit</p>
+        <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
-          {amount.length > 1 ? amount : "0"}
+          {formatNumber(Number(amount || 0) / vault.sharePrice)}
         </p>
-        <p className="text-secondary-foreground/80 text-xs">
+        <p className="text-secondary-foreground/80 mt-1 text-xs">
           ${formatNumber(Number(amount) * vault.tokens.lpToken.price) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
-            {lpTokenSymbol}
+            a{lpTokenSymbol}
           </p>
         </div>
       </SecondaryCard>
