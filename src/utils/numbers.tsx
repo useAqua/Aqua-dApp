@@ -97,7 +97,8 @@ export function formatSmallNumber(number: number): ReactNode {
 
     return (
       <>
-        0.0<sub>{Math.abs(sige).toString()}</sub>{nums}
+        0.0<sub>{Math.abs(sige).toString()}</sub>
+        {nums}
       </>
     );
   }
@@ -118,7 +119,8 @@ export function formatSmallNumber(number: number): ReactNode {
 
   return (
     <>
-      0.0<sub>{zeros.toString()}</sub>{sig}
+      0.0<sub>{zeros.toString()}</sub>
+      {sig}
     </>
   );
 }
@@ -128,3 +130,7 @@ export function formatBigInt(b: bigint | undefined, fixed: number) {
     10 ** fixed;
   return parseFloat(parsed.toFixed(fixed));
 }
+
+export const enforceOnlyNumbers = (value: string): string => {
+  return value.replace(/[^0-9.]/g, "").replace(/^(\d*\.\d*)\./g, "$1"); // Allow only numbers and a single decimal point
+};

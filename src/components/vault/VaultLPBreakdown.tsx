@@ -27,7 +27,7 @@ const VaultLPBreakdown = ({ vault }: VaultLPBreakdownProps) => {
         },
         {
           icon: "🔄",
-          symbol: tokens.lpToken.symbol ?? "LP",
+          symbol: "LP",
           amount: lpBreakdown.lpAmount,
           usdValue: lpBreakdown.lpUsdValue,
         },
@@ -49,7 +49,7 @@ const VaultLPBreakdown = ({ vault }: VaultLPBreakdownProps) => {
           primaryIcon={"🔷"}
           accentIcon={"⟠"}
         />
-        <TokenBreakdownList tokens={tokenData} />
+        {tokenData && <TokenBreakdownList tokens={tokenData} />}
       </div>
     </Card>
   );
