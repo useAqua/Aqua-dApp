@@ -5,9 +5,12 @@ import Image from "next/image";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { cn } from "~/lib/utils";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
+import { RefreshCw } from "lucide-react";
+import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 
 const Header = () => {
   const router = useRouter();
+  const { refreshVaultData, isRefreshing } = useVaultRefresh();
 
   const navItems = [
     { path: "/dashboard", label: "Dashboard" },
@@ -49,7 +52,17 @@ const Header = () => {
           ))}
         </nav>
 
-        <CustomConnectButton />
+        <div className="flex items-center gap-4">
+          <button
+            className={cn("cursor-pointer hover:scale-95 active:scale-105", {
+              "animate-spin": isRefreshing,
+            })}
+            onClick={refreshVaultData}
+          >
+            <RefreshCw />
+          </button>
+          <CustomConnectButton />
+        </div>
       </div>
     </header>
   );

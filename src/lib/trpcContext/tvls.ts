@@ -3,7 +3,6 @@ import { rpcViemClient } from "../viemClient";
 import lpShareCalculationOracle from "~/lib/contracts/lpShareCalculationOracle";
 import type { VaultConfigs, VaultTVLMap, LPInfo } from "~/types/contracts";
 import type { Address, ContractFunctionParameters } from "viem";
-import vault_abi from "~/lib/contracts/vault_abi";
 import { erc20Abi } from "viem";
 import aqua_poinst_pool from "~/lib/contracts/aqua_poinst_pool";
 
@@ -137,40 +136,4 @@ export async function getTvls(
   }
 
   return vaultTvls;
-}
-
-let cachedTvls: {
-  tvls: VaultTVLMap | null;
-  timestamp: number;
-} = {
-  tvls: null,
-  timestamp: 0,
-};
-
-const CACHE_TTL = 15 * 60 * 1000;
-
-export async function getCachedTvls(
-  vaultConfigs: VaultConfigs,
-): Promise<VaultTVLMap> {
-  const now = Date.now();
-
-  if (cachedTvls.tvls && now - cachedTvls.timestamp < CACHE_TTL) {
-    return cachedTvls.tvls;
-  }
-
-  const tvls = await getTvls(vaultConfigs);
-
-  cachedTvls = {
-    tvls,
-    timestamp: now,
-  };
-
-  return tvls;
-}
-
-export function invalidateTvlCache(): void {
-  cachedTvls = {
-    tvls: null,
-    timestamp: 0,
-  };
 }

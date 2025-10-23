@@ -18,7 +18,7 @@ let unifiedCache: {
   timestamp: 0,
 };
 
-const CACHE_TTL = 15 * 60 * 1000;
+const CACHE_TTL = 5 * 60 * 1000;
 
 export async function getUnifiedContextData(): Promise<UnifiedContextData> {
   const now = Date.now();
@@ -40,6 +40,10 @@ export async function getUnifiedContextData(): Promise<UnifiedContextData> {
     data,
     timestamp: now,
   };
+
+  console.log({
+    updated: new Date(unifiedCache.timestamp).toISOString(),
+  });
 
   return data;
 }
