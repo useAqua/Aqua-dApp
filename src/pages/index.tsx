@@ -41,11 +41,15 @@ export default function Home({ vaultTable }: HomeProps) {
   const vaultTableWithBalances = useMemo(() => {
     if (!userVaultData) return vaultTable;
 
-    return vaultTable.map((vault) => ({
-      ...vault,
-      walletBalanceUsd: userVaultData[vault.address]?.balanceUsd ?? 0,
-      userPoints: userVaultData[vault.address]?.points ?? 0,
-    }));
+    return vaultTable.map((vault) => {
+      const vaultData = userVaultData[vault.address];
+      return {
+        ...vault,
+        walletBalanceUsd: vaultData?.balanceUsd ?? 0,
+        userDepositUsd: vaultData?.vaultBalanceUsd ?? 0,
+        userPoints: vaultData?.points ?? 0,
+      };
+    });
   }, [vaultTable, userVaultData]);
 
   const filterFn = useMemo<

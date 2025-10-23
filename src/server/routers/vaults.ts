@@ -51,7 +51,13 @@ export const vaultsRouter = createTRPCRouter({
       // Convert Map to Record for easier client-side usage
       const data: Record<
         string,
-        { balance: number; balanceUsd: number; points: number }
+        {
+          balance: number;
+          balanceUsd: number;
+          points: number;
+          vaultBalance: number;
+          vaultBalanceUsd: number;
+        }
       > = {};
 
       userVaultData.forEach((value, key) => {

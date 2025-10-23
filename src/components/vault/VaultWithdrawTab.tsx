@@ -64,7 +64,7 @@ const VaultWithdrawTab = ({
             💰 Enter Amount
           </p>
           <p className="text-card-foreground/70 mb-2 text-sm">
-            Deposited: {vaultBalanceReactNode} a{lpTokenSymbol}
+            Share Balance: {vaultBalanceReactNode} a{lpTokenSymbol}
           </p>
         </div>
 

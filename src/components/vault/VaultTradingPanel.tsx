@@ -1,43 +1,23 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Card } from "~/components/ui/card";
 import type { EnrichedVaultInfo } from "~/types";
-import { erc20Abi, formatUnits } from "viem";
+import { formatUnits } from "viem";
 import { useMemo } from "react";
-import { useAccount, useReadContract } from "wagmi";
 import { formatNumber } from "~/utils/numbers";
 import VaultDepositTab from "./VaultDepositTab";
 import VaultWithdrawTab from "./VaultWithdrawTab";
-import vault_abi from "~/lib/contracts/vault_abi";
 
 interface VaultTradingPanelProps {
   vault: EnrichedVaultInfo;
+  lpTokenBalance: bigint | undefined;
+  vaultBalance: bigint | undefined;
 }
 
-const VaultTradingPanel = ({ vault }: VaultTradingPanelProps) => {
-  const { address: userAddress } = useAccount();
-
-  // LP token balance for deposits
-  const { data: lpTokenBalance } = useReadContract({
-    address: vault.tokens.lpToken.address,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
-  });
-
-  // Vault balance for withdrawals (user's shares in the vault)
-  const { data: vaultBalance } = useReadContract({
-    address: vault.address,
-    abi: vault_abi,
-    functionName: "balanceOf",
-    args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress,
-    },
-  });
-
+const VaultTradingPanel = ({
+  vault,
+  lpTokenBalance,
+  vaultBalance,
+}: VaultTradingPanelProps) => {
   const lpTokenBalanceReactNode = useMemo(() => {
     if (!lpTokenBalance) return "0";
     const formatted = Number(

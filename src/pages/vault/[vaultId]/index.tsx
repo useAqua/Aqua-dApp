@@ -10,6 +10,9 @@ import type { GetServerSideProps } from "next";
 import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types";
 import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 import { useSavedVaults } from "~/hooks/use-saved-vaults";
+import { useAccount, useReadContract } from "wagmi";
+import { erc20Abi, formatEther } from "viem";
+import { useMemo } from "react";
 
 interface VaultDetailProps {
   vault: EnrichedVaultInfo | null;
@@ -17,6 +20,42 @@ interface VaultDetailProps {
 
 const VaultDetail = ({ vault }: VaultDetailProps) => {
   const { isSaved, toggleSaveVault } = useSavedVaults();
+  const { address: userAddress } = useAccount();
+
+  // LP token balance for deposits
+  const { data: lpTokenBalance } = useReadContract({
+    address: vault?.tokens.lpToken.address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress && !!vault,
+    },
+  });
+
+  // Vault balance for withdrawals (user's shares in the vault)
+  const { data: vaultBalance } = useReadContract({
+    address: vault?.address,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress && !!vault,
+    },
+  });
+
+  const depositedUsd = useMemo(() => {
+    if (!vault || !vaultBalance) return "$0";
+    const usdWorth =
+      +formatEther(vaultBalance) *
+      vault.sharePrice *
+      vault.tokens.lpToken.price;
+
+    return `$${usdWorth.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 4,
+    })}`;
+  }, [vault, vaultBalance]);
 
   if (!vault) {
     return (
@@ -56,18 +95,22 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:hidden">
-          <VaultMetrics vault={vault} />
+          <VaultMetrics vault={{ ...vault, deposit: depositedUsd }} />
         </div>
         <div className="space-y-6 max-lg:order-1 lg:col-span-2">
           <div className="max-lg:hidden">
-            <VaultMetrics vault={vault} />
+            <VaultMetrics vault={{ ...vault, deposit: depositedUsd }} />
           </div>
           <VaultLPBreakdown vault={vault} />
           <VaultStrategy vault={vault} />
         </div>
 
         <div className="lg:col-span-1">
-          <VaultTradingPanel vault={vault} />
+          <VaultTradingPanel
+            vault={vault}
+            lpTokenBalance={lpTokenBalance}
+            vaultBalance={vaultBalance}
+          />
         </div>
       </div>
     </PageLayout>
@@ -101,6 +144,11 @@ export const getServerSideProps: GetServerSideProps<VaultDetailProps> = async (
         },
       };
     }
+
+    console.log({
+      vaultData,
+      tokens: vaultData.tokens,
+    });
 
     const enrichedVault = enrichVaultWithMockData(vaultData);
 

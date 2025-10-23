@@ -23,11 +23,8 @@ type StrategyCall<
   T extends "lastHarvest" | "depositFee" | "withdrawFee" | "getUserPoints",
 > = ContractFunctionParameters<typeof strategy_abi, "view", T>;
 
-type VaultSharePriceCall = ContractFunctionParameters<
-  typeof vault_abi,
-  "view",
-  "getPricePerFullShare"
->;
+type VaultCall<T extends "getPricePerFullShare" | "balanceOf"> =
+  ContractFunctionParameters<typeof vault_abi, "view", T>;
 
 type UserVaultData = Map<
   Address,
@@ -35,6 +32,8 @@ type UserVaultData = Map<
     balance: number;
     balanceUsd: number;
     points: number;
+    vaultBalance: number;
+    vaultBalanceUsd: number;
   }
 >;
 
@@ -68,32 +67,69 @@ export const getUserVaultData = async (
         args: [user],
       }),
     ),
+    // Add vault balance calls
+    ...vaultConfigs.map(
+      ([address]): VaultCall<"balanceOf"> => ({
+        abi: vault_abi,
+        address,
+        functionName: "balanceOf",
+        args: [user],
+      }),
+    ),
+    // Add share price calls
+    ...vaultConfigs.map(
+      ([address]): VaultCall<"getPricePerFullShare"> => ({
+        abi: vault_abi,
+        address,
+        functionName: "getPricePerFullShare",
+      }),
+    ),
   ];
 
   // Execute single multicall
   const results = await rpcViemClient.multicall({ contracts: calls });
 
-  // Extract results: first half is balances, second half is points
+  // Extract results: LP balances, points, vault balances, share prices
   const balanceResults = results.slice(0, entries.length);
-  const pointsResults = results.slice(entries.length);
+  const pointsResults = results.slice(entries.length, entries.length * 2);
+  const vaultBalanceResults = results.slice(
+    entries.length * 2,
+    entries.length * 3,
+  );
+  const sharePriceResults = results.slice(entries.length * 3);
 
   entries.forEach(([vaultAddress, { decimals, lpPrice }], index) => {
     const balanceResult = balanceResults[index];
     const pointsResult = pointsResults[index];
+    const vaultBalanceResult = vaultBalanceResults[index];
+    const sharePriceResult = sharePriceResults[index];
 
     if (!balanceResult || balanceResult?.status === "failure") {
       throw new Error(`Unable to get LP balance: ${balanceResult?.error}`);
     }
 
-    const balance = +formatUnits(balanceResult.result, decimals);
+    const balance = +formatUnits(balanceResult.result as bigint, decimals);
     const balanceUsd = balance * lpPrice;
     const points =
       pointsResult?.status === "success" ? Number(pointsResult.result) : 0;
+    const vaultBalance =
+      vaultBalanceResult?.status === "success"
+        ? +formatUnits(vaultBalanceResult.result as bigint, decimals)
+        : 0;
+
+    // Calculate vaultBalanceUsd using sharePrice
+    const sharePrice =
+      sharePriceResult?.status === "success"
+        ? +formatUnits(sharePriceResult.result as bigint, decimals)
+        : 0;
+    const vaultBalanceUsd = vaultBalance * sharePrice * lpPrice;
 
     userVaultData.set(vaultAddress, {
       balance,
       balanceUsd,
       points,
+      vaultBalance,
+      vaultBalanceUsd,
     });
   });
 
@@ -169,7 +205,7 @@ export const getStrategyInfoAndVaultSharePrice = async (
     },
   ];
 
-  const vaultSharePriceCall: VaultSharePriceCall = {
+  const vaultSharePriceCall: VaultCall<"getPricePerFullShare"> = {
     abi: vault_abi,
     address: vaultAddress,
     functionName: "getPricePerFullShare",

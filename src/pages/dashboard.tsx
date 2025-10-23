@@ -35,6 +35,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
       .map((vault) => ({
         ...vault,
         walletBalanceUsd: userVaultData[vault.address]?.balanceUsd ?? 0,
+        userDepositUsd: userVaultData[vault.address]?.vaultBalanceUsd ?? 0,
         userPoints: userVaultData[vault.address]?.points ?? 0,
       }))
       .filter((vault) => vault.userDepositUsd > 0);

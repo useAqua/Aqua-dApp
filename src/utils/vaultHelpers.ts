@@ -4,9 +4,6 @@ import { formatUnits } from "viem";
 export function enrichVaultWithMockData(
   vault: VaultDetailInfo,
 ): EnrichedVaultInfo {
-  console.log({
-    lastHarvestTime: vault.strategy.lastHarvest,
-  });
   const lastHarvestTime =
     vault.strategy.lastHarvest && vault.strategy.lastHarvest > BigInt(0)
       ? formatLastHarvest(vault.strategy.lastHarvest)
@@ -17,7 +14,6 @@ export function enrichVaultWithMockData(
     maximumFractionDigits: 0,
   })}`;
   const mockApy = "2,680%";
-  const mockDeposit = "$0";
 
   // Use actual token reserves and prices from TokenInfo
   let token0Reserve = vault.tokens.token0.reserve;
@@ -100,8 +96,8 @@ export function enrichVaultWithMockData(
   return {
     ...vault,
     tvl,
+    deposit: "$0.00",
     apyValue: mockApy,
-    deposit: mockDeposit,
     lastHarvest: lastHarvestTime,
     lpBreakdown,
     apyBreakdown,
