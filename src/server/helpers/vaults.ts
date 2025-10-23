@@ -2,6 +2,7 @@ import {
   type Address,
   type ContractFunctionParameters,
   erc20Abi,
+  formatEther,
   formatUnits,
 } from "viem";
 import { rpcViemClient } from "~/lib/viemClient";
@@ -111,7 +112,9 @@ export const getUserVaultData = async (
     const balance = +formatUnits(balanceResult.result as bigint, decimals);
     const balanceUsd = balance * lpPrice;
     const points =
-      pointsResult?.status === "success" ? Number(pointsResult.result) : 0;
+      pointsResult?.status === "success"
+        ? +formatEther(pointsResult.result as bigint)
+        : 0;
     const vaultBalance =
       vaultBalanceResult?.status === "success"
         ? +formatUnits(vaultBalanceResult.result as bigint, decimals)
