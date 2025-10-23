@@ -8,6 +8,7 @@ import {
   getTokenDetails,
   getStrategyInfoAndVaultSharePrice,
 } from "~/server/helpers/vaults";
+import { invalidateUnifiedCache } from "~/lib/trpcContext/unifiedCache";
 
 export const vaultsRouter = createTRPCRouter({
   getVaultTable: publicProcedure.query(
@@ -138,4 +139,9 @@ export const vaultsRouter = createTRPCRouter({
         },
       };
     }),
+
+  invalidateCache: publicProcedure.mutation(() => {
+    invalidateUnifiedCache();
+    return { success: true };
+  }),
 });

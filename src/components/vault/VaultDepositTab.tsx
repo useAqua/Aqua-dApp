@@ -10,6 +10,7 @@ import { formatUnits, parseUnits } from "viem";
 import { useMemo, useState } from "react";
 import { formatNumber } from "~/utils/numbers";
 import { enforceOnlyNumbers } from "~/utils/numbers";
+import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 
 interface VaultDepositTabProps {
   vault: EnrichedVaultInfo;
@@ -23,6 +24,7 @@ const VaultDepositTab = ({
   lpTokenBalanceReactNode,
 }: VaultDepositTabProps) => {
   const [amount, setAmount] = useState("");
+  const { refreshVaultData } = useVaultRefresh();
 
   const formattedLpTokenBalance = useMemo(() => {
     if (!lpTokenBalance) return 0;
@@ -153,6 +155,7 @@ const VaultDepositTab = ({
             mining: `Depositing ${lpTokenSymbol} into ${vault.name}...`,
           }}
           className="w-full"
+          onRefresh={refreshVaultData}
         >
           Deposit
         </WriteButtonWithAllowance>

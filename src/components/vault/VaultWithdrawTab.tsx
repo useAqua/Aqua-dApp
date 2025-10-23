@@ -11,6 +11,7 @@ import { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
 import { formatNumber } from "~/utils/numbers";
 import { enforceOnlyNumbers } from "~/utils/numbers";
+import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 
 interface VaultWithdrawTabProps {
   vault: EnrichedVaultInfo;
@@ -25,6 +26,7 @@ const VaultWithdrawTab = ({
 }: VaultWithdrawTabProps) => {
   const [amount, setAmount] = useState("");
   const { address: userAddress } = useAccount();
+  const { refreshVaultData } = useVaultRefresh();
 
   const formattedVaultBalance = useMemo(() => {
     if (!vaultBalance) return 0;
@@ -163,6 +165,7 @@ const VaultWithdrawTab = ({
             mining: `Withdrawing ${lpTokenSymbol} from ${vault.name}...`,
           }}
           className="w-full"
+          onRefresh={refreshVaultData}
         >
           Withdraw
         </WriteButton>
