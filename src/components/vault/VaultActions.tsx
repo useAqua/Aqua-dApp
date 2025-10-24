@@ -2,6 +2,7 @@ import { Button } from "~/components/ui/button";
 import { Share2, Bookmark } from "lucide-react";
 import type { Address } from "viem";
 import { toast } from "~/components/ui/use-toast";
+import { cn } from "~/lib/utils";
 
 interface VaultActionsProps {
   className?: string;
@@ -60,13 +61,23 @@ const VaultActions = ({
         variant="outline"
         size="icon"
         onClick={handleBookmark}
-        className={isBookmarked ? "bg-primary/20 text-primary" : ""}
+        className={cn(
+          isBookmarked ? "bg-primary/20 text-primary" : "",
+          "max-sm:h-8 max-sm:w-8",
+        )}
         disabled={!vaultAddress}
       >
-        <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-current" : ""}`} />
+        <Bookmark
+          className={`h-2 w-2 sm:h-4 sm:w-4 ${isBookmarked ? "fill-current" : ""}`}
+        />
       </Button>
-      <Button variant="outline" size="icon" onClick={handleShare}>
-        <Share2 className="h-4 w-4" />
+      <Button
+        variant="outline"
+        size="icon"
+        onClick={handleShare}
+        className="max-sm:h-8 max-sm:w-8"
+      >
+        <Share2 className="h-2 w-2 sm:h-4 sm:w-4" />
       </Button>
     </div>
   );

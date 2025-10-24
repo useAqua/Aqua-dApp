@@ -18,9 +18,9 @@ const VaultHeader = ({
   className = "",
 }: VaultHeaderProps) => {
   return (
-    <div className={`mb-6 ${className}`}>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-4">
+    <div className={`mb-6 ${className} relative`}>
+      <div className="mb-4 flex justify-between gap-y-8">
+        <div className="flex flex-wrap items-center gap-4">
           <div className="bg-secondary flex h-16 w-16 items-center justify-center rounded-full text-3xl">
             {icon}
           </div>
@@ -36,7 +36,7 @@ const VaultHeader = ({
             </div>
           </div>
         </div>
-        {actions && <div>{actions}</div>}
+        {actions && <div className={""}>{actions}</div>}
       </div>
     </div>
   );
