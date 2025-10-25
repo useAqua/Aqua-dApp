@@ -59,10 +59,8 @@ const Header = () => {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
-            <div className="">
-              <CustomConnectButton hideDisplayOnMobile />
-            </div>
+          <div className="flex items-center gap-2 sm:gap-4">
+            <CustomConnectButton hideDisplayOnMobile />
 
             <button
               className="text-foreground p-2 md:hidden"

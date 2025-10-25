@@ -73,7 +73,7 @@ export const CustomConnectButton = ({
                   // variant="outline"
                   className="flex items-center gap-3 rounded-md max-sm:text-xs"
                 >
-                  <div className="flex items-center gap-2 px-2">
+                  <div className="flex items-center gap-2 sm:px-2">
                     {account.hasPendingTransactions ? (
                       <LoaderCircleIcon className="h-4 w-4 animate-spin" />
                     ) : (
