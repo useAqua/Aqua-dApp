@@ -87,10 +87,12 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
       <div className="relative">
         {/* Blur overlay when not connected */}
         {!connectedUser && (
-          <div className="absolute inset-0 z-50 mt-8 flex items-center justify-center backdrop-blur-sm">
-            <div className="p-8 text-center">
+          <div className="absolute inset-0 z-10 mt-8 flex items-center justify-center backdrop-blur-sm max-md:h-max">
+            <div className="py-8 text-center sm:px-8">
               <Wallet className="text-muted-foreground mx-auto mb-4 h-16 w-16" />
-              <h3 className="mb-2 text-2xl font-bold">Connect Your Wallet</h3>
+              <h3 className="mb-2 text-xl font-bold sm:text-2xl">
+                Connect Your Wallet
+              </h3>
               <p className="text-muted-foreground mb-6 max-w-sm">
                 Please connect your wallet to view your dashboard and manage
                 your vault positions.

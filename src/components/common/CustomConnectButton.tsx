@@ -40,9 +40,9 @@ export const CustomConnectButton = () => {
                   <Button
                     onClick={openConnectModal}
                     type="button"
-                    className="w-[150px]"
+                    className="max-sm:text-xs sm:w-[150px]"
                   >
-                    <Wallet className="mr-2 h-4 w-4" />
+                    <Wallet className="h-4 w-4 sm:mr-2" />
                     Connect
                   </Button>
                 );
@@ -54,7 +54,7 @@ export const CustomConnectButton = () => {
                     type="button"
                     variant="outline"
                     className={
-                      "w-[150px] font-bold text-red-500 outline-2 outline-red-500 hover:font-normal"
+                      "font-bold text-red-500 outline-2 outline-red-500 hover:font-normal max-sm:text-xs sm:w-[150px]"
                     }
                   >
                     Wrong network
@@ -62,7 +62,11 @@ export const CustomConnectButton = () => {
                 );
               }
               return (
-                <Button onClick={openAccountModal} type="button" className="">
+                <Button
+                  onClick={openAccountModal}
+                  type="button"
+                  className="max-sm:text-xs"
+                >
                   {account.hasPendingTransactions ? (
                     <LoaderCircleIcon className="h-6 w-6 animate-spin" />
                   ) : (
@@ -80,7 +84,7 @@ export const CustomConnectButton = () => {
 
                   {account.displayBalance ? (
                     <>
-                      <Wallet className="ml-4 h-4 w-4" />
+                      <Wallet className="h-4 w-4 sm:ml-4" />
                       <span>{account.displayBalance}</span>
                     </>
                   ) : (
