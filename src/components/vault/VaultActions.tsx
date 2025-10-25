@@ -1,8 +1,8 @@
 import { Button } from "~/components/ui/button";
 import { Share2, Bookmark } from "lucide-react";
 import type { Address } from "viem";
-import { toast } from "~/components/ui/use-toast";
 import { cn } from "~/lib/utils";
+import { toast } from "sonner";
 
 interface VaultActionsProps {
   className?: string;
@@ -22,13 +22,13 @@ const VaultActions = ({
   const handleBookmark = () => {
     if (!vaultAddress) return;
     onBookmarkToggle?.(vaultAddress);
-    toast({
-      title: isBookmarked ? "Vault removed from saved" : "Vault saved",
-      description: isBookmarked
+    toast.success(
+      isBookmarked
         ? `${vaultName ?? "Vault"} removed from your saved vaults`
         : `${vaultName ?? "Vault"} added to your saved vaults`,
-    });
+    );
   };
+  const parts = vaultName?.split("/") ?? ["TokenA", "TokenB"];
 
   const handleShare = async () => {
     if (typeof window === "undefined") return;
@@ -39,16 +39,13 @@ const VaultActions = ({
       if (navigator.share) {
         await navigator.share({
           title: `${vaultName ?? "Vault"} | Aqua`,
-          text: `Check out this vault on Aqua`,
+          text: `${vaultName} LP tokens are deposited into GTE's AMM, earning trading fees, incentives, and points. Earned GTE is converted into equal parts ${parts[0]} and ${parts[1]} to mint more LP tokens. The strategy reinvests these tokens back into the pool, automating the compounding process while socializing gas costs across the vault.`,
           url: url,
         });
       } else {
         // Fallback to copying to clipboard
         await navigator.clipboard.writeText(url);
-        toast({
-          title: "Link copied",
-          description: "Vault link copied to clipboard",
-        });
+        toast.success("Vault Link copied to clipboard");
       }
     } catch (error) {
       console.error("Error sharing:", error);
