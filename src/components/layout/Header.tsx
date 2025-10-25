@@ -16,6 +16,7 @@ const Header = () => {
     { path: "/dashboard", label: "Dashboard" },
     { path: "/", label: "Vaults" },
     { path: "https://docs.useaqua.xyz", label: "Docs" },
+    { path: "https://testnet.megaeth.com", label: "Faucet" },
   ];
 
   return (
