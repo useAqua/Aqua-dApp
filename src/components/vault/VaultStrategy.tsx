@@ -2,19 +2,21 @@ import { Card } from "~/components/ui/card";
 import APYBreakdownGrid from "~/components/charts/APYBreakdownGrid";
 import type { EnrichedVaultInfo } from "~/types";
 import { formatNumber } from "~/utils/numbers";
+import { generateVaultDescription } from "~/utils/vaultHelpers";
 
 interface VaultStrategyProps {
   vault: EnrichedVaultInfo;
   description?: string;
 }
 
-const defaultDescription =
-  "The vault deposits the user's vAMM-SYND/WETH in a Aerodrome farm, earning the platform's governance token. Earned token is swapped for SYND and WETH in order to acquire more of the same LP token. To complete the compounding cycle, the new vAMM-SYND/WETH is added to the farm, ready to go for the next earning event. The transaction cost required to do all this is socialized among the vault's users.";
+const VaultStrategy = ({ vault, description }: VaultStrategyProps) => {
+  const vaultDescription =
+    description ??
+    generateVaultDescription(
+      vault.tokens.token0.symbol,
+      vault.tokens.token1.symbol,
+    );
 
-const VaultStrategy = ({
-  vault,
-  description = defaultDescription,
-}: VaultStrategyProps) => {
   const apyItems = vault.apyBreakdown
     ? [
         {
@@ -31,9 +33,10 @@ const VaultStrategy = ({
   return (
     <Card className="p-6">
       <h2 className="text-card-foreground mb-6 text-xl font-bold">Strategy</h2>
-      <p className="text-card-foreground/80 mb-4 leading-relaxed">
-        {description}
-      </p>
+      <p
+        className="text-card-foreground/80 mb-4 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: vaultDescription }}
+      />
 
       <APYBreakdownGrid items={apyItems} />
     </Card>

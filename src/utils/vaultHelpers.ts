@@ -1,6 +1,13 @@
 import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types/vault";
 import { formatUnits } from "viem";
 
+export function generateVaultDescription(
+  token0Symbol: string,
+  token1Symbol: string,
+): string {
+  return `<strong>${token0Symbol}/${token1Symbol} LP</strong> tokens are deposited into GTE's AMM, earning trading fees, incentives, and points. Earned GTE is converted into equal parts <strong>${token0Symbol}</strong> and <strong>${token1Symbol}</strong> to mint more LP tokens. The strategy reinvests these tokens back into the pool, automating the compounding process while socializing gas costs across the vault.`;
+}
+
 export function enrichVaultWithMockData(
   vault: VaultDetailInfo,
   apyData: {
