@@ -100,7 +100,7 @@ export default function Home({ vaultTable }: HomeProps) {
     }, [vaultTableWithBalances]);
 
   return (
-    <PageLayout title="Vaults | Aqua" description="Manage your DeFi portfolio">
+    <PageLayout title="Vaults | Aqua" description="Aqua is the first real-time liquidity layer on MegaETH, unifying DEX and lending yields in automated vaults.">
       <div className="flex justify-between">
         <PageHeader
           icon={Eye}
