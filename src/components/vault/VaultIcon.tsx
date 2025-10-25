@@ -35,12 +35,12 @@ const VaultIcon = ({ vaultName, size = "md" }: VaultIconProps) => {
         <TokenIcon
           symbol={tokens[0]!}
           size={iconSizes[size]}
-          className="relative"
+          className="relative z-10"
         />
         <TokenIcon
           symbol={tokens[1]!}
           size={iconSizes[size]}
-          className="absolute right-0"
+          className="absolute right-0 z-0"
         />
       </div>
     );
