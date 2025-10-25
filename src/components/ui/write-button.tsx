@@ -87,6 +87,7 @@ export const WriteButton = React.forwardRef<
       writeContract,
       isPending: isWritePending,
       error: writeError,
+      reset,
     } = useWriteContract();
 
     const {
@@ -147,12 +148,20 @@ export const WriteButton = React.forwardRef<
         // Call success callback
         if (onSuccess) {
           onSuccess(txHash);
+          reset();
         }
 
         // Reset tx hash
         setTxHash(undefined);
       }
-    }, [isTxSuccess, txHash, toastMessages.success, onRefresh, onSuccess]);
+    }, [
+      isTxSuccess,
+      txHash,
+      toastMessages.success,
+      onRefresh,
+      onSuccess,
+      reset,
+    ]);
 
     // Handle batched call success
     useEffect(() => {
@@ -168,6 +177,7 @@ export const WriteButton = React.forwardRef<
         // Call success callback with callsId as hash
         if (onSuccess) {
           onSuccess(callsId as Address);
+          reset();
         }
 
         // Reset calls id
@@ -179,6 +189,7 @@ export const WriteButton = React.forwardRef<
       toastMessages.success,
       onRefresh,
       onSuccess,
+      reset,
     ]);
 
     // Handle write error

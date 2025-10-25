@@ -60,6 +60,11 @@ const VaultDepositTab = ({
     return conditions;
   }, [amount, formattedLpTokenBalance, lpTokenSymbol]);
 
+  const handleDeposited = async () => {
+    setAmount("");
+    await refreshVaultData();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -173,7 +178,7 @@ const VaultDepositTab = ({
             mining: `Depositing ${lpTokenSymbol} into ${vault.name}...`,
           }}
           className="w-full"
-          onSuccess={refreshVaultData}
+          onSuccess={handleDeposited}
         >
           Deposit
         </WriteButtonWithAllowance>

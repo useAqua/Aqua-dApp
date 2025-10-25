@@ -67,6 +67,11 @@ const VaultWithdrawTab = ({
     );
   };
 
+  const handleWithdrawal = async () => {
+    setAmount("");
+    await refreshVaultData();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -184,7 +189,7 @@ const VaultWithdrawTab = ({
             mining: `Withdrawing ${lpTokenSymbol} from ${vault.name}...`,
           }}
           className="w-full"
-          onSuccess={refreshVaultData}
+          onSuccess={handleWithdrawal}
         >
           Withdraw
         </WriteButton>

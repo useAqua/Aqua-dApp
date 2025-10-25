@@ -5,9 +5,10 @@ import React, {
   useImperativeHandle,
 } from "react";
 import { WriteButton, type WriteButtonProps } from "./write-button";
-import { useAccount, useReadContract } from "wagmi";
+import { useAccount } from "wagmi";
 import { type Address, erc20Abi, parseUnits } from "viem";
 import { useEIP7702Batch } from "~/hooks/useEIP7702Batch";
+import { api } from "~/utils/api";
 
 export interface WriteButtonWithAllowanceProps extends WriteButtonProps {
   tokenAddress: Address;
@@ -47,18 +48,18 @@ export const WriteButtonWithAllowance = React.forwardRef<
     // Forward ref to parent
     useImperativeHandle(ref, () => buttonRef.current!);
 
-    const { data: allowance, refetch: refetchAllowance } = useReadContract({
-      address: tokenAddress,
-      abi: erc20Abi,
-      functionName: "allowance",
-      args:
-        userAddress && spenderAddress
-          ? [userAddress, spenderAddress]
-          : undefined,
-      query: {
-        enabled: !!userAddress,
-      },
-    });
+    const { data: allowance, refetch: refetchAllowance } =
+      api.contracts.getAllowance.useQuery(
+        {
+          tokenAddress: tokenAddress,
+          ownerAddress: userAddress,
+          spenderAddress: spenderAddress,
+        },
+        {
+          enabled: !!userAddress && !!tokenAddress && !!spenderAddress,
+          refetchOnWindowFocus: false,
+        },
+      );
 
     useEffect(() => {
       if (!requiredAmount || !userAddress) {
@@ -154,6 +155,7 @@ export const WriteButtonWithAllowance = React.forwardRef<
             }
           : writeButtonProps.toastMessages,
         onRefresh: () => {
+          console.log("onRefresh called. needsApproval:", needsApproval);
           if (needsApproval) {
             void refetchAllowance();
           } else {
@@ -161,6 +163,8 @@ export const WriteButtonWithAllowance = React.forwardRef<
           }
         },
         onSuccess: (hash: Address) => {
+          console.log("onSuccess called. needsApproval:", needsApproval);
+
           if (needsApproval) {
             void refetchAllowance();
             setApprovalJustCompleted(true);
