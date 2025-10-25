@@ -3,7 +3,12 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import { Button } from "~/components/ui/button";
 import { LoaderCircleIcon, Wallet } from "lucide-react";
-export const CustomConnectButton = () => {
+import { cn } from "~/lib/utils";
+export const CustomConnectButton = ({
+  hideDisplayOnMobile = false,
+}: {
+  hideDisplayOnMobile?: boolean;
+}) => {
   return (
     <ConnectButton.Custom>
       {({
@@ -40,7 +45,7 @@ export const CustomConnectButton = () => {
                   <Button
                     onClick={openConnectModal}
                     type="button"
-                    className="max-sm:text-xs sm:w-[150px]"
+                    className="rounded-md max-sm:text-xs sm:w-[150px]"
                   >
                     <Wallet className="h-4 w-4 sm:mr-2" />
                     Connect
@@ -54,7 +59,7 @@ export const CustomConnectButton = () => {
                     type="button"
                     variant="outline"
                     className={
-                      "font-bold text-red-500 outline-2 outline-red-500 hover:font-normal max-sm:text-xs sm:w-[150px]"
+                      "rounded-md font-bold text-red-500 outline-2 outline-red-500 hover:font-normal max-sm:text-xs sm:w-[150px]"
                     }
                   >
                     Wrong network
@@ -65,31 +70,51 @@ export const CustomConnectButton = () => {
                 <Button
                   onClick={openAccountModal}
                   type="button"
-                  className="max-sm:text-xs"
+                  // variant="outline"
+                  className="flex items-center gap-3 rounded-md max-sm:text-xs"
                 >
-                  {account.hasPendingTransactions ? (
-                    <LoaderCircleIcon className="h-6 w-6 animate-spin" />
-                  ) : (
-                    chain.iconUrl && (
+                  <div className="flex items-center gap-2 px-2">
+                    {account.hasPendingTransactions ? (
+                      <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+                    ) : (
+                      chain.iconUrl && (
+                        <Image
+                          src={chain.iconUrl ?? ""}
+                          width={20}
+                          height={20}
+                          alt={chain.name ?? "Chain Image"}
+                          className="rounded-full"
+                        />
+                      )
+                    )}
+                    {account.displayBalance && (
+                      <span>{account.displayBalance}</span>
+                    )}
+                  </div>
+
+                  <div className="bg-border h-6 w-0.5" />
+
+                  <div className="flex items-center gap-2">
+                    {account.ensAvatar ? (
                       <Image
-                        src={chain.iconUrl ?? ""}
+                        src={account.ensAvatar}
                         width={24}
                         height={24}
-                        alt={chain.name ?? "Chain Image"}
+                        alt="Account avatar"
                         className="rounded-full"
                       />
-                    )
-                  )}
-                  {account.ensName ?? account.displayName}
-
-                  {account.displayBalance ? (
-                    <>
-                      <Wallet className="h-4 w-4 sm:ml-4" />
-                      <span>{account.displayBalance}</span>
-                    </>
-                  ) : (
-                    ""
-                  )}
+                    ) : (
+                      <div className="h-6 w-6 rounded-full bg-gradient-to-br from-purple-400 via-pink-400 to-orange-400" />
+                    )}
+                    <span
+                      className={cn(
+                        hideDisplayOnMobile ? "hidden sm:inline" : "",
+                      )}
+                    >
+                      {" "}
+                      {account.ensName ?? account.displayName}
+                    </span>
+                  </div>
                 </Button>
               );
             })()}
