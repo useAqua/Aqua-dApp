@@ -21,7 +21,7 @@ const VaultHeader = ({
     <div className={`mb-6 ${className} relative`}>
       <div className="mb-4 flex justify-between gap-y-8">
         <div className="flex flex-wrap items-center gap-4">
-          <div className="bg-secondary flex h-16 w-16 items-center justify-center rounded-full text-3xl">
+          <div className="flex items-center justify-center text-3xl">
             {icon}
           </div>
           <div>

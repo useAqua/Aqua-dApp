@@ -27,7 +27,7 @@ const VaultMobileCard = ({
     >
       {/* Vault Header */}
       <div className="mb-4 flex items-center gap-3 pb-4">
-        <VaultIcon icon={vault.icon} size="lg" />
+        <VaultIcon vaultName={vault.name} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="mb-1 font-semibold">{vault.name}</div>
           <Badge variant="secondary" className="text-xs">

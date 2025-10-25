@@ -1,8 +1,9 @@
 import { SecondaryCard } from "~/components/common/SecondaryCard";
 import { formatNumber } from "~/utils/numbers";
+import type { ReactNode } from "react";
 
-interface TokenBreakdownItem {
-  icon: string;
+export interface TokenBreakdownItem {
+  icon: ReactNode;
   symbol: string;
   amount: number;
   usdValue: number;
@@ -23,7 +24,7 @@ const TokenBreakdownList = ({ tokens }: TokenBreakdownListProps) => {
               className="flex items-center justify-between p-3"
             >
               <div className="flex items-center gap-3">
-                <div className="bg-primary/20 flex h-8 w-8 items-center justify-center rounded-full">
+                <div className="flex w-max items-center justify-center">
                   {token.icon}
                 </div>
                 <span className="font-medium">{token.symbol}</span>

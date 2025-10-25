@@ -12,6 +12,7 @@ import { useAccount } from "wagmi";
 import { formatNumber } from "~/utils/numbers";
 import { enforceOnlyNumbers } from "~/utils/numbers";
 import { useVaultRefresh } from "~/hooks/use-vault-refresh";
+import VaultIcon from "~/components/vault/VaultIcon";
 
 interface VaultWithdrawTabProps {
   vault: EnrichedVaultInfo;
@@ -92,7 +93,13 @@ const VaultWithdrawTab = ({
           size="sm"
           className="pointer-events-none w-full justify-between"
         >
-          <span>a{lpTokenSymbol}</span>
+          <div className="flex items-center gap-2">
+            <VaultIcon
+              vaultName={`${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`}
+              size="sm"
+            />
+            <span>a{lpTokenSymbol}</span>
+          </div>
         </Button>
       </div>
 

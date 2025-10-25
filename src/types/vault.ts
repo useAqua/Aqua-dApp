@@ -35,7 +35,6 @@ export interface VaultTableEntry {
   userPoints: number;
   apy: number;
   id: string;
-  icon: string;
 }
 
 export interface TokenInfo {

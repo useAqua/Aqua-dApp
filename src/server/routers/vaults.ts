@@ -31,7 +31,6 @@ export const vaultsRouter = createTRPCRouter({
             apy: 0,
             platformId: platformId ?? "Unknown",
             id: config.name.toLowerCase(),
-            icon: config.icon,
           });
         }
       });

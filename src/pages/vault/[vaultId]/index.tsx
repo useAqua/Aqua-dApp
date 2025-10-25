@@ -1,10 +1,11 @@
 import PageLayout from "~/components/layout/PageLayout";
 import VaultHeader from "~/components/vault/VaultHeader";
-import VaultActions from "~/components/vault/VaultActions";
 import VaultMetrics from "~/components/vault/VaultMetrics";
 import VaultLPBreakdown from "~/components/vault/VaultLPBreakdown";
-import VaultStrategy from "~/components/vault/VaultStrategy";
 import VaultTradingPanel from "~/components/vault/VaultTradingPanel";
+import VaultStrategy from "~/components/vault/VaultStrategy";
+import VaultActions from "~/components/vault/VaultActions";
+import { TokenIcon } from "~/utils/tokenIcons";
 import { enrichVaultWithMockData } from "~/utils/vaultHelpers";
 import type { GetServerSideProps } from "next";
 import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types";
@@ -75,7 +76,12 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
       description={`${vault.name} vault details and management`}
     >
       <VaultHeader
-        icon={<></>} // TODO: Add Icon for Vaults
+        icon={
+          <div className="flex items-center -space-x-2">
+            <TokenIcon symbol={vault.tokens.token0.symbol} size={48} />
+            <TokenIcon symbol={vault.tokens.token1.symbol} size={48} />
+          </div>
+        }
         name={vault.name}
         platform={vault.platformId}
         actions={

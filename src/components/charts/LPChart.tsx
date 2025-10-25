@@ -1,14 +1,14 @@
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
-import type { ComponentType } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 interface LPChartProps {
   primaryPercentage?: number;
   accentPercentage?: number;
   primaryLabel?: string;
   accentLabel?: string;
-  primaryIcon?: string;
-  accentIcon?: string;
+  primaryIcon?: ReactNode;
+  accentIcon?: ReactNode;
 }
 
 // Dynamically import echarts-for-react so chart is client-only and SSR-safe
@@ -27,15 +27,6 @@ const LPChart = ({
   const firstName = primaryLabel ?? "Primary";
   const secondName = accentLabel ?? "Accent";
 
-  // Map names to icons so the tooltip formatter can pick the right icon
-  const iconMap = useMemo(
-    () => ({
-      [firstName]: primaryIcon ?? "",
-      [secondName]: accentIcon ?? "",
-    }),
-    [firstName, secondName, primaryIcon, accentIcon],
-  );
-
   // ECharts option for a doughnut chart. Colors chosen to match typical primary/accent theme –
   // feel free to tweak to match your Tailwind theme variables.
   const option = useMemo(() => {
@@ -45,7 +36,7 @@ const LPChart = ({
     ];
 
     return {
-      // Use default ECharts tooltip (near cursor). Formatter includes icon + name + percent.
+      // Use default ECharts tooltip (near cursor). Formatter includes name + percent.
       tooltip: {
         show: true,
         trigger: "item",
@@ -62,8 +53,7 @@ const LPChart = ({
           if (typeof rawPercent === "number")
             percentStr = rawPercent.toFixed(2);
           else if (typeof rawPercent === "string") percentStr = rawPercent;
-          const icon = iconMap[String(name)] ?? "";
-          return `${icon ? `${icon} ` : ""}${name}: <strong>${percentStr}%</strong>`;
+          return `${name}: <strong>${percentStr}%</strong>`;
         },
       },
       legend: { show: false },
@@ -86,7 +76,7 @@ const LPChart = ({
       ],
       color: ["#06b6d4", "#7c3aed"],
     } as const;
-  }, [primaryPercentage, accentPercentage, firstName, secondName, iconMap]);
+  }, [primaryPercentage, accentPercentage, firstName, secondName]);
 
   const fmt = (n?: number) => (typeof n === "number" ? n.toFixed(2) : "--");
 
