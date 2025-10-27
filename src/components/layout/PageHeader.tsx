@@ -28,7 +28,7 @@ const PageHeader = ({
         >
           {Icon && <Icon className="text-primary h-6 w-6" />}
           <div>
-            <h1 className="text-lg font-bold md:text-3xl">{title}</h1>
+            <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
             {subtitle && (
               <p className="text-muted-foreground mt-1">{subtitle}</p>
             )}
