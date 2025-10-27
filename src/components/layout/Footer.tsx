@@ -5,7 +5,7 @@ const Footer = () => {
   const links = [
     { label: "X", href: "https://x.com/useaqua_xyz" },
     { label: "Docs", href: "https://docs.useaqua.xyz" },
-    { label: "Discord", href: "https://discord.gg/aqua" },
+    { label: "Discord", href: "#" },
     { label: "GitHub", href: "https://github.com/useAqua" },
   ];
 
