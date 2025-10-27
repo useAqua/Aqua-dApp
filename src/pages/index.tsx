@@ -100,7 +100,10 @@ export default function Home({ vaultTable }: HomeProps) {
     }, [vaultTableWithBalances]);
 
   return (
-    <PageLayout title="Vaults | Aqua" description="Aqua is the first real-time liquidity layer on MegaETH, unifying DEX and lending yields in automated vaults.">
+    <PageLayout
+      title="Vaults | Aqua"
+      description="Aqua is the first real-time liquidity layer on MegaETH, unifying DEX and lending yields in automated vaults."
+    >
       <div className="flex justify-between">
         <PageHeader
           icon={Eye}
@@ -128,12 +131,12 @@ export default function Home({ vaultTable }: HomeProps) {
           <MetricCard
             label="TVL"
             value={<>${formatNumber(totalTVL)}</>}
-            className="text-right"
+            className="md:text-right"
           />
           <MetricCard
             label="Vaults"
             value={`${totalVaults}`}
-            className="text-right"
+            className="md:text-right"
           />
         </div>
       </div>
