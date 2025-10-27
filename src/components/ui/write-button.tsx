@@ -100,8 +100,8 @@ export const WriteButton = React.forwardRef<
       id: callsId as `0x${string}`,
       query: {
         enabled: !!callsId,
-        refetchInterval: (query) =>
-          query.state.data?.status === "success" ? false : 1000,
+        refetchInterval: (_query) =>
+          _query.state.data?.status === "success" ? false : 1000,
       },
     });
 
@@ -136,9 +136,23 @@ export const WriteButton = React.forwardRef<
 
     const isDisabled = disabled ?? !!disabledReason ?? isPending ?? isLoading;
 
+    const showSuccessToast = useCallback(() => {
+      toast.dismiss("tx-mining");
+
+      const successMsg = toastMessages.success ?? "Transaction successful!";
+      if (successMsg.includes("|")) {
+        const [title, description] = successMsg.split("|");
+        toast.success(title, {
+          description: description,
+        });
+      } else {
+        toast.success(successMsg);
+      }
+    }, [toastMessages.success]);
+
     useEffect(() => {
       if (isTxSuccess && txHash) {
-        toast.success(toastMessages.success ?? "Transaction successful!");
+        showSuccessToast();
 
         // Call refresh action
         if (onRefresh) {
@@ -154,20 +168,12 @@ export const WriteButton = React.forwardRef<
         // Reset tx hash
         setTxHash(undefined);
       }
-    }, [
-      isTxSuccess,
-      txHash,
-      toastMessages.success,
-      onRefresh,
-      onSuccess,
-      reset,
-    ]);
+    }, [isTxSuccess, txHash, showSuccessToast, onRefresh, onSuccess, reset]);
 
     // Handle batched call success
     useEffect(() => {
       if (isBatchedCallConfirmed && callsId) {
-        toast.dismiss();
-        toast.success(toastMessages.success ?? "Transaction successful!");
+        showSuccessToast();
 
         // Call refresh action
         if (onRefresh) {
@@ -186,7 +192,7 @@ export const WriteButton = React.forwardRef<
     }, [
       isBatchedCallConfirmed,
       callsId,
-      toastMessages.success,
+      showSuccessToast,
       onRefresh,
       onSuccess,
       reset,
@@ -195,6 +201,7 @@ export const WriteButton = React.forwardRef<
     // Handle write error
     useEffect(() => {
       if (txError) {
+        toast.dismiss("tx-mining");
         const errorMessage =
           toastMessages.error ?? txError.message ?? "Transaction failed";
 
@@ -300,13 +307,6 @@ export const WriteButton = React.forwardRef<
         console.error("Transaction error:", error);
       }
     };
-
-    // Dismiss mining toast when transaction is complete
-    useEffect(() => {
-      if (isTxSuccess || txError) {
-        toast.dismiss("tx-mining");
-      }
-    }, [isTxSuccess, txError]);
 
     // Get button text based on state
     const getButtonText = useCallback(() => {

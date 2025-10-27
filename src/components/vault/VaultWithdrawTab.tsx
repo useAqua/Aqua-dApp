@@ -72,6 +72,16 @@ const VaultWithdrawTab = ({
     await refreshVaultData();
   };
 
+  const withdrawnAmount = useMemo(() => {
+    const value = Number(amount || 0) * vault.sharePrice;
+    // Simple formatting for toast messages
+    if (value === 0) return "0";
+    if (value < 0.001) return value.toExponential(2);
+    if (value < 1) return value.toFixed(4);
+    if (value < 1000) return value.toFixed(3);
+    return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }, [amount, vault.sharePrice]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -183,10 +193,10 @@ const VaultWithdrawTab = ({
           args={[parseUnits(amount ?? "0", vault.tokens.lpToken.decimals)]}
           disableConditions={disableConditions}
           toastMessages={{
-            submitting: `Withdrawing ${lpTokenSymbol} from ${vault.name}...`,
-            success: `Successfully withdrawn ${lpTokenSymbol} from ${vault.name}!`,
-            error: `Failed to withdraw ${lpTokenSymbol} from ${vault.name}.`,
-            mining: `Withdrawing ${lpTokenSymbol} from ${vault.name}...`,
+            submitting: `Withdrawing ${lpTokenSymbol}...`,
+            success: `Withdraw Completed|Withdrawn ${withdrawnAmount} ${lpTokenSymbol}.`,
+            error: `Failed to withdraw ${lpTokenSymbol}.`,
+            mining: `Withdrawing ${lpTokenSymbol}...`,
           }}
           className="w-full"
           onSuccess={handleWithdrawal}

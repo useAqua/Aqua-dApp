@@ -54,6 +54,7 @@ const VaultDepositTab = ({
       conditions.push({
         condition: true,
         message: `Insufficient ${lpTokenSymbol} balance`,
+        showLink: true,
       });
     }
 
@@ -64,6 +65,16 @@ const VaultDepositTab = ({
     setAmount("");
     await refreshVaultData();
   };
+
+  const depositedAmount = useMemo(() => {
+    const value = Number(amount || 0);
+    // Simple formatting for toast messages
+    if (value === 0) return "0";
+    if (value < 0.001) return value.toExponential(2);
+    if (value < 1) return value.toFixed(4);
+    if (value < 1000) return value.toFixed(3);
+    return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
+  }, [amount]);
 
   return (
     <div className="space-y-6">
@@ -154,11 +165,27 @@ const VaultDepositTab = ({
       </SecondaryCard>
 
       <div className="relative pt-5">
-        <p className="absolute top-0 left-0 text-xs text-red-500">
-          {disableConditions.map(
-            (cond) => cond.condition && cond.message + " ",
-          )}
-        </p>
+        <div className="absolute top-0 left-0 text-xs text-red-500">
+          {disableConditions.map((cond, index) => {
+            if (!cond.condition) return null;
+            if (cond.showLink) {
+              return (
+                <span key={index}>
+                  {cond.message}.{" "}
+                  <a
+                    href="https://testnet.gte.xyz/earn"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-red-600"
+                  >
+                    Get more here
+                  </a>
+                </span>
+              );
+            }
+            return <span key={index}>{cond.message} </span>;
+          })}
+        </div>
 
         <WriteButtonWithAllowance
           address={vault.address}
@@ -172,10 +199,10 @@ const VaultDepositTab = ({
           spenderAddress={vault.address}
           requiredAmount={amount ?? "0"}
           toastMessages={{
-            submitting: `Depositing ${lpTokenSymbol} into ${vault.name}...`,
-            success: `Successfully deposited ${lpTokenSymbol} into ${vault.name}!`,
-            error: `Failed to deposit ${lpTokenSymbol} into ${vault.name}.`,
-            mining: `Depositing ${lpTokenSymbol} into ${vault.name}...`,
+            submitting: `Depositing ${lpTokenSymbol}...`,
+            success: `Deposit Completed|Deposited ${depositedAmount} ${lpTokenSymbol}.`,
+            error: `Failed to deposit ${lpTokenSymbol}.`,
+            mining: `Depositing ${lpTokenSymbol}...`,
           }}
           className="w-full"
           onSuccess={handleDeposited}
