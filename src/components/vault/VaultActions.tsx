@@ -2,7 +2,7 @@ import { Button } from "~/components/ui/button";
 import { Share2, Bookmark } from "lucide-react";
 import type { Address } from "viem";
 import { cn } from "~/lib/utils";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/sonner";
 
 interface VaultActionsProps {
   className?: string;

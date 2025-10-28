@@ -8,7 +8,7 @@ import {
 import { useSendCalls, useCallsStatus } from "wagmi";
 import type { Address, Abi } from "viem";
 import { encodeFunctionData } from "viem";
-import { toast } from "sonner";
+import { toast } from "~/components/ui/sonner";
 
 export interface WriteButtonProps extends Omit<ButtonProps, "onClick"> {
   // Contract details (for single transaction)
@@ -142,7 +142,7 @@ export const WriteButton = React.forwardRef<
       const successMsg = toastMessages.success ?? "Transaction successful!";
       if (successMsg.includes("|")) {
         const [title, description] = successMsg.split("|");
-        toast.success(title, {
+        toast.success(title ?? "", {
           description: description,
         });
       } else {
