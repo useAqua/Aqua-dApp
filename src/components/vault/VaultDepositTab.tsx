@@ -19,6 +19,8 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { TokenIcon } from "~/utils/tokenIcons";
+import { api } from "~/utils/api";
+import gteZap from "~/lib/contracts/gteZap";
 
 const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
 
@@ -55,6 +57,47 @@ const VaultDepositTab = ({
     if (selectedToken === "token1") return vault.tokens.token1.symbol;
     return `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
   }, [selectedToken, vault.tokens.token0.symbol, vault.tokens.token1.symbol]);
+
+  const { data: estimatedSwapAmountOut } = api.zap.estimateSwap.useQuery(
+    {
+      vaultAddress: vault.address,
+      tokenInAddress: selectedTokenAddress,
+      amountIn: (
+        parseUnits(amount || "0", selectedTokenDecimals) / BigInt(2)
+      ).toString(),
+    },
+    {
+      enabled: selectedToken !== "lp" && amount !== "0" && amount !== "",
+    },
+  );
+
+  const contractArgs = useMemo(() => {
+    if (selectedToken === "lp") {
+      return {
+        address: vault.address,
+        abi: vault_abi,
+        functionName: "deposit",
+        args: [parseUnits(amount || "0", selectedTokenDecimals)],
+      } as const;
+    }
+    return {
+      ...gteZap,
+      functionName: "aquaIn",
+      args: [
+        vault.address,
+        (BigInt(estimatedSwapAmountOut ?? 0) * BigInt(98)) / BigInt(100), // slippage tolerance 2%
+        selectedTokenAddress,
+        parseUnits(amount || "0", selectedTokenDecimals),
+      ],
+    };
+  }, [
+    amount,
+    estimatedSwapAmountOut,
+    selectedToken,
+    selectedTokenAddress,
+    selectedTokenDecimals,
+    vault.address,
+  ]);
 
   const calculateAmountByPercentage = (percentage: number) => {
     if (!selectedTokenBalance) return "0";
@@ -214,15 +257,14 @@ const VaultDepositTab = ({
         </div>
 
         <WriteButtonWithAllowance
-          address={vault.address}
-          abi={vault_abi}
-          functionName="deposit"
-          args={[parseUnits(amount || "0", selectedTokenDecimals)]}
+          {...contractArgs}
           tokenAddress={selectedTokenAddress}
           tokenDecimals={selectedTokenDecimals}
           tokenSymbol={selectedTokenSymbol}
           disableConditions={disableConditions}
-          spenderAddress={vault.address}
+          spenderAddress={
+            selectedToken === "lp" ? vault.address : gteZap.address
+          }
           requiredAmount={amount || "0"}
           toastMessages={{
             submitting: `Depositing ${selectedTokenSymbol}...`,
