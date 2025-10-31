@@ -1,13 +1,14 @@
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { Switch } from "~/components/ui/switch";
 import { HelpCircle } from "lucide-react";
 import { SecondaryCard } from "~/components/common/SecondaryCard";
 import type { EnrichedVaultInfo, TokenType } from "~/types";
 import { formatFeePercentage } from "~/utils/vaultHelpers";
 import { WriteButtonWithAllowance } from "~/components/ui/write-button-with-allowance";
 import vault_abi from "~/lib/contracts/vault_abi";
-import { type Address, formatUnits, parseUnits } from "viem";
-import { useMemo, useState } from "react";
+import { type Address, formatEther, formatUnits, parseUnits } from "viem";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { formatNumber, enforceOnlyNumbers } from "~/utils/numbers";
 import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 import VaultIcon from "~/components/vault/VaultIcon";
@@ -21,14 +22,25 @@ import {
 import { TokenIcon } from "~/utils/tokenIcons";
 import { api } from "~/utils/api";
 import gteZap from "~/lib/contracts/gteZap";
+import { useBalance } from "wagmi";
 
 const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
+const SLIPPAGE_TOLERANCE = BigInt(98);
+const SLIPPAGE_DENOMINATOR = BigInt(100);
+const PERCENTAGE_MULTIPLIER = BigInt(100);
+
+type DisableCondition = {
+  condition: boolean;
+  message: string;
+  showLink?: boolean;
+};
 
 interface VaultDepositTabProps {
   vault: EnrichedVaultInfo;
   selectedTokenBalance: bigint | undefined;
   selectedTokenBalanceReactNode: string;
   selectedTokenAddress: Address;
+  userAddress: Address | undefined;
   selectedTokenDecimals: number;
   setSelectedToken: (value: TokenType) => void;
   selectedToken: TokenType;
@@ -41,9 +53,15 @@ const VaultDepositTab = ({
   selectedTokenDecimals,
   selectedTokenAddress,
   setSelectedToken,
+  userAddress,
   selectedToken,
 }: VaultDepositTabProps) => {
   const [amount, setAmount] = useState("");
+  const [useEth, setUseEth] = useState(false);
+
+  const { data: balanceData, refetch: refetchBalance } = useBalance({
+    address: userAddress,
+  });
 
   const { refreshVaultData } = useVaultRefresh();
 
@@ -52,11 +70,26 @@ const VaultDepositTab = ({
     return Number(formatUnits(selectedTokenBalance, selectedTokenDecimals));
   }, [selectedTokenBalance, selectedTokenDecimals]);
 
-  const selectedTokenSymbol = useMemo(() => {
-    if (selectedToken === "token0") return vault.tokens.token0.symbol;
-    if (selectedToken === "token1") return vault.tokens.token1.symbol;
-    return `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
-  }, [selectedToken, vault.tokens.token0.symbol, vault.tokens.token1.symbol]);
+  const { selectedTokenSymbol, isWeth } = useMemo(() => {
+    let symbol: string;
+    if (selectedToken === "token0") {
+      symbol = vault.tokens.token0.symbol;
+    } else if (selectedToken === "token1") {
+      symbol = vault.tokens.token1.symbol;
+    } else {
+      symbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
+    }
+
+    const isWethToken = symbol.toUpperCase() === "WETH";
+    const finalSymbol = isWethToken && useEth ? "ETH" : symbol;
+
+    return { selectedTokenSymbol: finalSymbol, isWeth: isWethToken };
+  }, [
+    selectedToken,
+    vault.tokens.token0.symbol,
+    vault.tokens.token1.symbol,
+    useEth,
+  ]);
 
   const { data: estimatedSwapAmountOut } = api.zap.estimateSwap.useQuery(
     {
@@ -80,56 +113,100 @@ const VaultDepositTab = ({
         args: [parseUnits(amount || "0", selectedTokenDecimals)],
       } as const;
     }
+
+    const minAmountOut =
+      (BigInt(estimatedSwapAmountOut ?? 0) * SLIPPAGE_TOLERANCE) /
+      SLIPPAGE_DENOMINATOR;
+
     return {
       ...gteZap,
-      functionName: "aquaIn",
-      args: [
-        vault.address,
-        (BigInt(estimatedSwapAmountOut ?? 0) * BigInt(98)) / BigInt(100), // slippage tolerance 2%
-        selectedTokenAddress,
-        parseUnits(amount || "0", selectedTokenDecimals),
-      ],
-    };
+      functionName: useEth ? "aquaInETH" : "aquaIn",
+      args: useEth
+        ? [vault.address, minAmountOut]
+        : [
+            vault.address,
+            minAmountOut,
+            selectedTokenAddress,
+            parseUnits(amount || "0", selectedTokenDecimals),
+          ],
+      ethValue: useEth
+        ? parseUnits(amount || "0", selectedTokenDecimals)
+        : undefined,
+    } as const;
   }, [
     amount,
     estimatedSwapAmountOut,
     selectedToken,
     selectedTokenAddress,
     selectedTokenDecimals,
+    useEth,
     vault.address,
   ]);
 
-  const calculateAmountByPercentage = (percentage: number) => {
-    if (!selectedTokenBalance) return "0";
-    return formatUnits(
-      (selectedTokenBalance * BigInt(Math.round(percentage * 100))) /
-        BigInt(100),
-      selectedTokenDecimals,
-    );
-  };
+  const calculateAmountByPercentage = useCallback(
+    (percentage: number) => {
+      const percentageBigInt = BigInt(Math.round(percentage * 100));
 
-  const disableConditions = useMemo(() => {
-    const conditions = [];
-    if (!amount || parseFloat(amount) === 0) {
-      conditions.push({
-        condition: true,
-        message: "Enter an amount to deposit",
-      });
-    } else if (parseFloat(amount) > formattedLpTokenBalance) {
-      conditions.push({
-        condition: true,
-        message: `Insufficient ${selectedTokenSymbol} balance`,
-        showLink: true,
-      });
+      if (isWeth && useEth) {
+        if (!balanceData?.value) return "0";
+        return formatEther(
+          (balanceData.value * percentageBigInt) / PERCENTAGE_MULTIPLIER,
+        );
+      }
+      if (!selectedTokenBalance) return "0";
+      return formatUnits(
+        (selectedTokenBalance * percentageBigInt) / PERCENTAGE_MULTIPLIER,
+        selectedTokenDecimals,
+      );
+    },
+    [
+      balanceData?.value,
+      isWeth,
+      selectedTokenBalance,
+      selectedTokenDecimals,
+      useEth,
+    ],
+  );
+
+  const disableConditions = useMemo((): DisableCondition[] => {
+    const amountValue = parseFloat(amount);
+
+    if (!amount || amountValue === 0) {
+      return [
+        {
+          condition: true,
+          message: "Enter an amount to deposit",
+        },
+      ];
     }
 
-    return conditions;
-  }, [amount, formattedLpTokenBalance, selectedTokenSymbol]);
+    const currentBalance = useEth
+      ? Number(balanceData?.formatted ?? 0)
+      : formattedLpTokenBalance;
 
-  const handleDeposited = async () => {
+    if (amountValue > currentBalance) {
+      return [
+        {
+          condition: true,
+          message: `Insufficient ${selectedTokenSymbol} balance`,
+          showLink: true,
+        },
+      ];
+    }
+
+    return [];
+  }, [
+    amount,
+    balanceData?.formatted,
+    formattedLpTokenBalance,
+    selectedTokenSymbol,
+    useEth,
+  ]);
+
+  const handleDeposited = useCallback(async () => {
     setAmount("");
-    await refreshVaultData();
-  };
+    await Promise.all([refetchBalance(), refreshVaultData()]);
+  }, [refetchBalance, refreshVaultData]);
 
   const depositedAmount = useMemo(() => {
     const value = Number(amount || 0);
@@ -141,6 +218,12 @@ const VaultDepositTab = ({
     return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
   }, [amount]);
 
+  useEffect(() => {
+    if (!isWeth && useEth) {
+      setUseEth(false);
+    }
+  }, [isWeth, useEth]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -149,7 +232,11 @@ const VaultDepositTab = ({
             💰 Enter Amount
           </p>
           <p className="text-card-foreground/70 mb-2 text-sm max-sm:hidden">
-            Balance: {selectedTokenBalanceReactNode} {selectedTokenSymbol}
+            Balance:{" "}
+            {useEth
+              ? formatNumber(balanceData?.formatted ?? "0")
+              : selectedTokenBalanceReactNode}{" "}
+            {selectedTokenSymbol}
           </p>
         </div>
 
@@ -161,44 +248,55 @@ const VaultDepositTab = ({
           value={amount}
           onChange={(e) => setAmount(enforceOnlyNumbers(e.target.value))}
         />
-        <Select
-          value={selectedToken}
-          onValueChange={(value) =>
-            setSelectedToken(value as "lp" | "token0" | "token1")
-          }
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="lp">
-              <div className="flex items-center gap-2">
-                <VaultIcon vaultName={vault.name} size="sm" />
-                <span>
-                  {vault.tokens.token0.symbol}/{vault.tokens.token1.symbol}
-                </span>
-              </div>
-            </SelectItem>
-            <SelectItem value="token0">
-              <div className="flex items-center gap-2">
-                <TokenIcon
-                  symbol={vault.tokens.token0.symbol ?? "Token0"}
-                  size={24}
-                />
-                <span>{vault.tokens.token0.symbol}</span>
-              </div>
-            </SelectItem>
-            <SelectItem value="token1">
-              <div className="flex items-center gap-2">
-                <TokenIcon
-                  symbol={vault.tokens.token1.symbol ?? "Token1"}
-                  size={24}
-                />
-                <span>{vault.tokens.token1.symbol}</span>
-              </div>
-            </SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="relative">
+          <Select
+            value={selectedToken}
+            onValueChange={(value) =>
+              setSelectedToken(value as "lp" | "token0" | "token1")
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="lp">
+                <div className="flex items-center gap-2">
+                  <VaultIcon vaultName={vault.name} size="sm" />
+                  <span>
+                    {vault.tokens.token0.symbol}/{vault.tokens.token1.symbol}
+                  </span>
+                </div>
+              </SelectItem>
+              <SelectItem value="token0">
+                <div className="flex items-center gap-2">
+                  <TokenIcon
+                    symbol={vault.tokens.token0.symbol ?? "Token0"}
+                    size={24}
+                  />
+                  <span>{vault.tokens.token0.symbol}</span>
+                </div>
+              </SelectItem>
+              <SelectItem value="token1">
+                <div className="flex items-center gap-2">
+                  <TokenIcon
+                    symbol={vault.tokens.token1.symbol ?? "Token1"}
+                    size={24}
+                  />
+                  <span>{vault.tokens.token1.symbol}</span>
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          {isWeth && (
+            <div
+              className="pointer-events-auto absolute top-1/2 right-10 flex -translate-y-1/2 items-center gap-2"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="text-card-foreground/70 text-xs">ETH</span>
+              <Switch checked={useEth} onCheckedChange={setUseEth} />
+            </div>
+          )}
+        </div>
       </div>
       <div>
         <p className="text-card-foreground/70 mb-2 text-sm sm:hidden">
@@ -228,7 +326,7 @@ const VaultDepositTab = ({
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
-            {selectedTokenSymbol}
+            {vault.tokens.token0.symbol}/{vault.tokens.token1.symbol} shares
           </p>
         </div>
       </SecondaryCard>
@@ -265,7 +363,7 @@ const VaultDepositTab = ({
           spenderAddress={
             selectedToken === "lp" ? vault.address : gteZap.address
           }
-          requiredAmount={amount || "0"}
+          requiredAmount={useEth ? "0" : amount || "0"}
           toastMessages={{
             submitting: `Depositing ${selectedTokenSymbol}...`,
             success: `Deposit Completed|Deposited ${depositedAmount} ${selectedTokenSymbol}.`,

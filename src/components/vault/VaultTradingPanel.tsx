@@ -75,6 +75,7 @@ const VaultTradingPanel = ({
             selectedTokenDecimals={selectedTokenDecimals}
             selectedTokenAddress={selectedTokenAddress}
             setSelectedToken={setSelectedToken}
+            userAddress={userAddress}
           />
         </TabsContent>
 
