@@ -9,10 +9,11 @@ import vault_abi from "~/lib/contracts/vault_abi";
 import { formatUnits, parseUnits } from "viem";
 import { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
-import { formatNumber } from "~/utils/numbers";
-import { enforceOnlyNumbers } from "~/utils/numbers";
+import { formatNumber, enforceOnlyNumbers } from "~/utils/numbers";
 import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 import VaultIcon from "~/components/vault/VaultIcon";
+
+const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
 
 interface VaultWithdrawTabProps {
   vault: EnrichedVaultInfo;
@@ -34,7 +35,6 @@ const VaultWithdrawTab = ({
     return Number(formatUnits(vaultBalance, vault.tokens.lpToken.decimals));
   }, [vaultBalance, vault.tokens.lpToken.decimals]);
 
-  const withdrawFee = formatFeePercentage(vault.strategy.withdrawFee);
   const lpTokenSymbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
 
   const disableConditions = useMemo(() => {
@@ -62,7 +62,7 @@ const VaultWithdrawTab = ({
   const calculateAmountByPercentage = (percentage: number) => {
     if (!vaultBalance) return "0";
     return formatUnits(
-      (vaultBalance * BigInt(percentage * 100)) / BigInt(100),
+      (vaultBalance * BigInt(Math.round(percentage * 100))) / BigInt(100),
       vault.tokens.lpToken.decimals,
     );
   };
@@ -123,42 +123,18 @@ const VaultWithdrawTab = ({
           Share Balance: {vaultBalanceReactNode} a{lpTokenSymbol}
         </p>
         <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.25))}
-            disabled={!userAddress}
-          >
-            25%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.5))}
-            disabled={!userAddress}
-          >
-            50%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.75))}
-            disabled={!userAddress}
-          >
-            75%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(1))}
-            disabled={!userAddress}
-          >
-            100%
-          </Button>
+          {PERCENTAGE_PRESETS.map((percentage) => (
+            <Button
+              key={percentage}
+              variant="secondary"
+              size="sm"
+              className="flex-1"
+              onClick={() => setAmount(calculateAmountByPercentage(percentage))}
+              disabled={!userAddress}
+            >
+              {percentage * 100}%
+            </Button>
+          ))}
         </div>
       </div>
       <SecondaryCard className="p-4">
@@ -190,7 +166,7 @@ const VaultWithdrawTab = ({
           address={vault.address}
           abi={vault_abi}
           functionName="withdraw"
-          args={[parseUnits(amount ?? "0", vault.tokens.lpToken.decimals)]}
+          args={[parseUnits(amount || "0", vault.tokens.lpToken.decimals)]}
           disableConditions={disableConditions}
           toastMessages={{
             submitting: `Withdrawing ${lpTokenSymbol}...`,
@@ -210,7 +186,9 @@ const VaultWithdrawTab = ({
           <span className="text-card-foreground/70 flex items-center gap-1">
             WITHDRAWAL FEE <HelpCircle className="h-3 w-3" />
           </span>
-          <span className="text-card-foreground">{withdrawFee}</span>
+          <span className="text-card-foreground">
+            {formatFeePercentage(vault.strategy.withdrawFee)}
+          </span>
         </div>
       </div>
 

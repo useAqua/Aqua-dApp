@@ -2,44 +2,66 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { HelpCircle } from "lucide-react";
 import { SecondaryCard } from "~/components/common/SecondaryCard";
-import type { EnrichedVaultInfo } from "~/types";
+import type { EnrichedVaultInfo, TokenType } from "~/types";
 import { formatFeePercentage } from "~/utils/vaultHelpers";
 import { WriteButtonWithAllowance } from "~/components/ui/write-button-with-allowance";
 import vault_abi from "~/lib/contracts/vault_abi";
-import { formatUnits, parseUnits } from "viem";
+import { type Address, formatUnits, parseUnits } from "viem";
 import { useMemo, useState } from "react";
-import { formatNumber } from "~/utils/numbers";
-import { enforceOnlyNumbers } from "~/utils/numbers";
+import { formatNumber, enforceOnlyNumbers } from "~/utils/numbers";
 import { useVaultRefresh } from "~/hooks/use-vault-refresh";
 import VaultIcon from "~/components/vault/VaultIcon";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { TokenIcon } from "~/utils/tokenIcons";
+
+const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
 
 interface VaultDepositTabProps {
   vault: EnrichedVaultInfo;
-  lpTokenBalance: bigint | undefined;
-  lpTokenBalanceReactNode: string;
+  selectedTokenBalance: bigint | undefined;
+  selectedTokenBalanceReactNode: string;
+  selectedTokenAddress: Address;
+  selectedTokenDecimals: number;
+  setSelectedToken: (value: TokenType) => void;
+  selectedToken: TokenType;
 }
 
 const VaultDepositTab = ({
   vault,
-  lpTokenBalance,
-  lpTokenBalanceReactNode,
+  selectedTokenBalance,
+  selectedTokenBalanceReactNode,
+  selectedTokenDecimals,
+  selectedTokenAddress,
+  setSelectedToken,
+  selectedToken,
 }: VaultDepositTabProps) => {
   const [amount, setAmount] = useState("");
+
   const { refreshVaultData } = useVaultRefresh();
 
   const formattedLpTokenBalance = useMemo(() => {
-    if (!lpTokenBalance) return 0;
-    return Number(formatUnits(lpTokenBalance, vault.tokens.lpToken.decimals));
-  }, [lpTokenBalance, vault.tokens.lpToken.decimals]);
+    if (!selectedTokenBalance) return 0;
+    return Number(formatUnits(selectedTokenBalance, selectedTokenDecimals));
+  }, [selectedTokenBalance, selectedTokenDecimals]);
 
-  const depositFee = formatFeePercentage(vault.strategy.depositFee);
-  const lpTokenSymbol = `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
+  const selectedTokenSymbol = useMemo(() => {
+    if (selectedToken === "token0") return vault.tokens.token0.symbol;
+    if (selectedToken === "token1") return vault.tokens.token1.symbol;
+    return `${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`;
+  }, [selectedToken, vault.tokens.token0.symbol, vault.tokens.token1.symbol]);
 
   const calculateAmountByPercentage = (percentage: number) => {
-    if (!lpTokenBalance) return "0";
+    if (!selectedTokenBalance) return "0";
     return formatUnits(
-      (lpTokenBalance * BigInt(percentage * 100)) / BigInt(100),
-      vault.tokens.lpToken.decimals,
+      (selectedTokenBalance * BigInt(Math.round(percentage * 100))) /
+        BigInt(100),
+      selectedTokenDecimals,
     );
   };
 
@@ -53,13 +75,13 @@ const VaultDepositTab = ({
     } else if (parseFloat(amount) > formattedLpTokenBalance) {
       conditions.push({
         condition: true,
-        message: `Insufficient ${lpTokenSymbol} balance`,
+        message: `Insufficient ${selectedTokenSymbol} balance`,
         showLink: true,
       });
     }
 
     return conditions;
-  }, [amount, formattedLpTokenBalance, lpTokenSymbol]);
+  }, [amount, formattedLpTokenBalance, selectedTokenSymbol]);
 
   const handleDeposited = async () => {
     setAmount("");
@@ -84,7 +106,7 @@ const VaultDepositTab = ({
             💰 Enter Amount
           </p>
           <p className="text-card-foreground/70 mb-2 text-sm max-sm:hidden">
-            Balance: {lpTokenBalanceReactNode} {lpTokenSymbol}
+            Balance: {selectedTokenBalanceReactNode} {selectedTokenSymbol}
           </p>
         </div>
 
@@ -96,57 +118,61 @@ const VaultDepositTab = ({
           value={amount}
           onChange={(e) => setAmount(enforceOnlyNumbers(e.target.value))}
         />
-        <Button
-          variant="secondary"
-          size="sm"
-          className="pointer-events-none w-full justify-between"
+        <Select
+          value={selectedToken}
+          onValueChange={(value) =>
+            setSelectedToken(value as "lp" | "token0" | "token1")
+          }
         >
-          <div className="flex items-center gap-2">
-            <VaultIcon
-              vaultName={`${vault.tokens.token0.symbol}/${vault.tokens.token1.symbol}`}
-              size="sm"
-            />
-            <span>{lpTokenSymbol}</span>
-          </div>
-        </Button>
+          <SelectTrigger className="w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lp">
+              <div className="flex items-center gap-2">
+                <VaultIcon vaultName={vault.name} size="sm" />
+                <span>
+                  {vault.tokens.token0.symbol}/{vault.tokens.token1.symbol}
+                </span>
+              </div>
+            </SelectItem>
+            <SelectItem value="token0">
+              <div className="flex items-center gap-2">
+                <TokenIcon
+                  symbol={vault.tokens.token0.symbol ?? "Token0"}
+                  size={24}
+                />
+                <span>{vault.tokens.token0.symbol}</span>
+              </div>
+            </SelectItem>
+            <SelectItem value="token1">
+              <div className="flex items-center gap-2">
+                <TokenIcon
+                  symbol={vault.tokens.token1.symbol ?? "Token1"}
+                  size={24}
+                />
+                <span>{vault.tokens.token1.symbol}</span>
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <p className="text-card-foreground/70 mb-2 text-sm sm:hidden">
-          Balance: {lpTokenBalanceReactNode} {lpTokenSymbol}
+          Balance: {selectedTokenBalanceReactNode} {selectedTokenSymbol}
         </p>
         <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.25))}
-          >
-            25%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.5))}
-          >
-            50%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(0.75))}
-          >
-            75%
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="flex-1"
-            onClick={() => setAmount(calculateAmountByPercentage(1))}
-          >
-            100%
-          </Button>
+          {PERCENTAGE_PRESETS.map((percentage) => (
+            <Button
+              key={percentage}
+              variant="secondary"
+              size="sm"
+              className="flex-1"
+              onClick={() => setAmount(calculateAmountByPercentage(percentage))}
+            >
+              {percentage * 100}%
+            </Button>
+          ))}
         </div>
       </div>
       <SecondaryCard className="p-4">
@@ -159,7 +185,7 @@ const VaultDepositTab = ({
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
-            a{lpTokenSymbol}
+            {selectedTokenSymbol}
           </p>
         </div>
       </SecondaryCard>
@@ -191,18 +217,18 @@ const VaultDepositTab = ({
           address={vault.address}
           abi={vault_abi}
           functionName="deposit"
-          args={[parseUnits(amount ?? "0", vault.tokens.lpToken.decimals)]}
-          tokenAddress={vault.tokens.lpToken.address}
-          tokenDecimals={vault.tokens.lpToken.decimals}
-          tokenSymbol={lpTokenSymbol}
+          args={[parseUnits(amount || "0", selectedTokenDecimals)]}
+          tokenAddress={selectedTokenAddress}
+          tokenDecimals={selectedTokenDecimals}
+          tokenSymbol={selectedTokenSymbol}
           disableConditions={disableConditions}
           spenderAddress={vault.address}
-          requiredAmount={amount ?? "0"}
+          requiredAmount={amount || "0"}
           toastMessages={{
-            submitting: `Depositing ${lpTokenSymbol}...`,
-            success: `Deposit Completed|Deposited ${depositedAmount} ${lpTokenSymbol}.`,
-            error: `Failed to deposit ${lpTokenSymbol}.`,
-            mining: `Depositing ${lpTokenSymbol}...`,
+            submitting: `Depositing ${selectedTokenSymbol}...`,
+            success: `Deposit Completed|Deposited ${depositedAmount} ${selectedTokenSymbol}.`,
+            error: `Failed to deposit ${selectedTokenSymbol}.`,
+            mining: `Depositing ${selectedTokenSymbol}...`,
           }}
           className="w-full"
           onSuccess={handleDeposited}
@@ -216,7 +242,9 @@ const VaultDepositTab = ({
           <span className="text-card-foreground/70 flex items-center gap-1">
             DEPOSIT FEE <HelpCircle className="h-3 w-3" />
           </span>
-          <span className="text-card-foreground">{depositFee}</span>
+          <span className="text-card-foreground">
+            {formatFeePercentage(vault.strategy.depositFee)}
+          </span>
         </div>
       </div>
 

@@ -1,30 +1,54 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Card } from "~/components/ui/card";
 import type { EnrichedVaultInfo } from "~/types";
-import { formatUnits } from "viem";
-import { useMemo } from "react";
+import type { TokenType } from "~/types/vault";
+import { type Address, erc20Abi, formatUnits } from "viem";
+import { useMemo, useState } from "react";
 import { formatNumber } from "~/utils/numbers";
 import VaultDepositTab from "./VaultDepositTab";
 import VaultWithdrawTab from "./VaultWithdrawTab";
+import { useReadContract } from "wagmi";
 
 interface VaultTradingPanelProps {
   vault: EnrichedVaultInfo;
-  lpTokenBalance: bigint | undefined;
+  userAddress: Address | undefined;
   vaultBalance: bigint | undefined;
 }
 
 const VaultTradingPanel = ({
   vault,
-  lpTokenBalance,
+  userAddress,
   vaultBalance,
 }: VaultTradingPanelProps) => {
-  const lpTokenBalanceReactNode = useMemo(() => {
-    if (!lpTokenBalance) return "0";
+  const [selectedToken, setSelectedToken] = useState<TokenType>("lp");
+
+  const [selectedTokenAddress, selectedTokenDecimals] = useMemo<
+    [Address, number]
+  >(() => {
+    if (selectedToken === "token0")
+      return [vault.tokens.token0.address, vault.tokens.token0.decimals];
+    if (selectedToken === "token1")
+      return [vault.tokens.token1.address, vault.tokens.token1.decimals];
+    return [vault.tokens.lpToken.address, vault.tokens.lpToken.decimals];
+  }, [vault, selectedToken]);
+
+  // LP token balance for deposits
+  const { data: selectedTokenBalance } = useReadContract({
+    address: selectedTokenAddress,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: !!userAddress && !!vault,
+    },
+  });
+  const selectedTokenBalanceReactNode = useMemo(() => {
+    if (!selectedTokenBalance) return "0";
     const formatted = Number(
-      formatUnits(lpTokenBalance, vault.tokens.lpToken.decimals),
+      formatUnits(selectedTokenBalance, selectedTokenDecimals),
     );
     return formatNumber(formatted) as string;
-  }, [lpTokenBalance, vault.tokens.lpToken.decimals]);
+  }, [selectedTokenBalance, selectedTokenDecimals]);
 
   const vaultBalanceReactNode = useMemo(() => {
     if (!vaultBalance) return "0";
@@ -45,8 +69,12 @@ const VaultTradingPanel = ({
         <TabsContent value="deposit">
           <VaultDepositTab
             vault={vault}
-            lpTokenBalance={lpTokenBalance}
-            lpTokenBalanceReactNode={lpTokenBalanceReactNode}
+            selectedTokenBalance={selectedTokenBalance}
+            selectedTokenBalanceReactNode={selectedTokenBalanceReactNode}
+            selectedToken={selectedToken}
+            selectedTokenDecimals={selectedTokenDecimals}
+            selectedTokenAddress={selectedTokenAddress}
+            setSelectedToken={setSelectedToken}
           />
         </TabsContent>
 

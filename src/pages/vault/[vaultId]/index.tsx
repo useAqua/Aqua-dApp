@@ -23,17 +23,6 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
   const { isSaved, toggleSaveVault } = useSavedVaults();
   const { address: userAddress } = useAccount();
 
-  // LP token balance for deposits
-  const { data: lpTokenBalance } = useReadContract({
-    address: vault?.tokens.lpToken.address,
-    abi: erc20Abi,
-    functionName: "balanceOf",
-    args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress && !!vault,
-    },
-  });
-
   // Vault balance for withdrawals (user's shares in the vault)
   const { data: vaultBalance } = useReadContract({
     address: vault?.address,
@@ -109,7 +98,7 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
         <div className="lg:col-span-1">
           <VaultTradingPanel
             vault={vault}
-            lpTokenBalance={lpTokenBalance}
+            userAddress={userAddress}
             vaultBalance={vaultBalance}
           />
         </div>
