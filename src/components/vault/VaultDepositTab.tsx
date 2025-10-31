@@ -317,6 +317,8 @@ const VaultDepositTab = ({
         </div>
       </div>
       <SecondaryCard className="p-4">
+        {/*TODO: Calculate based on Selected Token*/}
+
         <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
           {formatNumber(Number(amount || 0) / vault.sharePrice)}
