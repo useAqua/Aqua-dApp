@@ -21,11 +21,12 @@ import {
 import { TokenIcon } from "~/utils/tokenIcons";
 import gteZap from "~/lib/contracts/gteZap";
 import { WriteButtonWithAllowance } from "~/components/ui/write-button-with-allowance";
-
-const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
-const PERCENTAGE_MULTIPLIER = BigInt(100);
-const SLIPPAGE_TOLERANCE = BigInt(98);
-const SLIPPAGE_DENOMINATOR = BigInt(100);
+import {
+  PERCENTAGE_PRESETS,
+  PERCENTAGE_MULTIPLIER,
+  SLIPPAGE_TOLERANCE,
+  SLIPPAGE_DENOMINATOR,
+} from "./vaultConstants";
 
 type DisableCondition = {
   condition: boolean;

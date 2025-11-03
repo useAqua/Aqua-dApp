@@ -23,11 +23,12 @@ import { TokenIcon } from "~/utils/tokenIcons";
 import { api } from "~/utils/api";
 import gteZap from "~/lib/contracts/gteZap";
 import { useBalance } from "wagmi";
-
-const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
-const SLIPPAGE_TOLERANCE = BigInt(98);
-const SLIPPAGE_DENOMINATOR = BigInt(100);
-const PERCENTAGE_MULTIPLIER = BigInt(100);
+import {
+  PERCENTAGE_PRESETS,
+  SLIPPAGE_TOLERANCE,
+  SLIPPAGE_DENOMINATOR,
+  PERCENTAGE_MULTIPLIER,
+} from "./vaultConstants";
 
 type DisableCondition = {
   condition: boolean;
