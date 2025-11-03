@@ -121,7 +121,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
 
             <MetricCard
               icon={Award}
-              label="YOUR POINTS"
+              label="GENESIS POINTS"
               value={<>{formatNumber(totalPoints)}</>}
               type="card"
             />
