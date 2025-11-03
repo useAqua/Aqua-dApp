@@ -3,13 +3,40 @@ import APYBreakdownGrid from "~/components/charts/APYBreakdownGrid";
 import type { EnrichedVaultInfo } from "~/types";
 import { formatNumber } from "~/utils/numbers";
 import { generateVaultDescription } from "~/utils/vaultHelpers";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface VaultStrategyProps {
-  vault: EnrichedVaultInfo;
+  vault: EnrichedVaultInfo | null;
   description?: string;
+  isLoading?: boolean;
 }
 
-const VaultStrategy = ({ vault, description }: VaultStrategyProps) => {
+const VaultStrategy = ({
+  vault,
+  description,
+  isLoading = false,
+}: VaultStrategyProps) => {
+  if (isLoading || !vault) {
+    return (
+      <Card className="p-6">
+        <Skeleton isLoading className="mb-6 h-7 w-32" />
+        <div className="space-y-3">
+          <Skeleton isLoading className="h-4 w-full" />
+          <Skeleton isLoading className="h-4 w-full" />
+          <Skeleton isLoading className="h-4 w-3/4" />
+        </div>
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <div key={i}>
+              <Skeleton isLoading className="mb-2 h-4 w-20" />
+              <Skeleton isLoading className="h-6 w-24" />
+            </div>
+          ))}
+        </div>
+      </Card>
+    );
+  }
+
   const vaultDescription =
     description ??
     generateVaultDescription(

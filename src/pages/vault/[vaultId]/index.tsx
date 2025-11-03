@@ -7,21 +7,37 @@ import VaultStrategy from "~/components/vault/VaultStrategy";
 import VaultActions from "~/components/vault/VaultActions";
 import { TokenIcon } from "~/utils/tokenIcons";
 import { enrichVaultWithMockData } from "~/utils/vaultHelpers";
-import type { GetServerSideProps } from "next";
-import type { EnrichedVaultInfo, VaultDetailInfo } from "~/types";
-import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 import { useSavedVaults } from "~/hooks/use-saved-vaults";
 import { useAccount, useReadContract } from "wagmi";
 import { erc20Abi, formatEther } from "viem";
 import { useMemo } from "react";
+import { useRouter } from "next/router";
+import { api } from "~/utils/api";
 
-interface VaultDetailProps {
-  vault: EnrichedVaultInfo | null;
-}
+const VaultDetail = () => {
+  const router = useRouter();
+  const vaultId = router.query.vaultId as string | undefined;
 
-const VaultDetail = ({ vault }: VaultDetailProps) => {
   const { isSaved, toggleSaveVault } = useSavedVaults();
   const { address: userAddress } = useAccount();
+
+  const { data: vaultData, isLoading: isLoadingVault } =
+    api.vaults.getSingleVaultInfo.useQuery(
+      { id: vaultId! },
+      { enabled: !!vaultId },
+    );
+
+  const { data: apyData, isLoading: isLoadingApy } =
+    api.gte.getSingleMarketAPY.useQuery(
+      vaultData?.tokens.lpToken.address ?? "",
+      { enabled: !!vaultData?.tokens.lpToken.address },
+    );
+
+  // Enrich vault with APY data
+  const vault = useMemo(() => {
+    if (!vaultData) return null;
+    return enrichVaultWithMockData(vaultData, apyData ?? { apy: 0, apr: 0 });
+  }, [vaultData, apyData]);
 
   // Vault balance for withdrawals (user's shares in the vault)
   const { data: vaultBalance } = useReadContract({
@@ -44,7 +60,9 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
     return vaultBalanceFormatted * sharePrice * lpTokenPrice;
   }, [vault, vaultBalance]);
 
-  if (!vault) {
+  const isLoading = isLoadingVault || isLoadingApy;
+
+  if (!isLoading && !vault) {
     return (
       <PageLayout title="Vault Not Found">
         <div className="flex min-h-[60vh] items-center justify-center">
@@ -63,38 +81,55 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
 
   return (
     <PageLayout
-      title={`${vault.name} | Aqua`}
-      description={`${vault.name} vault details and management`}
+      title={vault?.name ? `${vault.name} | Aqua` : "Vault | Aqua"}
+      description={
+        vault?.name
+          ? `${vault.name} vault details and management`
+          : "Vault details and management"
+      }
     >
       <VaultHeader
         icon={
-          <div className="flex items-center -space-x-2">
-            <TokenIcon symbol={vault.tokens.token0.symbol} size={48} />
-            <TokenIcon symbol={vault.tokens.token1.symbol} size={48} />
-          </div>
+          vault ? (
+            <div className="flex items-center -space-x-2">
+              <TokenIcon symbol={vault.tokens.token0.symbol} size={48} />
+              <TokenIcon symbol={vault.tokens.token1.symbol} size={48} />
+            </div>
+          ) : (
+            <div />
+          )
         }
-        name={vault.name}
-        platform={vault.platformId}
+        name={vault?.name ?? ""}
+        platform={vault?.platformId ?? ""}
         actions={
-          <VaultActions
-            vaultAddress={vault.address}
-            vaultName={vault.name}
-            isBookmarked={isSaved(vault.address)}
-            onBookmarkToggle={toggleSaveVault}
-          />
+          vault ? (
+            <VaultActions
+              vaultAddress={vault.address}
+              vaultName={vault.name}
+              isBookmarked={isSaved(vault.address)}
+              onBookmarkToggle={toggleSaveVault}
+            />
+          ) : undefined
         }
+        isLoading={isLoading}
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:hidden">
-          <VaultMetrics vault={{ ...vault, deposit: depositedUsd }} />
+          <VaultMetrics
+            vault={vault ? { ...vault, deposit: depositedUsd } : null}
+            isLoading={isLoading}
+          />
         </div>
         <div className="space-y-6 max-lg:order-1 lg:col-span-2">
           <div className="max-lg:hidden">
-            <VaultMetrics vault={{ ...vault, deposit: depositedUsd }} />
+            <VaultMetrics
+              vault={vault ? { ...vault, deposit: depositedUsd } : null}
+              isLoading={isLoading}
+            />
           </div>
-          <VaultLPBreakdown vault={vault} />
-          <VaultStrategy vault={vault} />
+          <VaultLPBreakdown vault={vault} isLoading={isLoading} />
+          <VaultStrategy vault={vault} isLoading={isLoading} />
         </div>
 
         <div className="lg:col-span-1">
@@ -102,70 +137,12 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
             vault={vault}
             userAddress={userAddress}
             vaultBalance={vaultBalance}
+            isLoading={isLoading}
           />
         </div>
       </div>
     </PageLayout>
   );
-};
-
-export const getServerSideProps: GetServerSideProps<VaultDetailProps> = async (
-  context,
-) => {
-  const vaultId = context.params?.vaultId as string | undefined;
-
-  if (!vaultId) {
-    return {
-      props: {
-        vault: null,
-      },
-    };
-  }
-
-  try {
-    const vaultData = await fetchTRPCQuery<{ id: string }, VaultDetailInfo>(
-      context.req,
-      "vaults.getSingleVaultInfo",
-      { id: vaultId },
-    );
-
-    if (!vaultData) {
-      return {
-        props: {
-          vault: null,
-        },
-      };
-    }
-
-    const apyData = await fetchTRPCQuery<
-      string,
-      {
-        apy: number;
-        apr: number;
-      }
-    >(context.req, "gte.getSingleMarketAPY", vaultData.tokens.lpToken.address);
-
-    const enrichedVault = enrichVaultWithMockData(
-      vaultData,
-      apyData ?? {
-        apy: 0,
-        apr: 0,
-      },
-    );
-
-    return {
-      props: {
-        vault: enrichedVault,
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching vault data:", error);
-    return {
-      props: {
-        vault: null,
-      },
-    };
-  }
 };
 
 export default VaultDetail;

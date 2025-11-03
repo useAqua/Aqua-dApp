@@ -9,17 +9,13 @@ import { api } from "~/utils/api";
 import { useAccount } from "wagmi";
 import { useMemo } from "react";
 import { formatNumber } from "~/utils/numbers";
-import type { GetServerSideProps } from "next";
-import type { VaultTableEntry } from "~/types";
-import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 
-interface DashboardProps {
-  vaultTable: VaultTableEntry[];
-}
-
-const Dashboard = ({ vaultTable }: DashboardProps) => {
+const Dashboard = () => {
   const { address: connectedUser } = useAccount();
+
+  const { data: vaultTable, isLoading: isLoadingVaultTable } =
+    api.vaults.getVaultTable.useQuery();
 
   const { data: userVaultData, isLoading: isLoadingUserVaultData } =
     api.vaults.getUserVaultData.useQuery(
@@ -32,7 +28,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
 
   // Merge vault table with user vault data and filter only vaults with deposits
   const vaultTableWithBalances = useMemo(() => {
-    if (!userVaultData) return [];
+    if (!vaultTable || !userVaultData) return [];
 
     return vaultTable
       .map((vault) => {
@@ -117,6 +113,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
               label="YOUR DEPOSITS"
               value={<>${formatNumber(totalDeposited)}</>}
               type="card"
+              isLoading={isLoadingVaultTable || isLoadingUserVaultData}
             />
 
             <MetricCard
@@ -124,6 +121,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
               label="VAULTS"
               value={`${totalVaults}`}
               type="card"
+              isLoading={isLoadingVaultTable}
             />
 
             <MetricCard
@@ -131,6 +129,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
               label="GENESIS POINTS"
               value={<>{formatNumber(totalPoints)}</>}
               type="card"
+              isLoading={isLoadingVaultTable || isLoadingUserVaultData}
             />
 
             <MetricCard
@@ -138,6 +137,9 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
               label="EST. DAILY YIELD"
               value={<>${formatNumber(totalDailyYield)}</>}
               type="card"
+              isLoading={
+                isLoadingVaultTable || isLoadingAPY || isLoadingUserVaultData
+              }
             />
           </div>
 
@@ -159,7 +161,7 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
               data={filteredVaults}
               isLoadingWallet={isLoadingUserVaultData}
               isLoadingDeposit={isLoadingUserVaultData}
-              isLoadingAPY={isLoadingAPY}
+              isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
               isLoadingPoints={isLoadingUserVaultData}
               customEmptyTableMessage={
                 searchQuery
@@ -175,28 +177,3 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
 };
 
 export default Dashboard;
-
-export const getServerSideProps: GetServerSideProps<DashboardProps> = async (
-  context,
-) => {
-  try {
-    const vaultTable = await fetchTRPCQuery<void, VaultTableEntry[]>(
-      context.req,
-      "vaults.getVaultTable",
-      undefined,
-    );
-
-    return {
-      props: {
-        vaultTable: vaultTable ?? [],
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching vault table:", error);
-    return {
-      props: {
-        vaultTable: [],
-      },
-    };
-  }
-};

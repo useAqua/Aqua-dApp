@@ -1,6 +1,7 @@
 import { type ReactNode } from "react";
 import { type LucideIcon } from "lucide-react";
 import { cn } from "~/lib/utils";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface MetricCardProps {
   label: string;
@@ -12,6 +13,7 @@ interface MetricCardProps {
   valueColor?: "default" | "accent" | "green" | "red";
   children?: ReactNode;
   type?: "bare" | "card";
+  isLoading?: boolean;
 }
 
 const MetricCard = ({
@@ -24,6 +26,7 @@ const MetricCard = ({
   valueColor = "default",
   children,
   type = "bare",
+  isLoading = false,
 }: MetricCardProps) => {
   const getValueColorClass = () => {
     switch (valueColor) {
@@ -37,6 +40,25 @@ const MetricCard = ({
         return "text-card-foreground";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div
+        className={cn(
+          "text-card-foreground",
+          {
+            "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
+              type === "card",
+          },
+          className,
+        )}
+      >
+        <Skeleton isLoading className="mb-2 h-4 w-24" />
+        <Skeleton isLoading className="h-8 w-32" />
+        {subValue && <Skeleton isLoading className="mt-1 h-3 w-20" />}
+      </div>
+    );
+  }
 
   return (
     <div

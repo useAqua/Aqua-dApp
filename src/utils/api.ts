@@ -42,6 +42,22 @@ export const api = createTRPCNext<AppRouter>({
           url: `${getBaseUrl()}/api/trpc`,
         }),
       ],
+      /**
+       * Query client configuration with caching
+       *
+       * @see https://tanstack.com/query/latest/docs/framework/react/guides/caching
+       */
+      queryClientConfig: {
+        defaultOptions: {
+          queries: {
+            gcTime: 1000 * 60 * 60 * 24, // 24 hours - how long to keep unused data in cache
+            staleTime: 1000 * 60 * 5, // 5 minutes - how long until data is considered stale
+            refetchOnWindowFocus: false, // Don't refetch when window regains focus
+            refetchOnReconnect: false, // Don't refetch on reconnect
+            retry: 1, // Only retry failed requests once
+          },
+        },
+      },
     };
   },
   /**

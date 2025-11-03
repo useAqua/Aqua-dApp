@@ -11,9 +11,7 @@ import VaultTable from "~/components/vault/VaultTable";
 import { Tabs } from "@radix-ui/react-tabs";
 import { formatNumber } from "~/utils/numbers";
 import { useAccount } from "wagmi";
-import type { GetServerSideProps } from "next";
 import type { VaultTableEntry } from "~/types";
-import { fetchTRPCQuery } from "~/server/helpers/trpcFetch";
 import { useSavedVaults } from "~/hooks/use-saved-vaults";
 
 const portfolioTabs = [
@@ -22,14 +20,13 @@ const portfolioTabs = [
   { id: "positions", label: "My Positions" },
 ] as const;
 
-interface HomeProps {
-  vaultTable: VaultTableEntry[];
-}
-
-export default function Home({ vaultTable }: HomeProps) {
+export default function Home() {
   const [activeTab, setActiveTab] = useState("all");
   const { address: connectedUser } = useAccount();
   const { savedVaults } = useSavedVaults();
+
+  const { data: vaultTable, isLoading: isLoadingVaultTable } =
+    api.vaults.getVaultTable.useQuery();
 
   const { data: apys, isLoading: isLoadingAPY } =
     api.gte.getMarketAPYs.useQuery();
@@ -42,6 +39,7 @@ export default function Home({ vaultTable }: HomeProps) {
 
   // Merge vault table with user vault data
   const vaultTableWithBalances = useMemo(() => {
+    if (!vaultTable) return [];
     if (!userVaultData) return vaultTable;
 
     return vaultTable.map((vault) => {
@@ -123,11 +121,17 @@ export default function Home({ vaultTable }: HomeProps) {
           <MetricCard
             label="DEPOSITED"
             value={<>${formatNumber(totalDeposited)}</>}
+            isLoading={isLoadingVaultTable || isLoadingUserVaultData}
           />
-          <MetricCard label="AVG. APY" value={<>{formatNumber(avgApy)}%</>} />
+          <MetricCard
+            label="AVG. APY"
+            value={<>{formatNumber(avgApy)}%</>}
+            isLoading={isLoadingVaultTable || isLoadingAPY}
+          />
           <MetricCard
             label="GENESIS POINTS"
             value={<>{formatNumber(totalPoints)}</>}
+            isLoading={isLoadingVaultTable || isLoadingUserVaultData}
           />
         </div>
         <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
@@ -136,11 +140,13 @@ export default function Home({ vaultTable }: HomeProps) {
             label="TVL"
             value={<>${formatNumber(totalTVL)}</>}
             className="md:text-right"
+            isLoading={isLoadingVaultTable}
           />
           <MetricCard
             label="Vaults"
             value={`${totalVaults}`}
             className="md:text-right"
+            isLoading={isLoadingVaultTable}
           />
         </div>
       </div>
@@ -166,7 +172,7 @@ export default function Home({ vaultTable }: HomeProps) {
           isLoadingWallet={isLoadingUserVaultData}
           isLoadingDeposit={isLoadingUserVaultData}
           isLoadingPoints={isLoadingUserVaultData}
-          isLoadingAPY={isLoadingAPY}
+          isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
           customEmptyTableMessage={
             activeTab === "positions"
               ? "You don't have any deposits in vaults yet."
@@ -183,28 +189,3 @@ export default function Home({ vaultTable }: HomeProps) {
     </PageLayout>
   );
 }
-
-export const getServerSideProps: GetServerSideProps<HomeProps> = async (
-  context,
-) => {
-  try {
-    const vaultTable = await fetchTRPCQuery<void, VaultTableEntry[]>(
-      context.req,
-      "vaults.getVaultTable",
-      undefined,
-    );
-
-    return {
-      props: {
-        vaultTable: vaultTable ?? [],
-      },
-    };
-  } catch (error) {
-    console.error("Error fetching vault table:", error);
-    return {
-      props: {
-        vaultTable: [],
-      },
-    };
-  }
-};

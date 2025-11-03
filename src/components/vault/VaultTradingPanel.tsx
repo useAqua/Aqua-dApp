@@ -8,23 +8,27 @@ import { formatNumber } from "~/utils/numbers";
 import VaultDepositTab from "./VaultDepositTab";
 import VaultWithdrawTab from "./VaultWithdrawTab";
 import { useReadContract } from "wagmi";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface VaultTradingPanelProps {
-  vault: EnrichedVaultInfo;
+  vault: EnrichedVaultInfo | null;
   userAddress: Address | undefined;
   vaultBalance: bigint | undefined;
+  isLoading?: boolean;
 }
 
 const VaultTradingPanel = ({
   vault,
   userAddress,
   vaultBalance,
+  isLoading = false,
 }: VaultTradingPanelProps) => {
   const [selectedToken, setSelectedToken] = useState<TokenType>("lp");
 
   const [selectedTokenAddress, selectedTokenDecimals] = useMemo<
     [Address, number]
   >(() => {
+    if (!vault) return ["0x0" as Address, 18];
     if (selectedToken === "token0")
       return [vault.tokens.token0.address, vault.tokens.token0.decimals];
     if (selectedToken === "token1")
@@ -42,6 +46,7 @@ const VaultTradingPanel = ({
       enabled: !!userAddress && !!vault,
     },
   });
+
   const selectedTokenBalanceReactNode = useMemo(() => {
     if (!selectedTokenBalance) return "0";
     const formatted = Number(
@@ -51,12 +56,36 @@ const VaultTradingPanel = ({
   }, [selectedTokenBalance, selectedTokenDecimals]);
 
   const vaultBalanceReactNode = useMemo(() => {
-    if (!vaultBalance) return "0";
+    if (!vaultBalance || !vault) return "0";
     const formatted = Number(
       formatUnits(vaultBalance, vault.tokens.lpToken.decimals),
     );
     return formatNumber(formatted) as string;
-  }, [vaultBalance, vault.tokens.lpToken.decimals]);
+  }, [vaultBalance, vault]);
+
+  if (isLoading || !vault) {
+    return (
+      <Card className={`sticky top-20 min-h-[500px] p-6 max-md:py-8`}>
+        <Skeleton isLoading className="mb-6 h-10 w-full rounded-lg" />
+        <div className="space-y-4">
+          <div>
+            <Skeleton isLoading className="mb-2 h-4 w-24" />
+            <Skeleton isLoading className="h-12 w-full" />
+          </div>
+          <div>
+            <Skeleton isLoading className="mb-2 h-4 w-32" />
+            <Skeleton isLoading className="h-12 w-full" />
+          </div>
+          <div className="flex gap-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} isLoading className="h-8 flex-1" />
+            ))}
+          </div>
+          <Skeleton isLoading className="mt-6 h-12 w-full" />
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className={`sticky top-20 min-h-[500px] p-6 max-md:py-8`}>

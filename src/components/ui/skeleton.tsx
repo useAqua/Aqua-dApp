@@ -3,11 +3,11 @@ import { cn } from "~/lib/utils";
 
 interface SkeletonProps {
   isLoading?: boolean;
-  children: React.ReactNode;
   className?: string;
+  children?: React.ReactNode;
 }
 
-function Skeleton({ isLoading = false, children, className }: SkeletonProps) {
+function Skeleton({ isLoading = false, className, children }: SkeletonProps) {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -23,7 +23,9 @@ function Skeleton({ isLoading = false, children, className }: SkeletonProps) {
   }
 
   return (
-    <div className={cn("animate-pulse rounded-sm bg-gray-500", className)} />
+    <div className={cn("animate-pulse rounded-sm bg-gray-500", className)}>
+      {children}
+    </div>
   );
 }
 
