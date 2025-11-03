@@ -229,18 +229,16 @@ const VaultDepositTab = ({
 
     if (amountValue === 0) return 0;
 
-    // Get the dollar value of the tokens being deposited
     let depositValueUsd: number;
 
     if (selectedToken === "lp") {
-      // For LP tokens, use the LP token price directly
       depositValueUsd = amountValue * vault.tokens.lpToken.price;
     } else if (selectedToken === "token0") {
-      // For token0, use token0 price
       depositValueUsd = amountValue * vault.tokens.token0.price;
-    } else {
-      // For token1, use token1 price
+    } else if (selectedToken === "token1") {
       depositValueUsd = amountValue * vault.tokens.token1.price;
+    } else {
+      depositValueUsd = amountValue * vault.tokens.lpToken.price;
     }
 
     // Calculate the equivalent LP token worth
@@ -266,8 +264,10 @@ const VaultDepositTab = ({
       return amountValue * vault.tokens.lpToken.price;
     } else if (selectedToken === "token0") {
       return amountValue * vault.tokens.token0.price;
-    } else {
+    } else if (selectedToken === "token1") {
       return amountValue * vault.tokens.token1.price;
+    } else {
+      return amountValue * vault.tokens.lpToken.price;
     }
   }, [
     amount,
@@ -305,7 +305,7 @@ const VaultDepositTab = ({
           <Select
             value={selectedToken}
             onValueChange={(value) =>
-              setSelectedToken(value as "lp" | "token0" | "token1")
+              setSelectedToken(value as Exclude<TokenType, "both">)
             }
           >
             <SelectTrigger className="w-full">
@@ -372,10 +372,10 @@ const VaultDepositTab = ({
       <SecondaryCard className="p-4">
         <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
-          {formatNumber(calculatedSharesToReceive)}
+          ~{formatNumber(calculatedSharesToReceive)}
         </p>
         <p className="text-secondary-foreground/80 mt-1 text-xs">
-          ${formatNumber(depositValueUsd) ?? "0"}
+          ~${formatNumber(depositValueUsd) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">

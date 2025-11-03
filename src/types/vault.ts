@@ -2,7 +2,7 @@ import type { Address } from "viem";
 
 export type Protocol = string;
 
-export type TokenType = "lp" | "token0" | "token1";
+export type TokenType = "lp" | "token0" | "token1" | "both";
 
 export interface Vault {
   id: string;

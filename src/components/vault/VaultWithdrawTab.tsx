@@ -71,6 +71,12 @@ const VaultWithdrawTab = ({
         withdrawTokenAddress: vault.tokens.token1.address,
       };
     }
+    if (selectedToken === "both") {
+      return {
+        withdrawTokenSymbol: `${vault.tokens.token0.symbol} and ${vault.tokens.token1.symbol}`,
+        withdrawTokenAddress: vault.tokens.lpToken.address, // Use LP address for "both"
+      };
+    }
     return {
       withdrawTokenSymbol: lpTokenSymbol,
       withdrawTokenAddress: vault.tokens.lpToken.address,
@@ -159,7 +165,6 @@ const VaultWithdrawTab = ({
       } as const;
     }
 
-    // Default to aquaOut if neither LP nor specific token
     return {
       ...gteZap,
       functionName: "aquaOut",
@@ -172,15 +177,119 @@ const VaultWithdrawTab = ({
     await refreshVaultData();
   }, [refreshVaultData]);
 
-  const withdrawnAmount = useMemo(() => {
-    const value = Number(amount || 0) * vault.sharePrice;
-    // Simple formatting for toast messages
+  const calculatedWithdrawAmount = useMemo(() => {
+    const amountValue = Number(amount || 0);
+
+    if (amountValue === 0) return 0;
+
+    const lpTokenAmount = amountValue * vault.sharePrice;
+
+    if (selectedToken === "lp") {
+      return lpTokenAmount;
+    } else if (selectedToken === "token0") {
+      const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+      return lpValueUsd / vault.tokens.token0.price;
+    } else if (selectedToken === "token1") {
+      const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+      return lpValueUsd / vault.tokens.token1.price;
+    } else if (selectedToken === "both") {
+      return lpTokenAmount;
+    }
+
+    return lpTokenAmount;
+  }, [
+    amount,
+    selectedToken,
+    vault.sharePrice,
+    vault.tokens.token0.price,
+    vault.tokens.token1.price,
+    vault.tokens.lpToken.price,
+  ]);
+
+  const token0WithdrawAmount = useMemo(() => {
+    if (selectedToken !== "both") return 0;
+
+    const amountValue = Number(amount || 0);
+    if (amountValue === 0) return 0;
+
+    const lpTokenAmount = amountValue * vault.sharePrice;
+    const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+
+    const halfValueUsd = lpValueUsd / 2;
+    return halfValueUsd / vault.tokens.token0.price;
+  }, [
+    amount,
+    selectedToken,
+    vault.sharePrice,
+    vault.tokens.lpToken.price,
+    vault.tokens.token0.price,
+  ]);
+
+  const token1WithdrawAmount = useMemo(() => {
+    if (selectedToken !== "both") return 0;
+
+    const amountValue = Number(amount || 0);
+    if (amountValue === 0) return 0;
+
+    const lpTokenAmount = amountValue * vault.sharePrice;
+    const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+
+    const halfValueUsd = lpValueUsd / 2;
+    return halfValueUsd / vault.tokens.token1.price;
+  }, [
+    amount,
+    selectedToken,
+    vault.sharePrice,
+    vault.tokens.lpToken.price,
+    vault.tokens.token1.price,
+  ]);
+
+  const withdrawValueUsd = useMemo(() => {
+    const amountValue = Number(amount || 0);
+
+    if (amountValue === 0) return 0;
+
+    const lpTokenAmount = amountValue * vault.sharePrice;
+
+    return lpTokenAmount * vault.tokens.lpToken.price;
+  }, [amount, vault.sharePrice, vault.tokens.lpToken.price]);
+
+  const formatWithdrawAmount = useCallback((value: number) => {
     if (value === 0) return "0";
     if (value < 0.001) return value.toExponential(2);
     if (value < 1) return value.toFixed(4);
     if (value < 1000) return value.toFixed(3);
-    return value.toLocaleString("en-US", { maximumFractionDigits: 2 });
-  }, [amount, vault.sharePrice]);
+    return value.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+    });
+  }, []);
+
+  const withdrawnAmount = useMemo(() => {
+    return formatWithdrawAmount(calculatedWithdrawAmount);
+  }, [calculatedWithdrawAmount, formatWithdrawAmount]);
+
+  const formattedToken0Amount = useMemo(() => {
+    return formatWithdrawAmount(token0WithdrawAmount);
+  }, [token0WithdrawAmount, formatWithdrawAmount]);
+
+  const formattedToken1Amount = useMemo(() => {
+    return formatWithdrawAmount(token1WithdrawAmount);
+  }, [token1WithdrawAmount, formatWithdrawAmount]);
+
+  const successMessage = useMemo(() => {
+    if (selectedToken === "both") {
+      return `Withdraw Completed|Withdrawn ${formattedToken0Amount} ${vault.tokens.token0.symbol} and ${formattedToken1Amount} ${vault.tokens.token1.symbol}.`;
+    }
+    return `Withdraw Completed|Withdrawn ${withdrawnAmount} ${withdrawTokenSymbol}.`;
+  }, [
+    selectedToken,
+    formattedToken0Amount,
+    formattedToken1Amount,
+    vault.tokens.token0.symbol,
+    vault.tokens.token1.symbol,
+    withdrawnAmount,
+    withdrawTokenSymbol,
+  ]);
 
   return (
     <div className="space-y-6">
@@ -205,9 +314,7 @@ const VaultWithdrawTab = ({
         />
         <Select
           value={selectedToken}
-          onValueChange={(value) =>
-            setSelectedToken(value as "lp" | "token0" | "token1")
-          }
+          onValueChange={(value) => setSelectedToken(value as TokenType)}
           disabled={!userAddress}
         >
           <SelectTrigger className="w-full">
@@ -279,16 +386,27 @@ const VaultWithdrawTab = ({
         </div>
       </div>
       <SecondaryCard className="p-4">
-        {/*TODO: Calculate based on Selected Token*/}
         <p className="mb-2 text-sm">You receive</p>
-        <p className="mb-1 text-2xl font-bold">
-          {formatNumber(Number(amount || 0) * vault.sharePrice)}
-        </p>
+        {selectedToken === "both" ? (
+          <>
+            <div className="mb-2">
+              <p className="text-lg font-bold">
+                ~{formatNumber(token0WithdrawAmount)}{" "}
+                {vault.tokens.token0.symbol}
+              </p>
+              <p className="text-lg font-bold">
+                ~{formatNumber(token1WithdrawAmount)}{" "}
+                {vault.tokens.token1.symbol}
+              </p>
+            </div>
+          </>
+        ) : (
+          <p className="mb-1 text-2xl font-bold">
+            ~{formatNumber(calculatedWithdrawAmount)}
+          </p>
+        )}
         <p className="text-secondary-foreground/80 mt-1 text-xs">
-          $
-          {formatNumber(
-            Number(amount || 0) * vault.sharePrice * vault.tokens.lpToken.price,
-          ) ?? "0"}
+          ~${formatNumber(withdrawValueUsd) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
@@ -318,7 +436,7 @@ const VaultWithdrawTab = ({
           disableConditions={disableConditions}
           toastMessages={{
             submitting: `Withdrawing ${withdrawTokenSymbol}...`,
-            success: `Withdraw Completed|Withdrawn ${withdrawnAmount} ${withdrawTokenSymbol}.`,
+            success: successMessage,
             error: `Failed to withdraw ${withdrawTokenSymbol}.`,
             mining: `Withdrawing ${withdrawTokenSymbol}...`,
           }}
