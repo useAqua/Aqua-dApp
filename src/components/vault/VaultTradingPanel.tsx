@@ -66,7 +66,7 @@ const VaultTradingPanel = ({
           <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="deposit">
+        <TabsContent value="deposit" forceMount>
           <VaultDepositTab
             vault={vault}
             selectedTokenBalance={selectedTokenBalance}
@@ -79,7 +79,7 @@ const VaultTradingPanel = ({
           />
         </TabsContent>
 
-        <TabsContent value="withdraw">
+        <TabsContent value="withdraw" forceMount>
           <VaultWithdrawTab
             vault={vault}
             vaultBalance={vaultBalance}
