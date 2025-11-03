@@ -224,6 +224,59 @@ const VaultDepositTab = ({
     }
   }, [isWeth, useEth]);
 
+  const calculatedSharesToReceive = useMemo(() => {
+    const amountValue = Number(amount || 0);
+
+    if (amountValue === 0) return 0;
+
+    // Get the dollar value of the tokens being deposited
+    let depositValueUsd: number;
+
+    if (selectedToken === "lp") {
+      // For LP tokens, use the LP token price directly
+      depositValueUsd = amountValue * vault.tokens.lpToken.price;
+    } else if (selectedToken === "token0") {
+      // For token0, use token0 price
+      depositValueUsd = amountValue * vault.tokens.token0.price;
+    } else {
+      // For token1, use token1 price
+      depositValueUsd = amountValue * vault.tokens.token1.price;
+    }
+
+    // Calculate the equivalent LP token worth
+    const lpTokenWorth = depositValueUsd / vault.tokens.lpToken.price;
+
+    // Divide by share price to get the shares
+    return lpTokenWorth / vault.sharePrice;
+  }, [
+    amount,
+    selectedToken,
+    vault.tokens.token0.price,
+    vault.tokens.token1.price,
+    vault.tokens.lpToken.price,
+    vault.sharePrice,
+  ]);
+
+  const depositValueUsd = useMemo(() => {
+    const amountValue = Number(amount || 0);
+
+    if (amountValue === 0) return 0;
+
+    if (selectedToken === "lp") {
+      return amountValue * vault.tokens.lpToken.price;
+    } else if (selectedToken === "token0") {
+      return amountValue * vault.tokens.token0.price;
+    } else {
+      return amountValue * vault.tokens.token1.price;
+    }
+  }, [
+    amount,
+    selectedToken,
+    vault.tokens.token0.price,
+    vault.tokens.token1.price,
+    vault.tokens.lpToken.price,
+  ]);
+
   return (
     <div className="space-y-6">
       <div>
@@ -317,14 +370,12 @@ const VaultDepositTab = ({
         </div>
       </div>
       <SecondaryCard className="p-4">
-        {/*TODO: Calculate based on Selected Token*/}
-
         <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
-          {formatNumber(Number(amount || 0) / vault.sharePrice)}
+          {formatNumber(calculatedSharesToReceive)}
         </p>
         <p className="text-secondary-foreground/80 mt-1 text-xs">
-          ${formatNumber(Number(amount) * vault.tokens.lpToken.price) ?? "0"}
+          ${formatNumber(depositValueUsd) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
