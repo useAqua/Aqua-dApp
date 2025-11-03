@@ -372,10 +372,10 @@ const VaultDepositTab = ({
       <SecondaryCard className="p-4">
         <p className="mb-2 text-sm">You receive</p>
         <p className="mb-1 text-2xl font-bold">
-          ~{formatNumber(calculatedSharesToReceive)}
+          {formatNumber(calculatedSharesToReceive)}
         </p>
         <p className="text-secondary-foreground/80 mt-1 text-xs">
-          ~${formatNumber(depositValueUsd) ?? "0"}
+          ${formatNumber(depositValueUsd) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">

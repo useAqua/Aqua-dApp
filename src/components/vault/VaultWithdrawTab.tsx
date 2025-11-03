@@ -391,22 +391,22 @@ const VaultWithdrawTab = ({
           <>
             <div className="mb-2">
               <p className="text-lg font-bold">
-                ~{formatNumber(token0WithdrawAmount)}{" "}
+                {formatNumber(token0WithdrawAmount)}{" "}
                 {vault.tokens.token0.symbol}
               </p>
               <p className="text-lg font-bold">
-                ~{formatNumber(token1WithdrawAmount)}{" "}
+                {formatNumber(token1WithdrawAmount)}{" "}
                 {vault.tokens.token1.symbol}
               </p>
             </div>
           </>
         ) : (
           <p className="mb-1 text-2xl font-bold">
-            ~{formatNumber(calculatedWithdrawAmount)}
+            {formatNumber(calculatedWithdrawAmount)}
           </p>
         )}
         <p className="text-secondary-foreground/80 mt-1 text-xs">
-          ~${formatNumber(withdrawValueUsd) ?? "0"}
+          ${formatNumber(withdrawValueUsd) ?? "0"}
         </p>
         <div className="border-secondary-foreground/20 mt-3 border-t pt-3">
           <p className="text-secondary-foreground/80 text-xs">
