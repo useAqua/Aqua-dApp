@@ -122,7 +122,7 @@ export default function Home({ vaultTable }: HomeProps) {
           />
           <MetricCard label="AVG. APY" value={<>{formatNumber(avgApy)}%</>} />
           <MetricCard
-            label="ACCRUED POINTS"
+            label="GENESIS POINTS"
             value={<>{formatNumber(totalPoints)}</>}
           />
         </div>
