@@ -3,6 +3,6 @@
  */
 
 export const PERCENTAGE_PRESETS = [0.25, 0.5, 0.75, 1] as const;
-export const SLIPPAGE_TOLERANCE = BigInt(75);
+export const SLIPPAGE_TOLERANCE = BigInt(0);
 export const SLIPPAGE_DENOMINATOR = BigInt(100);
 export const PERCENTAGE_MULTIPLIER = BigInt(100);
