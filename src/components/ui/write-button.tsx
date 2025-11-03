@@ -137,7 +137,7 @@ export const WriteButton = React.forwardRef<
       return null;
     }, [isConnected, disableConditions]);
 
-    const isDisabled = disabled ?? !!disabledReason ?? isPending ?? isLoading;
+    const isDisabled = isPending ?? isLoading ?? disabled ?? !!disabledReason;
 
     const showSuccessToast = useCallback(() => {
       toast.dismiss("tx-mining");
@@ -328,6 +328,12 @@ export const WriteButton = React.forwardRef<
       }
       return children;
     }, [isConnected, isLoading, isMounted, isPending, children]);
+
+    console.log({
+      isLoading,
+      isDisabled,
+      isPending,
+    });
 
     return (
       <Button

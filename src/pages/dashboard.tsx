@@ -28,11 +28,15 @@ const Dashboard = () => {
 
   // Merge vault table with user vault data and filter only vaults with deposits
   const vaultTableWithBalances = useMemo(() => {
-    if (!vaultTable || !userVaultData) return [];
+    if (!vaultTable) return [];
 
     return vaultTable
       .map((vault) => {
-        const vaultData = userVaultData[vault.address];
+        const vaultData = userVaultData?.[vault.address] ?? {
+          balanceUsd: "0",
+          vaultBalanceUsd: "0",
+          points: "0",
+        };
         return {
           ...vault,
           walletBalanceUsd: vaultData?.balanceUsd

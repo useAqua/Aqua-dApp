@@ -40,10 +40,13 @@ export default function Home() {
   // Merge vault table with user vault data
   const vaultTableWithBalances = useMemo(() => {
     if (!vaultTable) return [];
-    if (!userVaultData) return vaultTable;
 
     return vaultTable.map((vault) => {
-      const vaultData = userVaultData[vault.address];
+      const vaultData = userVaultData?.[vault.address] ?? {
+        balanceUsd: "0",
+        vaultBalanceUsd: "0",
+        points: "0",
+      };
       const apy = apys ? (apys[vault.address]?.apy ?? 0) : 0;
       return {
         ...vault,

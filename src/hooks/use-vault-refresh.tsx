@@ -1,4 +1,3 @@
-import { useRouter } from "next/router";
 import { api } from "~/utils/api";
 import { useState } from "react";
 
@@ -9,7 +8,6 @@ import { useState } from "react";
 export function useVaultRefresh() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const utils = api.useUtils();
-  const router = useRouter();
   const invalidateCacheMutation = api.vaults.invalidateCache.useMutation();
 
   const refreshVaultData = async () => {
@@ -18,10 +16,7 @@ export function useVaultRefresh() {
     if (success) {
       console.log("Server cache invalidation success");
       await utils.invalidate();
-      const isDone = await router.replace(router.asPath);
-      if (isDone) {
-        setIsRefreshing(false);
-      }
+      setIsRefreshing(false);
     } else {
       console.error("Failed to invalidate server cache");
       setIsRefreshing(false);
