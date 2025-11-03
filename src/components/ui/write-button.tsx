@@ -16,6 +16,7 @@ export interface WriteButtonProps extends Omit<ButtonProps, "onClick"> {
   abi?: Abi;
   functionName?: string;
   args?: readonly unknown[];
+  ethValue?: bigint;
 
   // Batched contracts (for EIP-7702 batching)
   contracts?: readonly {
@@ -23,6 +24,7 @@ export interface WriteButtonProps extends Omit<ButtonProps, "onClick"> {
     abi: Abi;
     functionName: string;
     args?: readonly unknown[];
+    value?: bigint;
   }[];
 
   // Disable conditions
@@ -59,6 +61,7 @@ export const WriteButton = React.forwardRef<
       abi,
       functionName,
       args = [],
+      ethValue,
       contracts,
       disableConditions = [],
       toastMessages = {},
@@ -275,6 +278,7 @@ export const WriteButton = React.forwardRef<
               abi: abi!,
               functionName: functionName!,
               args,
+              value: ethValue,
             },
             {
               onSuccess: (hash) => {

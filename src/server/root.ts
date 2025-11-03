@@ -2,6 +2,7 @@ import { contractsRouter } from "~/server/routers/contracts";
 import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
 import { vaultsRouter } from "~/server/routers/vaults";
 import { gteRouter } from "~/server/routers/gte";
+import { zapRouter } from "~/server/routers/zap";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   contracts: contractsRouter,
   vaults: vaultsRouter,
   gte: gteRouter,
+  zap: zapRouter,
 });
 
 // export type definition of API
