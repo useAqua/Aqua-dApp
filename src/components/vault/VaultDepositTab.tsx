@@ -362,7 +362,11 @@ const VaultDepositTab = ({
       </div>
       <div>
         <p className="text-card-foreground/70 mb-2 text-sm sm:hidden">
-          Balance: {selectedTokenBalanceReactNode} {selectedTokenSymbol}
+          Balance:{" "}
+          {useEth
+            ? formatNumber(balanceData?.formatted ?? "0")
+            : selectedTokenBalanceReactNode}{" "}
+          {selectedTokenSymbol}
         </p>
         <div className="flex gap-2">
           {PERCENTAGE_PRESETS.map((percentage) => (
