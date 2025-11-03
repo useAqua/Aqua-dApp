@@ -145,7 +145,7 @@ const CustomToast = ({
         <button
           onClick={onClose}
           className={cn(
-            "absolute top-4 right-4 flex-shrink-0 opacity-70 transition-opacity hover:opacity-100",
+            "hover:bg-border absolute top-4 right-4 flex-shrink-0 rounded-full p-1 opacity-70 transition-opacity hover:opacity-100",
             textStyles[variant],
           )}
         >
