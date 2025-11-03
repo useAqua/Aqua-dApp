@@ -3,6 +3,7 @@ import {
   type ContractFunctionParameters,
   erc20Abi,
   formatUnits,
+  parseUnits,
 } from "viem";
 import { rpcViemClient } from "~/lib/viemClient";
 import strategy_abi from "~/lib/contracts/strategy_gte_points";
@@ -29,11 +30,11 @@ type VaultCall<T extends "getPricePerFullShare" | "balanceOf"> =
 type UserVaultData = Map<
   Address,
   {
-    balance: number;
-    balanceUsd: number;
-    points: number;
-    vaultBalance: number;
-    vaultBalanceUsd: number;
+    balance: string;
+    balanceUsd: string;
+    points: bigint;
+    vaultBalance: string;
+    vaultBalanceUsd: string;
   }
 >;
 
@@ -108,23 +109,31 @@ export const getUserVaultData = async (
       throw new Error(`Unable to get LP balance: ${balanceResult?.error}`);
     }
 
-    const balance = +formatUnits(balanceResult.result as bigint, decimals);
-    const balanceUsd = balance * lpPrice;
-    const points =
-      pointsResult?.status === "success"
-        ? Number(pointsResult.result as bigint)
-        : 0;
-    const vaultBalance =
+    const balanceBigInt = balanceResult.result as bigint;
+    const vaultBalanceBigInt =
       vaultBalanceResult?.status === "success"
-        ? +formatUnits(vaultBalanceResult.result as bigint, decimals)
-        : 0;
-
-    // Calculate vaultBalanceUsd using sharePrice
-    const sharePrice =
+        ? (vaultBalanceResult.result as bigint)
+        : 0n;
+    const sharePriceBigInt =
       sharePriceResult?.status === "success"
-        ? +formatUnits(sharePriceResult.result as bigint, decimals)
-        : 0;
-    const vaultBalanceUsd = vaultBalance * sharePrice * lpPrice;
+        ? (sharePriceResult.result as bigint)
+        : 0n;
+    const points =
+      pointsResult?.status === "success" ? (pointsResult.result as bigint) : 0n;
+
+    const balance = formatUnits(balanceBigInt, decimals);
+
+    const lpPriceBigInt = parseUnits(lpPrice, 18);
+    const balanceUsdBigInt =
+      (balanceBigInt * lpPriceBigInt) / BigInt(10 ** decimals);
+    const balanceUsd = formatUnits(balanceUsdBigInt, 18);
+
+    const vaultBalance = formatUnits(vaultBalanceBigInt, decimals);
+
+    const vaultBalanceUsdBigInt =
+      (vaultBalanceBigInt * sharePriceBigInt * lpPriceBigInt) /
+      (BigInt(10 ** decimals) * BigInt(10 ** decimals));
+    const vaultBalanceUsd = formatUnits(vaultBalanceUsdBigInt, 18);
 
     userVaultData.set(vaultAddress, {
       balance,

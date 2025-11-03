@@ -21,10 +21,11 @@ export const vaultsRouter = createTRPCRouter({
         const config = ctx.vaultConfigs.get(address);
         if (config) {
           const [platformId, long, short] = config.name.split("-");
+          const tvlData = ctx.vaultTVL.get(address);
           data.push({
             address,
             name: `${long}/${short}`,
-            tvlUsd: ctx.vaultTVL.get(address)?.usdValue ?? 0,
+            tvlUsd: tvlData?.usdValue ? parseFloat(tvlData.usdValue) : 0,
             walletBalanceUsd: 0,
             userDepositUsd: 0,
             userPoints: 0,
@@ -52,11 +53,11 @@ export const vaultsRouter = createTRPCRouter({
       const data: Record<
         string,
         {
-          balance: number;
-          balanceUsd: number;
-          points: number;
-          vaultBalance: number;
-          vaultBalanceUsd: number;
+          balance: string;
+          balanceUsd: string;
+          points: bigint;
+          vaultBalance: string;
+          vaultBalanceUsd: string;
         }
       > = {};
 
@@ -118,22 +119,22 @@ export const vaultsRouter = createTRPCRouter({
         },
         address: vaultAddress,
         tvlUsd: tvlData.usdValue,
-        sharePrice: +formatEther(sharePrice ?? BigInt(0)),
+        sharePrice: formatEther(sharePrice ?? BigInt(0)),
         tokens: {
           token0: {
             ...token0,
-            reserve: +formatUnits(tvlData.lpInfo.reserve0, token0.decimals),
-            price: +formatEther(tvlData.lpInfo.price0),
+            reserve: formatUnits(tvlData.lpInfo.reserve0, token0.decimals),
+            price: formatEther(tvlData.lpInfo.price0),
           },
           token1: {
             ...token1,
-            reserve: +formatUnits(tvlData.lpInfo.reserve1, token1.decimals),
-            price: +formatEther(tvlData.lpInfo.price1),
+            reserve: formatUnits(tvlData.lpInfo.reserve1, token1.decimals),
+            price: formatEther(tvlData.lpInfo.price1),
           },
           lpToken: {
             ...lpToken,
-            reserve: +formatUnits(tvlData.value, lpToken.decimals),
-            price: +formatEther(tvlData.lpInfo.fairValue),
+            reserve: formatUnits(tvlData.value, lpToken.decimals),
+            price: formatEther(tvlData.lpInfo.fairValue),
           },
         },
       };

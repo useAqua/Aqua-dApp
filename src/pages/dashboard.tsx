@@ -35,13 +35,20 @@ const Dashboard = ({ vaultTable }: DashboardProps) => {
     if (!userVaultData) return [];
 
     return vaultTable
-      .map((vault) => ({
-        ...vault,
-        walletBalanceUsd: userVaultData[vault.address]?.balanceUsd ?? 0,
-        userDepositUsd: userVaultData[vault.address]?.vaultBalanceUsd ?? 0,
-        userPoints: userVaultData[vault.address]?.points ?? 0,
-        apy: apys ? (apys[vault.address]?.apy ?? 0) * 100 : 0,
-      }))
+      .map((vault) => {
+        const vaultData = userVaultData[vault.address];
+        return {
+          ...vault,
+          walletBalanceUsd: vaultData?.balanceUsd
+            ? parseFloat(vaultData.balanceUsd)
+            : 0,
+          userDepositUsd: vaultData?.vaultBalanceUsd
+            ? parseFloat(vaultData.vaultBalanceUsd)
+            : 0,
+          userPoints: vaultData?.points ? Number(vaultData.points) : 0,
+          apy: apys ? (apys[vault.address]?.apy ?? 0) * 100 : 0,
+        };
+      })
       .filter((vault) => vault.userDepositUsd > 0);
   }, [userVaultData, vaultTable, apys]);
 

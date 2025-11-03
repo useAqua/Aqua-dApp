@@ -145,13 +145,30 @@ const VaultWithdrawTab = ({
 
     // Zap withdrawal based on selected token
     if (selectedToken === "token0" || selectedToken === "token1") {
-      // aquaOutAndSwap - withdraw and swap to single token
-      const minAmountOut = BigInt(0); // TODO: Calculate min amount out
-      // (BigInt(withdrawAmountBigInt) *
-      //   parseEther(vault.sharePrice.toString()) *
-      //   SLIPPAGE_TOLERANCE) /
-      // SLIPPAGE_DENOMINATOR /
-      // parseEther("1");
+      const sharePrice = parseUnits(vault.sharePrice, 18);
+      const lpTokenPrice = parseUnits(vault.tokens.lpToken.price, 18);
+      const targetTokenPrice = parseUnits(
+        selectedToken === "token0"
+          ? vault.tokens.token0.price
+          : vault.tokens.token1.price,
+        18,
+      );
+      const targetTokenDecimals =
+        selectedToken === "token0"
+          ? vault.tokens.token0.decimals
+          : vault.tokens.token1.decimals;
+
+      const lpTokenAmount =
+        (withdrawAmountBigInt * sharePrice) /
+        BigInt(10 ** vault.tokens.lpToken.decimals);
+
+      const lpValueUsd = (lpTokenAmount * lpTokenPrice) / BigInt(10 ** 18);
+
+      const targetTokenAmount =
+        (lpValueUsd * BigInt(10 ** targetTokenDecimals)) / targetTokenPrice;
+
+      const minAmountOut =
+        (targetTokenAmount * SLIPPAGE_TOLERANCE) / SLIPPAGE_DENOMINATOR;
 
       return {
         ...gteZap,
@@ -182,16 +199,21 @@ const VaultWithdrawTab = ({
 
     if (amountValue === 0) return 0;
 
-    const lpTokenAmount = amountValue * vault.sharePrice;
+    const sharePrice = parseFloat(vault.sharePrice);
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+    const token0Price = parseFloat(vault.tokens.token0.price);
+    const token1Price = parseFloat(vault.tokens.token1.price);
+
+    const lpTokenAmount = amountValue * sharePrice;
 
     if (selectedToken === "lp") {
       return lpTokenAmount;
     } else if (selectedToken === "token0") {
-      const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
-      return lpValueUsd / vault.tokens.token0.price;
+      const lpValueUsd = lpTokenAmount * lpTokenPrice;
+      return lpValueUsd / token0Price;
     } else if (selectedToken === "token1") {
-      const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
-      return lpValueUsd / vault.tokens.token1.price;
+      const lpValueUsd = lpTokenAmount * lpTokenPrice;
+      return lpValueUsd / token1Price;
     } else if (selectedToken === "both") {
       return lpTokenAmount;
     }
@@ -212,11 +234,15 @@ const VaultWithdrawTab = ({
     const amountValue = Number(amount || 0);
     if (amountValue === 0) return 0;
 
-    const lpTokenAmount = amountValue * vault.sharePrice;
-    const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+    const sharePrice = parseFloat(vault.sharePrice);
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+    const token0Price = parseFloat(vault.tokens.token0.price);
+
+    const lpTokenAmount = amountValue * sharePrice;
+    const lpValueUsd = lpTokenAmount * lpTokenPrice;
 
     const halfValueUsd = lpValueUsd / 2;
-    return halfValueUsd / vault.tokens.token0.price;
+    return halfValueUsd / token0Price;
   }, [
     amount,
     selectedToken,
@@ -231,11 +257,15 @@ const VaultWithdrawTab = ({
     const amountValue = Number(amount || 0);
     if (amountValue === 0) return 0;
 
-    const lpTokenAmount = amountValue * vault.sharePrice;
-    const lpValueUsd = lpTokenAmount * vault.tokens.lpToken.price;
+    const sharePrice = parseFloat(vault.sharePrice);
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+    const token1Price = parseFloat(vault.tokens.token1.price);
+
+    const lpTokenAmount = amountValue * sharePrice;
+    const lpValueUsd = lpTokenAmount * lpTokenPrice;
 
     const halfValueUsd = lpValueUsd / 2;
-    return halfValueUsd / vault.tokens.token1.price;
+    return halfValueUsd / token1Price;
   }, [
     amount,
     selectedToken,
@@ -249,9 +279,12 @@ const VaultWithdrawTab = ({
 
     if (amountValue === 0) return 0;
 
-    const lpTokenAmount = amountValue * vault.sharePrice;
+    const sharePrice = parseFloat(vault.sharePrice);
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
 
-    return lpTokenAmount * vault.tokens.lpToken.price;
+    const lpTokenAmount = amountValue * sharePrice;
+
+    return lpTokenAmount * lpTokenPrice;
   }, [amount, vault.sharePrice, vault.tokens.lpToken.price]);
 
   const formatWithdrawAmount = useCallback((value: number) => {

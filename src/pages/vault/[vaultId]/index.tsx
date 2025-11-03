@@ -37,9 +37,11 @@ const VaultDetail = ({ vault }: VaultDetailProps) => {
   const depositedUsd = useMemo(() => {
     if (!vault || !vaultBalance) return 0;
 
-    return (
-      +formatEther(vaultBalance) * vault.sharePrice * vault.tokens.lpToken.price
-    );
+    const vaultBalanceFormatted = +formatEther(vaultBalance);
+    const sharePrice = parseFloat(vault.sharePrice);
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+
+    return vaultBalanceFormatted * sharePrice * lpTokenPrice;
   }, [vault, vaultBalance]);
 
   if (!vault) {

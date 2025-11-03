@@ -44,8 +44,8 @@ export interface TokenInfo {
   name: string;
   symbol: string;
   decimals: number;
-  price: number;
-  reserve: number;
+  price: string;
+  reserve: string;
 }
 
 export interface StrategyInfo {
@@ -61,8 +61,8 @@ export interface VaultDetailInfo {
   platformId: string;
   strategy: StrategyInfo;
   address: Address;
-  tvlUsd: number;
-  sharePrice: number;
+  tvlUsd: string;
+  sharePrice: string;
   tokens: {
     token0: TokenInfo;
     token1: TokenInfo;

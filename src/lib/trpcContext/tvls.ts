@@ -4,7 +4,7 @@ import lpShareCalculationOracle from "~/lib/contracts/lpShareCalculationOracle";
 import type { VaultConfigs, VaultTVLMap, LPInfo } from "~/types/contracts";
 import type { Address, ContractFunctionParameters } from "viem";
 import vault_abi from "~/lib/contracts/vault_abi";
-import { erc20Abi } from "viem";
+import { erc20Abi, formatUnits } from "viem";
 
 type LPValueCall = ContractFunctionParameters<
   typeof lpShareCalculationOracle.abi,
@@ -121,13 +121,13 @@ export async function getTvls(
     const fairValue = lpInfo.fairValue;
     const decimalDivisor = BigInt(10 ** decimals);
     const usdValueBigInt = (balance * fairValue) / decimalDivisor;
-    const usdValue = Number(usdValueBigInt) / 1e18;
-    const lpPriceNumber = Number(fairValue) / 1e18;
+    const usdValue = formatUnits(usdValueBigInt, 18);
+    const lpPrice = formatUnits(fairValue, 18);
 
     vaultTvls.set(vaults[i]!, {
       value: balance,
       usdValue,
-      lpPrice: lpPriceNumber,
+      lpPrice,
       lpTokenAddress: lpTokens[i]!,
       decimals,
       lpInfo,

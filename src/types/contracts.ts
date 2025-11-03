@@ -29,8 +29,8 @@ export interface LPInfo {
 
 export interface VaultTVL {
   value: bigint;
-  usdValue: number;
-  lpPrice: number;
+  usdValue: string;
+  lpPrice: string;
   decimals: number;
   lpTokenAddress: Address;
   lpInfo: LPInfo;

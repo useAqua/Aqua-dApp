@@ -229,23 +229,28 @@ const VaultDepositTab = ({
 
     if (amountValue === 0) return 0;
 
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+    const token0Price = parseFloat(vault.tokens.token0.price);
+    const token1Price = parseFloat(vault.tokens.token1.price);
+    const sharePrice = parseFloat(vault.sharePrice);
+
     let depositValueUsd: number;
 
     if (selectedToken === "lp") {
-      depositValueUsd = amountValue * vault.tokens.lpToken.price;
+      depositValueUsd = amountValue * lpTokenPrice;
     } else if (selectedToken === "token0") {
-      depositValueUsd = amountValue * vault.tokens.token0.price;
+      depositValueUsd = amountValue * token0Price;
     } else if (selectedToken === "token1") {
-      depositValueUsd = amountValue * vault.tokens.token1.price;
+      depositValueUsd = amountValue * token1Price;
     } else {
-      depositValueUsd = amountValue * vault.tokens.lpToken.price;
+      depositValueUsd = amountValue * lpTokenPrice;
     }
 
     // Calculate the equivalent LP token worth
-    const lpTokenWorth = depositValueUsd / vault.tokens.lpToken.price;
+    const lpTokenWorth = depositValueUsd / lpTokenPrice;
 
     // Divide by share price to get the shares
-    return lpTokenWorth / vault.sharePrice;
+    return lpTokenWorth / sharePrice;
   }, [
     amount,
     selectedToken,
@@ -260,14 +265,18 @@ const VaultDepositTab = ({
 
     if (amountValue === 0) return 0;
 
+    const lpTokenPrice = parseFloat(vault.tokens.lpToken.price);
+    const token0Price = parseFloat(vault.tokens.token0.price);
+    const token1Price = parseFloat(vault.tokens.token1.price);
+
     if (selectedToken === "lp") {
-      return amountValue * vault.tokens.lpToken.price;
+      return amountValue * lpTokenPrice;
     } else if (selectedToken === "token0") {
-      return amountValue * vault.tokens.token0.price;
+      return amountValue * token0Price;
     } else if (selectedToken === "token1") {
-      return amountValue * vault.tokens.token1.price;
+      return amountValue * token1Price;
     } else {
-      return amountValue * vault.tokens.lpToken.price;
+      return amountValue * lpTokenPrice;
     }
   }, [
     amount,
