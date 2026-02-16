@@ -6,8 +6,10 @@ import { LoaderCircleIcon, Wallet } from "lucide-react";
 import { cn } from "~/lib/utils";
 export const CustomConnectButton = ({
   hideDisplayOnMobile = false,
+  fullWidth = false,
 }: {
   hideDisplayOnMobile?: boolean;
+  fullWidth?: boolean;
 }) => {
   return (
     <ConnectButton.Custom>
@@ -45,7 +47,10 @@ export const CustomConnectButton = ({
                   <Button
                     onClick={openConnectModal}
                     type="button"
-                    className="rounded-md max-sm:text-xs sm:w-[150px]"
+                    className={cn(
+                      "rounded-md max-sm:text-xs",
+                      fullWidth ? "w-full" : "sm:w-[150px]",
+                    )}
                   >
                     <Wallet className="h-4 w-4 sm:mr-2" />
                     Connect
@@ -58,9 +63,10 @@ export const CustomConnectButton = ({
                     onClick={openChainModal}
                     type="button"
                     variant="outline"
-                    className={
-                      "rounded-md font-bold text-red-500 outline-2 outline-red-500 hover:font-normal max-sm:text-xs sm:w-[150px]"
-                    }
+                    className={cn(
+                      "rounded-md font-bold text-red-500 outline-2 outline-red-500 hover:font-normal max-sm:text-xs",
+                      fullWidth ? "w-full" : "sm:w-[150px]",
+                    )}
                   >
                     Wrong network
                   </Button>
@@ -71,29 +77,11 @@ export const CustomConnectButton = ({
                   onClick={openAccountModal}
                   type="button"
                   // variant="outline"
-                  className="flex items-center gap-3 rounded-md max-sm:text-xs"
+                  className={cn(
+                    "flex items-center gap-2 rounded-full max-sm:text-xs",
+                    fullWidth ? "w-full" : "sm:w-auto",
+                  )}
                 >
-                  <div className="flex items-center gap-2 sm:px-2">
-                    {account.hasPendingTransactions ? (
-                      <LoaderCircleIcon className="h-4 w-4 animate-spin" />
-                    ) : (
-                      chain.iconUrl && (
-                        <Image
-                          src={chain.iconUrl ?? ""}
-                          width={20}
-                          height={20}
-                          alt={chain.name ?? "Chain Image"}
-                          className="rounded-full"
-                        />
-                      )
-                    )}
-                    {account.displayBalance && (
-                      <span>{account.displayBalance}</span>
-                    )}
-                  </div>
-
-                  <div className="bg-border h-6 w-0.5" />
-
                   <div className="flex items-center gap-2">
                     {account.ensAvatar ? (
                       <Image
@@ -114,6 +102,27 @@ export const CustomConnectButton = ({
                       {" "}
                       {account.ensName ?? account.displayName}
                     </span>
+                  </div>
+
+                  <div className="bg-border h-4 w-0.5" />
+
+                  <div className="flex items-center gap-2 sm:px-1">
+                    {account.displayBalance && (
+                      <span>{account.displayBalance}</span>
+                    )}
+                    {account.hasPendingTransactions ? (
+                      <LoaderCircleIcon className="h-4 w-4 animate-spin" />
+                    ) : (
+                      chain.iconUrl && (
+                        <Image
+                          src={chain.iconUrl ?? ""}
+                          width={20}
+                          height={20}
+                          alt={chain.name ?? "Chain Image"}
+                          className="rounded-full"
+                        />
+                      )
+                    )}
                   </div>
                 </Button>
               );
