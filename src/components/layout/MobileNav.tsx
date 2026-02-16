@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { X } from "lucide-react";
+import { Dot, X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 import { useEffect } from "react";
@@ -8,6 +8,7 @@ import Image from "next/image";
 import aquaLogo from "~/assets/aqua-logo.svg";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { api } from "~/utils/api";
+import { useChains } from "wagmi";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -132,6 +133,7 @@ const navItems = {
 const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
   const router = useRouter();
   const { data: totalVaults } = api.vaults.getTotalVaults.useQuery();
+  const chains = useChains();
 
   useEffect(() => {
     const handleRouteChange = () => {
@@ -169,7 +171,7 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
 
       <div
         className={cn(
-          "bg-card fixed top-0 right-0 z-50 h-full w-72 transform shadow-xl transition-transform duration-300 ease-in-out",
+          "bg-card fixed top-0 right-0 z-50 h-full w-72 transform shadow-xl transition-transform duration-300 ease-in-out sm:w-80 md:w-96",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
@@ -189,6 +191,13 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
             >
               <X size={16} />
             </button>
+          </div>
+
+          <div className="relative mx-4 mt-4 flex items-center gap-1 rounded-full border border-green-200 bg-green-200/20">
+            <Dot size={30} className="absolute text-green-500" />
+            <span className="py-1.5 pl-6 text-xs font-medium">
+              {chains[0]?.name}
+            </span>
           </div>
 
           <nav className="flex flex-1 flex-col gap-2 p-4">
