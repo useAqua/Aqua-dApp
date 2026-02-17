@@ -13,8 +13,9 @@ import type { VaultTableEntry } from "~/types";
 import { createVaultTableColumns } from "./VaultTableColumns";
 import VaultDesktopTable from "./VaultDesktopTable";
 import VaultMobileList from "./VaultMobileList";
-import { Database, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
+import Link from "next/link";
 
 interface VaultTableProps {
   data: VaultTableEntry[];
@@ -23,6 +24,7 @@ interface VaultTableProps {
   isLoadingPoints?: boolean;
   isLoadingAPY?: boolean;
   customEmptyTableMessage?: string;
+  isDashboard?: boolean;
 }
 
 const VaultTable = ({
@@ -32,6 +34,7 @@ const VaultTable = ({
   isLoadingPoints = false,
   isLoadingAPY = false,
   customEmptyTableMessage = "You don't have any deposits in vaults yet.",
+  isDashboard = false,
 }: VaultTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -70,12 +73,40 @@ const VaultTable = ({
   return (
     <div className="space-y-4">
       {data.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-          <Database className="text-muted-foreground mb-4 h-12 w-12" />
-          <h3 className="mb-2 text-lg font-semibold">No Vaults</h3>
-          <p className="text-muted-foreground text-sm">
+        <div className="bg-card flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
+          <span className="bg-secondary mb-4 grid h-14 w-14 place-content-center rounded-md">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect
+                x="3"
+                y="6"
+                width="18"
+                height="13"
+                rx="3"
+                stroke="#3472e8"
+                stroke-width="1.8"
+              ></rect>
+              <path d="M3 10h18" stroke="#3472e8" stroke-width="1.8"></path>
+              <path
+                d="M7 14h4"
+                stroke="#3472e8"
+                stroke-width="1.8"
+                stroke-linecap="round"
+              ></path>
+            </svg>
+          </span>
+          <h3 className="text-lg font-semibold">No Vaults</h3>
+          <p className="text-muted-foreground max-w-[280px] text-sm">
             {customEmptyTableMessage}
           </p>
+
+          {isDashboard && (
+            <Button className={"mt-6 rounded-md px-6"} asChild>
+              <Link href="/">
+                <PlusIcon />
+                Explore Vaults
+              </Link>
+            </Button>
+          )}
         </div>
       ) : (
         <>

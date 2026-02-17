@@ -111,7 +111,7 @@ export default function Home() {
     >
       <div className="flex justify-between">
         <PageHeader
-          Icon={Eye}
+          icon={Eye}
           title="Portfolio"
           iconBeforeTitle
           className="!mb-0"

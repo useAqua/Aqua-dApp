@@ -1,9 +1,8 @@
 import PageLayout from "~/components/layout/PageLayout";
 import PageHeader from "~/components/layout/PageHeader";
 import MetricCard from "~/components/common/MetricCard";
-import SearchBar from "~/components/common/SearchBar";
 import { useVaultSearch } from "~/hooks/use-vault-search";
-import { Wallet } from "lucide-react";
+import { MoveRight, Wallet } from "lucide-react";
 import VaultTable from "~/components/vault/VaultTable";
 import { api } from "~/utils/api";
 import { useAccount } from "wagmi";
@@ -11,6 +10,7 @@ import { useMemo } from "react";
 import { formatNumber } from "~/utils/numbers";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 import { cn } from "~/lib/utils";
+import Link from "next/link";
 
 const iconClass = "grid w-full h-full place-content-center rounded-sm ";
 
@@ -80,7 +80,7 @@ const Dashboard = () => {
       .filter((vault) => vault.userDepositUsd > 0);
   }, [userVaultData, vaultTable, apys]);
 
-  const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
+  const { searchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
   });
 
@@ -140,7 +140,7 @@ const Dashboard = () => {
             >
               <span
                 className={
-                  "pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full bg-white/15 md:-top-12 md:-right-12 md:h-36 md:w-36"
+                  "bg-secondary/15 pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full md:-top-12 md:-right-12 md:h-36 md:w-36"
                 }
               />
               <div>
@@ -192,19 +192,16 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <h2 className="mb-2 text-2xl font-bold">Your Vaults</h2>
-              <p className="text-muted-foreground mb-6">
-                Select a vault to view more details and manage your positions.
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Your Vaults</h2>
+              <Link
+                href="/"
+                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors"
+              >
+                View All <MoveRight size={16} />
+              </Link>
             </div>
-
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              className="max-w-md"
-            />
 
             <VaultTable
               data={filteredVaults}
@@ -212,10 +209,11 @@ const Dashboard = () => {
               isLoadingDeposit={isLoadingUserVaultData}
               isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
               isLoadingPoints={isLoadingUserVaultData}
+              isDashboard
               customEmptyTableMessage={
                 searchQuery
                   ? "No vaults found matching your search."
-                  : "You don't have any deposits in vaults yet."
+                  : "Deposit stablecoins into a vault to start earning yield and Genesis Points"
               }
             />
           </div>

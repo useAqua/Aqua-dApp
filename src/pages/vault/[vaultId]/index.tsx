@@ -89,7 +89,7 @@ const VaultDetail = () => {
       }
     >
       <VaultHeader
-        Icon={
+        icon={
           vault ? (
             <div className="flex items-center -space-x-2">
               <TokenIcon symbol={vault.tokens.token0.symbol} size={48} />

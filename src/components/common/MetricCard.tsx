@@ -50,7 +50,7 @@ const MetricCard = ({
           {
             "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
               type === "card",
-            "rounded-lg bg-white/15 p-4 text-white": type === "incard",
+            "bg-secondary/15 rounded-lg p-4 text-white": type === "incard",
           },
           className,
         )}
@@ -69,7 +69,7 @@ const MetricCard = ({
         {
           "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
             type === "card",
-          "border-border/10 rounded-lg border bg-white/15 p-3 text-white":
+          "border-border/10 bg-secondary/15 rounded-lg border p-3 text-white":
             type === "incard",
         },
         className,

@@ -215,7 +215,7 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                       key={item.path}
                       href={item.path}
                       className={cn(
-                        "nav_link text-muted-foreground hover:bg-foreground/70 relative flex items-center gap-3 rounded-md px-4 py-2 text-sm transition-colors hover:text-white",
+                        "nav_link text-muted-foreground hover:bg-secondary hover:text-secondary-foreground relative flex items-center gap-3 rounded-md px-4 py-2 text-sm transition-colors",
                         {
                           "bg-foreground text-background pointer-events-none":
                             router.pathname === item.path,
@@ -231,7 +231,7 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                       <span className="py-1">{item.icon}</span>
                       {item.label}
                       {item.label === "Vaults" && totalVaults !== undefined && (
-                        <span className="ml-auto inline-flex items-center justify-center rounded-sm bg-white/15 px-2 py-0.5 text-xs font-medium text-white">
+                        <span className="bg-secondary/15 ml-auto inline-flex items-center justify-center rounded-sm px-2 py-0.5 text-xs font-medium text-white">
                           {totalVaults} Live
                         </span>
                       )}
