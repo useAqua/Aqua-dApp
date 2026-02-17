@@ -68,7 +68,7 @@ const links = [
 ];
 const Footer = () => {
   return (
-    <footer className="/*mt-8*/ relative overflow-x-clip">
+    <footer className="/*mt-8*/ relative overflow-x-clip pb-4">
       <div className={"flex items-center gap-4 p-5"}>
         {links.map((item) => (
           <Link

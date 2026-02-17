@@ -12,7 +12,7 @@ const Header = () => {
 
   return (
     <>
-      <header className="relative pt-14 pb-4">
+      <header className="relative pt-8 pb-4">
         <div className="flex items-center justify-between px-5">
           <div className="flex items-center gap-8">
             <Link
