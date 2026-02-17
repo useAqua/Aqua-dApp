@@ -30,7 +30,7 @@ const PageHeader = ({
           <div>
             <h1 className="text-2xl font-bold md:text-3xl">{title}</h1>
             {subtitle && (
-              <p className="text-muted-foreground mt-1">{subtitle}</p>
+              <p className="text-muted-foreground mt-1 text-sm">{subtitle}</p>
             )}
           </div>
         </div>

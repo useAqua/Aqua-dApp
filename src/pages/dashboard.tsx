@@ -1,15 +1,43 @@
 import PageLayout from "~/components/layout/PageLayout";
 import PageHeader from "~/components/layout/PageHeader";
 import MetricCard from "~/components/common/MetricCard";
-import SearchBar from "~/components/common/SearchBar";
 import { useVaultSearch } from "~/hooks/use-vault-search";
-import { Wallet, Database, Award, TrendingUp } from "lucide-react";
+import { MoveRight, Wallet } from "lucide-react";
 import VaultTable from "~/components/vault/VaultTable";
 import { api } from "~/utils/api";
 import { useAccount } from "wagmi";
 import { useMemo } from "react";
 import { formatNumber } from "~/utils/numbers";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
+import { cn } from "~/lib/utils";
+import Link from "next/link";
+
+const iconClass = "grid w-full h-full place-content-center rounded-sm ";
+
+const PointIcon = () => (
+  <div className={cn(iconClass, "bg-yellow-400/15 text-yellow-700")}>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path
+        d="M9 2l1.7 4.2H15l-3.5 2.7 1.3 4.3L9 10.5 5.2 13.2l1.3-4.3L3 6.2h4.3L9 2z"
+        fill="currentColor"
+      ></path>
+    </svg>
+  </div>
+);
+
+const TrendingUp = () => (
+  <div className={cn(iconClass, "bg-green-500/15 text-green-500")}>
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path
+        d="M3 13l3.5-4L9 11.5l3-5L15 9"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      ></path>
+    </svg>
+  </div>
+);
 
 const Dashboard = () => {
   const { address: connectedUser } = useAccount();
@@ -52,7 +80,7 @@ const Dashboard = () => {
       .filter((vault) => vault.userDepositUsd > 0);
   }, [userVaultData, vaultTable, apys]);
 
-  const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
+  const { searchQuery, filteredVaults } = useVaultSearch({
     vaultData: vaultTableWithBalances,
   });
 
@@ -82,14 +110,7 @@ const Dashboard = () => {
       title="Dashboard | Aqua"
       description="Track your positions & performance"
     >
-      <PageHeader
-        title="Dashboard"
-        subtitle={
-          connectedUser
-            ? `(${connectedUser.slice(0, 4)}...${connectedUser.slice(-4)})`
-            : ""
-        }
-      />
+      <PageHeader title="Dashboard" subtitle={"Your portfolio at a glance"} />
 
       <div className="relative">
         {/* Blur overlay when not connected */}
@@ -111,35 +132,59 @@ const Dashboard = () => {
 
         {/* Main content - blurred when not connected */}
         <div className={!connectedUser ? "pointer-events-none blur-md" : ""}>
-          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <MetricCard
-              icon={Wallet}
-              label="YOUR DEPOSITS"
-              value={<>${formatNumber(totalDeposited)}</>}
-              type="card"
-              isLoading={isLoadingVaultTable || isLoadingUserVaultData}
-            />
+          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div
+              className={
+                "bg-foreground border-border/30 relative space-y-12 overflow-clip rounded-2xl border px-4 py-6 text-white shadow-[var(--shadow-card)] md:col-span-2 md:space-y-6 md:p-6"
+              }
+            >
+              <span
+                className={
+                  "bg-secondary/15 pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full md:-top-12 md:-right-12 md:h-36 md:w-36"
+                }
+              />
+              <div>
+                <p className="pb-2 text-xs font-semibold">TOTAL DEPOSITS</p>
+                <p className="text-3xl font-bold md:text-4xl">
+                  ${formatNumber(totalDeposited)}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  {
+                    label: "Vaults",
+                    value: totalVaults,
+                  },
+                  {
+                    label: "Est. Daily Yield",
+                    value: <>${formatNumber(totalDailyYield)}</>,
+                  },
+                ].map((metric) => (
+                  <MetricCard
+                    label={metric.label}
+                    value={metric.value}
+                    key={metric.label}
+                    type="incard"
+                    valueColor="white"
+                  />
+                ))}
+              </div>
+            </div>
 
             <MetricCard
-              icon={Database}
-              label="VAULTS"
-              value={`${totalVaults}`}
-              type="card"
-              isLoading={isLoadingVaultTable}
-            />
-
-            <MetricCard
-              icon={Award}
+              Icon={PointIcon}
               label="GENESIS POINTS"
               value={<>{formatNumber(totalPoints)}</>}
+              subValue={"Earn by depositing early"}
               type="card"
               isLoading={isLoadingVaultTable || isLoadingUserVaultData}
             />
 
             <MetricCard
-              icon={TrendingUp}
-              label="EST. DAILY YIELD"
+              Icon={TrendingUp}
+              label="LIFETIME YIELD"
               value={<>${formatNumber(totalDailyYield)}</>}
+              subValue={"Across all vaults"}
               type="card"
               isLoading={
                 isLoadingVaultTable || isLoadingAPY || isLoadingUserVaultData
@@ -147,19 +192,16 @@ const Dashboard = () => {
             />
           </div>
 
-          <div className="space-y-6">
-            <div>
-              <h2 className="mb-2 text-2xl font-bold">Your Vaults</h2>
-              <p className="text-muted-foreground mb-6">
-                Select a vault to view more details and manage your positions.
-              </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Your Vaults</h2>
+              <Link
+                href="/"
+                className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors"
+              >
+                View All <MoveRight size={16} />
+              </Link>
             </div>
-
-            <SearchBar
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              className="max-w-md"
-            />
 
             <VaultTable
               data={filteredVaults}
@@ -167,10 +209,11 @@ const Dashboard = () => {
               isLoadingDeposit={isLoadingUserVaultData}
               isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
               isLoadingPoints={isLoadingUserVaultData}
+              isDashboard
               customEmptyTableMessage={
                 searchQuery
                   ? "No vaults found matching your search."
-                  : "You don't have any deposits in vaults yet."
+                  : "Deposit stablecoins into a vault to start earning yield and Genesis Points"
               }
             />
           </div>

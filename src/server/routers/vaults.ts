@@ -40,6 +40,10 @@ export const vaultsRouter = createTRPCRouter({
     },
   ),
 
+  getTotalVaults: publicProcedure.query(({ ctx }) => {
+    return ctx.vaultConfigs.size;
+  }),
+
   getUserVaultData: publicProcedure
     .input(
       z.object({
