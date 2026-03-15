@@ -9,33 +9,25 @@ import {
   type PaginationState,
 } from "@tanstack/react-table";
 import { useState } from "react";
-import type { VaultTableEntry } from "~/types";
-import { createVaultTableColumns } from "./VaultTableColumns";
-import VaultDesktopTable from "./VaultDesktopTable";
-import VaultMobileList from "./VaultMobileList";
+import type { CampaignInfo } from "~/types/contracts";
+import { createCampaignTableColumns } from "./CampaignTableColumns";
+import CampaignDesktopTable from "./CampaignDesktopTable";
+import CampaignMobileList from "./CampaignMobileList";
 import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
 
-interface VaultTableProps {
-  data: VaultTableEntry[];
-  isLoadingWallet?: boolean;
-  isLoadingDeposit?: boolean;
-  isLoadingPoints?: boolean;
-  isLoadingAPY?: boolean;
+interface CampaignTableProps {
+  data: CampaignInfo[];
   customEmptyTableMessage?: string;
   isDashboard?: boolean;
 }
 
-const VaultTable = ({
+const CampaignTable = ({
   data,
-  isLoadingWallet = false,
-  isLoadingDeposit = false,
-  isLoadingPoints = false,
-  isLoadingAPY = false,
-  customEmptyTableMessage = "You don't have any deposits in vaults yet.",
+  customEmptyTableMessage = "No campaigns available at the moment.",
   isDashboard = false,
-}: VaultTableProps) => {
+}: CampaignTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -44,12 +36,7 @@ const VaultTable = ({
     pageSize: 5,
   });
 
-  const columns = createVaultTableColumns(
-    isLoadingWallet,
-    isLoadingDeposit,
-    isLoadingPoints,
-    isLoadingAPY,
-  );
+  const columns = createCampaignTableColumns();
 
   const table = useReactTable({
     data,
@@ -83,41 +70,35 @@ const VaultTable = ({
                 height="13"
                 rx="3"
                 stroke="#3472e8"
-                stroke-width="1.8"
-              ></rect>
-              <path d="M3 10h18" stroke="#3472e8" stroke-width="1.8"></path>
+                strokeWidth="1.8"
+              />
+              <path d="M3 10h18" stroke="#3472e8" strokeWidth="1.8" />
               <path
                 d="M7 14h4"
                 stroke="#3472e8"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              ></path>
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
             </svg>
           </span>
-          <h3 className="text-lg font-semibold">No Vaults</h3>
+          <h3 className="text-lg font-semibold">No Campaigns</h3>
           <p className="text-muted-foreground max-w-70 text-sm">
             {customEmptyTableMessage}
           </p>
 
           {isDashboard && (
-            <Button className={"mt-6 rounded-md px-6"} asChild>
-              <Link href="/">
+            <Button className="mt-6 rounded-md px-6" asChild>
+              <Link href="/campaigns">
                 <PlusIcon />
-                Explore Vaults
+                View All Campaigns
               </Link>
             </Button>
           )}
         </div>
       ) : (
         <>
-          <VaultDesktopTable table={table} />
-          <VaultMobileList
-            table={table}
-            isLoadingWallet={isLoadingWallet}
-            isLoadingDeposit={isLoadingDeposit}
-            isLoadingPoints={isLoadingPoints}
-            isLoadingAPY={isLoadingAPY}
-          />
+          <CampaignDesktopTable table={table} />
+          <CampaignMobileList table={table} />
 
           {table.getPageCount() > 1 && (
             <div className="flex items-center justify-between px-2">
@@ -132,7 +113,7 @@ const VaultTable = ({
                     table.getState().pagination.pageSize,
                   table.getFilteredRowModel().rows.length,
                 )}{" "}
-                of {table.getFilteredRowModel().rows.length} vaults
+                of {table.getFilteredRowModel().rows.length} campaigns
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -166,4 +147,4 @@ const VaultTable = ({
   );
 };
 
-export default VaultTable;
+export default CampaignTable;

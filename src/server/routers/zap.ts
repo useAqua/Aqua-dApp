@@ -3,11 +3,12 @@ import { z } from "zod";
 import { addressSchema } from "~/env";
 import { rpcViemClient } from "~/lib/viemClient";
 import gteZap from "~/lib/contracts/gteZap";
-import { getAddress } from "viem";
+import { erc4626Abi, getAddress } from "viem";
 
 // function estimateSwap(address aquaVault, address tokenIn, uint256 fullInvestmentIn)  public  view  returns (uint256 swapAmountIn, uint256 swapAmountOut, address swapTokenOut)
 
 export const zapRouter = createTRPCRouter({
+  // TODO: DEPRECATED FOR IYO
   estimateSwap: publicProcedure
     .input(
       z.object({
@@ -28,5 +29,41 @@ export const zapRouter = createTRPCRouter({
       });
 
       return swapAmountOut.toString();
+    }),
+
+  previewDeposit: publicProcedure
+    .input(
+      z.object({
+        vaultAddress: addressSchema,
+        amountIn: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const amountOut = await rpcViemClient.readContract({
+        address: getAddress(input.vaultAddress),
+        abi: erc4626Abi,
+        functionName: "previewDeposit",
+        args: [BigInt(input.amountIn)],
+      });
+
+      return amountOut.toString();
+    }),
+
+  previewWithdraw: publicProcedure
+    .input(
+      z.object({
+        vaultAddress: addressSchema,
+        amountIn: z.string(),
+      }),
+    )
+    .query(async ({ input }) => {
+      const amountOut = await rpcViemClient.readContract({
+        address: getAddress(input.vaultAddress),
+        abi: erc4626Abi,
+        functionName: "previewWithdraw",
+        args: [BigInt(input.amountIn)],
+      });
+
+      return amountOut.toString();
     }),
 });

@@ -7,13 +7,14 @@ import { getUnifiedContextData } from "~/lib/trpcContext/unifiedCache";
 type CreateContextOptions = Record<string, never>;
 
 const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
-  const { vaultConfigs, vaultNameToAddress, vaultTVL } =
+  const { vaultConfigs, vaultNameToAddress, vaultTVL, campaignConfig } =
     await getUnifiedContextData();
 
   return {
     vaultConfigs,
     vaultTVL,
     vaultNameToAddress,
+    campaignConfig,
   };
 };
 

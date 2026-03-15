@@ -114,9 +114,9 @@ export default function Home() {
           icon={Eye}
           title="Portfolio"
           iconBeforeTitle
-          className="!mb-0"
+          className="mb-0!"
         />
-        <PageHeader title="Platform" className="!mb-0 max-md:hidden" />
+        <PageHeader title="Platform" className="mb-0! max-md:hidden" />
       </div>
 
       <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
@@ -137,7 +137,7 @@ export default function Home() {
             isLoading={isLoadingVaultTable || isLoadingUserVaultData}
           />
         </div>
-        <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
+        <PageHeader title="Platform" className="mt-8 mb-0! md:hidden" />
         <div className="flex flex-wrap gap-8">
           <MetricCard
             label="TVL"
@@ -162,7 +162,7 @@ export default function Home() {
         <div className="flex justify-between gap-6 max-md:flex-col">
           <TabNavigation tabs={portfolioTabs} />
 
-          <div className="flex-1 md:max-w-[500px]">
+          <div className="flex-1 md:max-w-125">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
