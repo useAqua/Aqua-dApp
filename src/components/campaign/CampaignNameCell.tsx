@@ -17,7 +17,7 @@ const CampaignNameCell = ({ campaign }: CampaignNameCellProps) => {
       className="flex items-center gap-3 transition-opacity hover:opacity-80"
     >
       <div className="min-w-0">
-        <div className="mb-0.5 font-semibold">Campaign #{campaign.id}</div>
+        <div className="mb-0.5 font-semibold">{campaign.name}</div>
         <Badge variant="secondary" className="text-xs">
           {formatAddress(campaign.creator)}
         </Badge>

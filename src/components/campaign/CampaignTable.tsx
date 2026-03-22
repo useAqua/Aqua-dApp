@@ -8,7 +8,7 @@ import {
   type ColumnFiltersState,
   type PaginationState,
 } from "@tanstack/react-table";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { CampaignInfo } from "~/types/contracts";
 import { createCampaignTableColumns } from "./CampaignTableColumns";
 import CampaignDesktopTable from "./CampaignDesktopTable";
@@ -36,7 +36,7 @@ const CampaignTable = ({
     pageSize: 5,
   });
 
-  const columns = createCampaignTableColumns();
+  const columns = useMemo(() => createCampaignTableColumns(), []);
 
   const table = useReactTable({
     data,
@@ -58,7 +58,7 @@ const CampaignTable = ({
   });
 
   return (
-    <div className="space-y-4">
+    <div>
       {data.length === 0 ? (
         <div className="bg-card flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
           <span className="bg-secondary mb-4 grid h-14 w-14 place-content-center rounded-md">

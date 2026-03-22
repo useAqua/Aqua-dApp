@@ -26,7 +26,7 @@ const PointIcon = () => (
 );
 
 const TrendingUp = () => (
-  <div className={cn(iconClass, "bg-green-500/15 text-green-500")}>
+  <div className={cn(iconClass, "bg-teal-500/15 text-teal-500")}>
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
       <path
         d="M3 13l3.5-4L9 11.5l3-5L15 9"

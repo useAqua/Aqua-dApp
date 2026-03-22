@@ -36,10 +36,10 @@ const inputVariants = cva(
           "focus-visible:ring-destructive",
         ],
         success: [
-          "bg-background border-green-500",
-          "text-green-700 dark:text-green-400",
-          "placeholder:text-green-500/50",
-          "focus-visible:ring-green-500",
+          "bg-background border-teal-500",
+          "text-teal-700 dark:text-teal-400",
+          "placeholder:text-teal-500/50",
+          "focus-visible:ring-teal-500",
         ],
         ghost: [
           "bg-transparent border-transparent",
@@ -62,7 +62,8 @@ const inputVariants = cva(
 );
 
 export interface InputProps
-  extends Omit<React.ComponentProps<"input">, "size">,
+  extends
+    Omit<React.ComponentProps<"input">, "size">,
     VariantProps<typeof inputVariants> {}
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

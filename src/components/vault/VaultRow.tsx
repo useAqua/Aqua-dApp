@@ -75,25 +75,25 @@ const VaultRow = ({
         </div>
 
         <div className="text-right">
-          <div className="font-semibold text-green-400">{yieldValue}</div>
+          <div className="font-semibold text-teal-400">{yieldValue}</div>
           <div className="text-card-foreground/70 text-sm">{yieldUsd}</div>
         </div>
 
         <div className="text-right">
           <div
-            className={`font-semibold ${pnl.startsWith("+") ? "text-green-400" : pnl.startsWith("-") ? "text-red-400" : "text-card-foreground"}`}
+            className={`font-semibold ${pnl.startsWith("+") ? "text-teal-400" : pnl.startsWith("-") ? "text-red-400" : "text-card-foreground"}`}
           >
             {pnl}
           </div>
           <div
-            className={`text-sm ${pnlPercent.startsWith("+") ? "text-green-400" : pnlPercent.startsWith("-") ? "text-red-400" : "text-card-foreground/70"}`}
+            className={`text-sm ${pnlPercent.startsWith("+") ? "text-teal-400" : pnlPercent.startsWith("-") ? "text-red-400" : "text-card-foreground/70"}`}
           >
             {pnlPercent}
           </div>
         </div>
 
         <div className="text-right">
-          <div className="font-semibold text-green-400">{apy}</div>
+          <div className="font-semibold text-teal-400">{apy}</div>
           <div className="text-card-foreground/70 text-sm">{dailyYield}</div>
         </div>
       </Card>

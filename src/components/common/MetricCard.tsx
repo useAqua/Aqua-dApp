@@ -32,7 +32,7 @@ const MetricCard = ({
       case "accent":
         return "text-accent";
       case "green":
-        return "text-green-400";
+        return "text-teal-400";
       case "red":
         return "text-red-400";
       case "white":
@@ -48,7 +48,7 @@ const MetricCard = ({
         className={cn(
           "text-card-foreground",
           {
-            "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
+            "bg-card border-border/30 rounded-lg border p-4 shadow-(--shadow-card)":
               type === "card",
             "bg-secondary/15 rounded-lg p-4 text-white": type === "incard",
           },
@@ -67,7 +67,7 @@ const MetricCard = ({
       className={cn(
         "text-card-foreground",
         {
-          "bg-card border-border/30 rounded-lg border p-4 shadow-[var(--shadow-card)]":
+          "bg-card border-border/30 rounded-lg border p-4 shadow-(--shadow-card)":
             type === "card",
           "border-border/10 bg-secondary/15 rounded-lg border p-3 text-white":
             type === "incard",
@@ -103,7 +103,7 @@ const MetricCard = ({
         <>
           <p
             className={cn(
-              "mt-1 text-lg font-bold md:text-2xl",
+              "mt-1.5 text-lg font-bold md:text-2xl",
               getValueColorClass(),
               { "mt-0.5 text-xl md:text-xl": type === "incard" },
             )}

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Dot, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 import { useEffect } from "react";
@@ -9,6 +9,7 @@ import aquaLogo from "~/assets/aqua-logo.svg";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { api } from "~/utils/api";
 import { useChains } from "wagmi";
+import { Status } from "~/components/common/Status";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -193,11 +194,8 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
             </button>
           </div>
 
-          <div className="relative mx-4 mt-4 flex items-center gap-1 rounded-full border border-green-200 bg-green-200/20">
-            <Dot size={30} className="absolute text-green-500" />
-            <span className="py-1.5 pl-6 text-xs font-medium">
-              {chains[0]?.name}
-            </span>
+          <div className="mx-4 mt-4">
+            <Status text={chains[0]?.name} state={"Active"} />
           </div>
 
           <nav className="flex flex-1 flex-col gap-2 p-4">
@@ -231,7 +229,14 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                       <span className="py-1">{item.icon}</span>
                       {item.label}
                       {item.label === "Vaults" && totalVaults !== undefined && (
-                        <span className="bg-secondary/15 ml-auto inline-flex items-center justify-center rounded-sm px-2 py-0.5 text-xs font-medium text-white">
+                        <span
+                          className={cn(
+                            "ml-auto inline-flex items-center justify-center rounded-sm px-2 py-0.5 text-xs font-medium text-white",
+                            router.pathname === item.path
+                              ? "bg-secondary/15"
+                              : "bg-muted-foreground",
+                          )}
+                        >
                           {totalVaults} Live
                         </span>
                       )}

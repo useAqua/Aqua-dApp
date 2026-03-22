@@ -12,7 +12,7 @@ interface TabNavigationProps {
 
 const TabNavigation = ({ tabs, className = "" }: TabNavigationProps) => {
   return (
-    <TabsList className="bg-secondary ring-border text-secondary-foreground w-max ring">
+    <TabsList className="bg-secondary text-secondary-foreground w-max">
       <div className={`flex items-center gap-4 ${className}`}>
         {tabs.map((tab) => (
           <TabsTrigger key={tab.id} value={tab.id}>

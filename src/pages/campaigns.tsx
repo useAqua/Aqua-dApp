@@ -12,6 +12,7 @@ import type { CampaignInfo } from "~/types/contracts";
 import { useCampaignSearch } from "~/hooks/use-campaign-search";
 import TabNavigation from "~/components/common/TabNavigation";
 import SearchBar from "~/components/common/SearchBar";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -65,45 +66,50 @@ export default function Campaigns() {
   }, [campaigns]);
 
   return (
-    <PageLayout title="Campaigns | Aqua" description="Aqua campaigns overview">
+    <PageLayout
+      title="Campaigns | Aqua"
+      description="Aqua campaigns overview"
+      className="space-y-8"
+    >
       <div className="flex justify-between">
         <PageHeader
           icon={Eye}
           title="Campaigns"
           iconBeforeTitle
-          className="mb-0!"
+          className="-mb-4!"
         />
       </div>
 
-      <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
-        <div className="flex flex-wrap gap-8">
-          <MetricCard
-            label="TOTAL CAMPAIGNS"
-            value={<>{formatNumber(totalCampaigns)}</>}
-            isLoading={isLoadingCampaignTable}
-          />
-          <MetricCard
-            label="ACTIVE CAMPAIGNS"
-            value={<>{formatNumber(activeCampaigns)}</>}
-            isLoading={isLoadingCampaignTable}
-          />
-          <MetricCard
-            label="TOTAL VAULTS"
-            value={<>{formatNumber(totalVaults)}</>}
-            isLoading={isLoadingCampaignTable}
-          />
-        </div>
+      <div className="grid w-full grid-cols-2 gap-2 md:grid-cols-3 md:gap-4">
+        <MetricCard
+          label="TOTAL CAMPAIGNS"
+          value={<>{formatNumber(totalCampaigns)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
+        <MetricCard
+          label="ACTIVE CAMPAIGNS"
+          value={<>{formatNumber(activeCampaigns)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
+        <MetricCard
+          label="TOTAL VAULTS"
+          value={<>{formatNumber(totalVaults)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
       </div>
 
       <Tabs
         defaultValue={portfolioTabs[0].id}
-        className="w-full space-y-4"
+        className="bg-card border-border/50 w-full rounded-lg border"
         onValueChange={(tab) => setActiveTab(tab)}
       >
-        <div className="flex justify-between gap-6 max-md:flex-col">
+        <div className="flex justify-between gap-4 p-4 max-md:flex-col md:gap-6 md:p-5">
           <TabNavigation tabs={portfolioTabs} />
 
-          <div className="flex-1 md:max-w-125">
+          <div className="flex-1 md:max-w-56">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -120,6 +126,47 @@ export default function Campaigns() {
           }
         />
       </Tabs>
+
+      <div className={"grid gap-8 md:grid-cols-2 md:gap-4"}>
+        <Card className={"bg-foreground text-background"}>
+          <CardHeader className={"pb-2 font-bold"}>
+            WHAT IS A PRE-DEPOSIT CAMPAIGN?
+          </CardHeader>
+          <CardContent className={"md:mr-16"}>
+            Deposit stablecoins and earn yield —{" "}
+            <span className="font-bold text-teal-400">80%</span> funds protocol
+            development, <span className="font-bold text-teal-400">20%</span>{" "}
+            goes back to you. Your principal is always returned at launch.
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className={"pb-2 font-bold"}>HOW IT WORKS</CardHeader>
+          <CardContent className={"grid gap-2"}>
+            {[
+              "Deposit USDC into the campaign vault",
+              "Funds auto-route to Aave, earning yield",
+              "At launch: principal + tokens returned",
+            ].map((content, index) => (
+              <div className={"flex items-center gap-3"} key={index}>
+                <span className="text-background flex h-6 w-6 items-center justify-center rounded-full bg-teal-500 text-sm font-bold">
+                  {index + 1}
+                </span>
+                <p>{content}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card className="md:col-span-2">
+          <CardHeader className={"pb-2 font-bold"}>
+            CAPITAL EFFICIENCY
+          </CardHeader>
+          <CardContent>
+            Unlike ICOs where you risk 100% of principal, IYOs only cost you the
+            opportunity cost of yield. Exit early at any time — forfeit accrued
+            yield + 1% principal fee. Zero token lockups, zero vesting cliffs.
+          </CardContent>
+        </Card>
+      </div>
     </PageLayout>
   );
 }
