@@ -5,7 +5,7 @@ import {
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
-  walletConnectWallet,
+  // walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
 export const wagmiConfig = getDefaultConfig({

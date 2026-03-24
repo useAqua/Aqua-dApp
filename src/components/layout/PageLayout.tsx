@@ -1,11 +1,12 @@
 import Head from "next/head";
 import Header from "~/components/layout/Header";
 import Footer from "~/components/layout/Footer";
+import type { ReactNode } from "react";
 
 interface PageLayoutProps {
   title?: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
