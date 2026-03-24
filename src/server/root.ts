@@ -1,7 +1,5 @@
 import { contractsRouter } from "~/server/routers/contracts";
 import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
-import { vaultsRouter } from "~/server/routers/vaults";
-import { gteRouter } from "~/server/routers/gte";
 import { zapRouter } from "~/server/routers/zap";
 import { campaignRouter } from "~/server/routers/campaigns";
 
@@ -12,9 +10,7 @@ import { campaignRouter } from "~/server/routers/campaigns";
  */
 export const appRouter = createTRPCRouter({
   contracts: contractsRouter,
-  vaults: vaultsRouter,
   campaign: campaignRouter,
-  gte: gteRouter,
   zap: zapRouter,
 });
 

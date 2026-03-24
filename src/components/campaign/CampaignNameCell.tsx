@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import type { CampaignInfo } from "~/types/contracts";
+import { formatAddress } from "~/utils/formatAddress";
 
 interface CampaignNameCellProps {
   campaign: CampaignInfo;
 }
 
 const CampaignNameCell = ({ campaign }: CampaignNameCellProps) => {
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
   return (
     <Link
       href={`/campaign/${campaign.id}`}

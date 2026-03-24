@@ -10,13 +10,13 @@ const links = [
         <path
           d="M3 4.5C3 3.67 3.67 3 4.5 3h9c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-9c-.83 0-1.5-.67-1.5-1.5v-9z"
           stroke="currentColor"
-          stroke-width="1.5"
+          strokeWidth="1.5"
         ></path>
         <path
           d="M6 6.5h6M6 9h6M6 11.5h4"
           stroke="currentColor"
-          stroke-width="1.3"
-          stroke-linecap="round"
+          strokeWidth="1.3"
+          strokeLinecap="round"
         ></path>
       </svg>
     ),
@@ -29,15 +29,15 @@ const links = [
         <path
           d="M9 3v6M6 6l3 3 3-3"
           stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         ></path>
         <path
           d="M3 12v1.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V12"
           stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
+          strokeWidth="1.5"
+          strokeLinecap="round"
         ></path>
       </svg>
     ),
@@ -52,13 +52,13 @@ const links = [
           cy="9"
           r="6"
           stroke="currentColor"
-          stroke-width="1.4"
+          strokeWidth="1.4"
         ></circle>
         <path
           d="M9 6.5v5M6.5 9h5"
           stroke="currentColor"
-          stroke-width="1.4"
-          stroke-linecap="round"
+          strokeWidth="1.4"
+          strokeLinecap="round"
         ></path>
       </svg>
     ),
@@ -75,7 +75,7 @@ const Footer = () => {
             href={item.href}
             target={"_blank"}
             key={item.label}
-            className="bg-card border-border/30 hover:bg-accent/50 text-foreground flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border p-2 text-sm shadow-[var(--shadow-card)] transition-colors active:scale-95"
+            className="bg-card border-border/30 hover:bg-accent/50 text-foreground flex flex-1 cursor-pointer items-center justify-center gap-1 rounded-md border p-2 text-sm shadow-(--shadow-card) transition-colors active:scale-95"
           >
             {item.icon}
             <span>{item.label}</span>

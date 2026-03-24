@@ -38,10 +38,6 @@ const CampaignTradingPanel = ({
     ];
   }, [selectedVault]);
 
-  console.log({
-    selectedTokenAddress,
-  });
-
   // LP token balance for deposits
   const { data: selectedTokenBalance } = useReadContract({
     address: selectedTokenAddress,
@@ -74,62 +70,79 @@ const CampaignTradingPanel = ({
 
   if (isLoading || !campaign) {
     return (
-      <Card className={`sticky top-20 min-h-125 p-6 max-md:py-8`}>
-        <Skeleton isLoading className="mb-6 h-10 w-full rounded-lg" />
-        <div className="space-y-4">
+      <Card className="sticky top-20 flex flex-col overflow-hidden">
+        {/* Skeleton tab bar */}
+        <div className="border-border grid shrink-0 grid-cols-2 border-b">
+          <Skeleton isLoading className="h-12 rounded-none" />
+          <Skeleton isLoading className="h-12 rounded-none" />
+        </div>
+        <div className="flex-1 space-y-3.5 overflow-y-auto p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <Skeleton isLoading className="h-20 w-full rounded-xl" />
           <div>
-            <Skeleton isLoading className="mb-2 h-4 w-24" />
-            <Skeleton isLoading className="h-12 w-full" />
+            <Skeleton isLoading className="mb-1.5 h-3 w-20" />
+            <Skeleton isLoading className="h-12 w-full rounded-lg" />
           </div>
-          <div>
-            <Skeleton isLoading className="mb-2 h-4 w-32" />
-            <Skeleton isLoading className="h-12 w-full" />
-          </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-4 gap-1.5">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} isLoading className="h-8 flex-1" />
+              <Skeleton key={i} isLoading className="h-8 rounded-md" />
             ))}
           </div>
-          <Skeleton isLoading className="mt-6 h-12 w-full" />
+          <Skeleton isLoading className="h-28 w-full rounded-xl" />
+          <Skeleton isLoading className="h-12 w-full rounded-xl" />
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className={`sticky top-20 min-h-125 p-6 max-md:py-8`}>
-      <Tabs defaultValue="deposit" className="w-full">
-        <TabsList className="bg-secondary ring-border text-secondary-foreground mb-6 grid w-full grid-cols-2 ring">
-          <TabsTrigger value="deposit">Deposit</TabsTrigger>
-          <TabsTrigger value="withdraw">Withdraw</TabsTrigger>
+    <Card className="sticky top-20 flex flex-col overflow-hidden">
+      <Tabs
+        defaultValue="deposit"
+        className="flex min-h-0 w-full flex-1 flex-col"
+      >
+        <TabsList className="border-border grid h-auto w-full shrink-0 grid-cols-2 rounded-none border-b bg-transparent p-0 shadow-none ring-0">
+          <TabsTrigger
+            value="deposit"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground rounded-none border-0 py-3 text-sm font-semibold transition-colors data-[state=active]:shadow-none"
+          >
+            Deposit
+          </TabsTrigger>
+          <TabsTrigger
+            value="withdraw"
+            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground rounded-none border-0 py-3 text-sm font-semibold transition-colors data-[state=active]:shadow-none"
+          >
+            Withdraw
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="deposit" forceMount>
-          <CampaignDepositTab
-            campaign={campaign}
-            selectedTokenBalance={selectedTokenBalance}
-            selectedTokenBalanceReactNode={selectedTokenBalanceReactNode}
-            selectedVaultIndex={selectedVaultIndex}
-            selectedVault={selectedVault}
-            selectedTokenDecimals={selectedTokenDecimals}
-            selectedTokenAddress={selectedTokenAddress}
-            setSelectedVaultIndex={setSelectedVaultIndex}
-            userAddress={userAddress}
-          />
-        </TabsContent>
+        <div className="min-h-0 flex-1 overflow-y-auto p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <TabsContent value="deposit" className="mt-0" forceMount>
+            <CampaignDepositTab
+              campaign={campaign}
+              selectedTokenBalance={selectedTokenBalance}
+              selectedTokenBalanceReactNode={selectedTokenBalanceReactNode}
+              selectedVaultIndex={selectedVaultIndex}
+              selectedVault={selectedVault}
+              selectedTokenDecimals={selectedTokenDecimals}
+              selectedTokenAddress={selectedTokenAddress}
+              setSelectedVaultIndex={setSelectedVaultIndex}
+              userAddress={userAddress}
+            />
+          </TabsContent>
 
-        <TabsContent value="withdraw" forceMount>
-          <CampaignWithdrawTab
-            campaign={campaign}
-            vaultBalance={vaultBalance}
-            vaultBalanceReactNode={vaultBalanceReactNode}
-            setSelectedVaultIndex={setSelectedVaultIndex}
-            selectedVaultIndex={selectedVaultIndex}
-            selectedTokenDecimals={selectedTokenDecimals}
-            selectedTokenAddress={selectedTokenAddress}
-            selectedVault={selectedVault}
-          />
-        </TabsContent>
+          <TabsContent value="withdraw" className="mt-0" forceMount>
+            <CampaignWithdrawTab
+              campaign={campaign}
+              vaultBalance={vaultBalance}
+              vaultBalanceReactNode={vaultBalanceReactNode}
+              setSelectedVaultIndex={setSelectedVaultIndex}
+              selectedVaultIndex={selectedVaultIndex}
+              selectedTokenDecimals={selectedTokenDecimals}
+              selectedTokenAddress={selectedTokenAddress}
+              selectedVault={selectedVault}
+            />
+          </TabsContent>
+        </div>
       </Tabs>
     </Card>
   );

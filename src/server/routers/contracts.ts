@@ -6,17 +6,8 @@ import { getIyoContractServer } from "~/lib/contracts/iyo";
 
 const iyo = getIyoContractServer();
 export const contractsRouter = createTRPCRouter({
-  // TODO: DEPRECATED FOR IYO
-  getConfigs: publicProcedure.query(({ ctx }) => {
-    return ctx.vaultConfigs;
-  }),
-
-  getNewConfigs: publicProcedure.query(({ ctx }) => {
+  getCampaigns: publicProcedure.query(({ ctx }) => {
     return ctx.campaignConfig;
-  }),
-
-  getTvls: publicProcedure.query(({ ctx }) => {
-    return ctx.vaultTVL;
   }),
 
   getAllowance: publicProcedure

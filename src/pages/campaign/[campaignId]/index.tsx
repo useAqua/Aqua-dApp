@@ -1,6 +1,4 @@
 import PageLayout from "~/components/layout/PageLayout";
-import CampaignHeader from "~/components/campaign/CampaignHeader";
-// import CampaignTradingPanel from "~/components/campaign/CampaignTradingPanel";
 import { useAccount, useReadContract } from "wagmi";
 import { erc20Abi, formatEther } from "viem";
 import { useMemo, useState } from "react";
@@ -9,7 +7,18 @@ import { api } from "~/utils/api";
 import { useSavedCampaigns } from "~/hooks/use-saved-campaigns";
 import CampaignActions from "~/components/campaign/CampaignActions";
 import CampaignTradingPanel from "~/components/campaign/CampaignTradingPanel";
+import CampaignStatCard from "~/components/campaign/CampaignStatCard";
+import YieldSplitCard from "~/components/campaign/YieldSplitCard";
+import TimelineCard from "~/components/campaign/TimelineCard";
+import EarlyExitCard from "~/components/campaign/EarlyExitCard";
+import { Skeleton } from "~/components/ui/skeleton";
+import { formatNumber } from "~/utils/numbers";
+import Countdown from "react-countdown";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
+import { getCurrentPhase } from "~/components/campaign/campaignUtils";
 
+/* ========== MAIN PAGE ========== */
 const CampaignDetail = () => {
   const router = useRouter();
   const campaignId = Number(router.query.campaignId);
@@ -29,29 +38,24 @@ const CampaignDetail = () => {
     [campaign, selectedVaultIndex],
   );
 
-  // Campaign balance for withdrawals (user's shares in the campaign)
+  // User's vault shares (for withdraw)
   const { data: vaultBalance } = useReadContract({
     address: selectedVault?.vault,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!userAddress && !!selectedVault,
-    },
+    query: { enabled: !!userAddress && !!selectedVault },
   });
 
   const depositedUsd = useMemo(() => {
     if (!campaign || !vaultBalance) return 0;
-
-    const campaignBalanceFormatted = +formatEther(vaultBalance);
-    const sharePrice = /*parseFloat(campaign.sharePrice)*/ 1;
-    const lpTokenPrice = /*parseFloat(campaign.tokens.lpToken.price)*/ 1;
-
-    return campaignBalanceFormatted * sharePrice * lpTokenPrice;
+    return +formatEther(vaultBalance);
   }, [campaign, vaultBalance]);
 
+  const currentPhase = campaign ? getCurrentPhase(campaign) : 0;
   const isLoading = isLoadingCampaign;
 
+  /* ---------- not found ---------- */
   if (!isLoading && !campaign) {
     return (
       <PageLayout title="Campaign Not Found">
@@ -78,52 +82,113 @@ const CampaignDetail = () => {
           : "Campaign details and management"
       }
     >
-      <CampaignHeader
-        icon={
-          campaign ? (
-            <div className="flex items-center -space-x-2">
-              {/*<TokenIcon symbol={campaign.tokens.token0.symbol} size={48} />*/}
-              {/*<TokenIcon symbol={campaign.tokens.token1.symbol} size={48} />*/}
+      {/* ---- breadcrumb ---- */}
+      <Link
+        href="/"
+        className="text-muted-foreground hover:text-foreground mb-5 inline-flex items-center gap-1 text-sm transition-colors"
+      >
+        <ChevronLeft className="h-4 w-4" /> Campaigns
+      </Link>
+
+      {/* ---- page header ---- */}
+      {isLoading ? (
+        <div className="mb-6">
+          <Skeleton isLoading className="mb-2 h-5 w-28" />
+          <Skeleton isLoading className="mb-1 h-8 w-72" />
+        </div>
+      ) : (
+        <div className="mb-7 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <span className="bg-teal-500/10 text-teal-600 border-teal-500/25 mb-1.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold tracking-wider uppercase">
+              Chain: MegaETH
+            </span>
+            <div className="flex flex-wrap items-baseline gap-2.5">
+              <h1 className="text-2xl font-bold md:text-[26px]">
+                {campaign?.name}
+              </h1>
+              {campaign && (
+                <span className="bg-teal-500/10 text-teal-600 border-teal-500/25 rounded-full border px-2.5 py-0.5 text-[13px] font-semibold">
+                  Phase {currentPhase}
+                </span>
+              )}
             </div>
-          ) : (
-            <div />
-          )
-        }
-        name={campaign?.name ?? ""}
-        // platform={campaign?.platformId ?? ""}
-        platform={"Unknown Platform"}
-        actions={
-          campaign ? (
+          </div>
+
+          {campaign && (
             <CampaignActions
               campaignId={campaign.id}
               campaignName={campaign.name}
               isBookmarked={isSaved(campaign.id)}
               onBookmarkToggle={toggleSaveCampaign}
             />
-          ) : undefined
-        }
-        isLoading={isLoading}
-      />
+          )}
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        {/*<div className="lg:hidden">*/}
-        {/*  <CampaignMetrics*/}
-        {/*    campaign={campaign ? { ...campaign, deposit: depositedUsd } : null}*/}
-        {/*    isLoading={isLoading}*/}
-        {/*  />*/}
-        {/*</div>*/}
-        {/*<div className="space-y-6 max-lg:order-1 lg:col-span-2">*/}
-        {/*  <div className="max-lg:hidden">*/}
-        {/*    <CampaignMetrics*/}
-        {/*      campaign={campaign ? { ...campaign, deposit: depositedUsd } : null}*/}
-        {/*      isLoading={isLoading}*/}
-        {/*    />*/}
-        {/*  </div>*/}
-        {/*  <CampaignLPBreakdown campaign={campaign} isLoading={isLoading} />*/}
-        {/*  <CampaignStrategy campaign={campaign} isLoading={isLoading} />*/}
-        {/*</div>*/}
+      {/* ---- stats row (full width) ---- */}
+      <div className="mb-3.5 grid grid-cols-2 gap-2.5 md:grid-cols-4">
+        <CampaignStatCard
+          label="Total Deposited"
+          value="$0"
+          sub="Target: $30–50M"
+          isLoading={isLoading}
+        />
+        <CampaignStatCard
+          label="Your Deposit"
+          value={userAddress ? <>${formatNumber(depositedUsd)}</> : "$0"}
+          sub={
+            vaultBalance
+              ? <>{formatNumber(+formatEther(vaultBalance))} aTOKEN</>
+              : "—"
+          }
+          isLoading={isLoading}
+        />
+        <CampaignStatCard
+          label="Est. APY"
+          value="~8%"
+          sub="via Aave"
+          valueClassName="text-teal-500"
+          helpIcon
+          isLoading={isLoading}
+        />
+        <CampaignStatCard
+          label="Time Remaining"
+          value={
+            campaign ? (
+              <Countdown
+                date={Number(campaign.endTime) * 1000}
+                renderer={({ days, hours, minutes, seconds, completed }) =>
+                  completed ? (
+                    "Ended"
+                  ) : (
+                    <span className="tabular-nums">
+                      {days}d {hours}h {minutes}m {seconds}s
+                    </span>
+                  )
+                }
+              />
+            ) : (
+              "—"
+            )
+          }
+          sub={campaign ? `Until Phase ${currentPhase} ends` : undefined}
+          isLoading={isLoading}
+        />
+      </div>
 
-        <div className="lg:col-span-1">
+      {/* ---- bento grid ---- */}
+      <div className="grid items-start gap-3.5 lg:grid-cols-[1.15fr_1fr]">
+        {/* left column */}
+        <div className="max-lg:order-1">
+          <div className="flex flex-col gap-3.5">
+            <YieldSplitCard />
+            {campaign && <TimelineCard campaign={campaign} />}
+            <EarlyExitCard />
+          </div>
+        </div>
+
+        {/* right column: trading panel */}
+        <div className="max-lg:order-0">
           <CampaignTradingPanel
             campaign={campaign}
             userAddress={userAddress}

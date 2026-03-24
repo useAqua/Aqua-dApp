@@ -26,7 +26,9 @@ const PageLayout = ({
       <div className="flex min-h-screen flex-col">
         <Header />
 
-        <main className={`mx-auto max-w-300 flex-1 p-5 ${className}`}>
+        <main
+          className={`mx-auto w-full max-w-250 flex-1 p-5 xl:max-w-280 2xl:max-w-300 ${className}`}
+        >
           {children}
         </main>
 

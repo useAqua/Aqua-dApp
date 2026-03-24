@@ -1,18 +1,19 @@
 import PageLayout from "~/components/layout/PageLayout";
 import PageHeader from "~/components/layout/PageHeader";
 import MetricCard from "~/components/common/MetricCard";
-import { useVaultSearch } from "~/hooks/use-vault-search";
 import { MoveRight, Wallet } from "lucide-react";
-import VaultTable from "~/components/vault/VaultTable";
+import CampaignTable from "~/components/campaign/CampaignTable";
 import { api } from "~/utils/api";
-import { useAccount } from "wagmi";
+import { useAccount, useReadContracts } from "wagmi";
 import { useMemo } from "react";
 import { formatNumber } from "~/utils/numbers";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 import { cn } from "~/lib/utils";
 import Link from "next/link";
+import { erc20Abi, formatUnits } from "viem";
+import type { CampaignInfo } from "~/types/contracts";
 
-const iconClass = "grid w-full h-full place-content-center rounded-sm ";
+const iconClass = "grid w-full h-full place-content-center rounded-sm";
 
 const PointIcon = () => (
   <div className={cn(iconClass, "bg-yellow-400/15 text-yellow-700")}>
@@ -20,7 +21,7 @@ const PointIcon = () => (
       <path
         d="M9 2l1.7 4.2H15l-3.5 2.7 1.3 4.3L9 10.5 5.2 13.2l1.3-4.3L3 6.2h4.3L9 2z"
         fill="currentColor"
-      ></path>
+      />
     </svg>
   </div>
 );
@@ -31,10 +32,10 @@ const TrendingUp = () => (
       <path
         d="M3 13l3.5-4L9 11.5l3-5L15 9"
         stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      ></path>
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   </div>
 );
@@ -42,75 +43,91 @@ const TrendingUp = () => (
 const Dashboard = () => {
   const { address: connectedUser } = useAccount();
 
-  const { data: vaultTable, isLoading: isLoadingVaultTable } =
-    api.vaults.getVaultTable.useQuery();
+  const { data: campaignData, isLoading: isLoadingCampaigns } =
+    api.campaign.getCampaignTable.useQuery();
 
-  const { data: userVaultData, isLoading: isLoadingUserVaultData } =
-    api.vaults.getUserVaultData.useQuery(
-      { user: connectedUser! },
-      { enabled: !!connectedUser },
+  // Flatten all enabled vault addresses across every campaign for balance reads
+  const vaultContracts = useMemo(() => {
+    if (!campaignData || !connectedUser) return [];
+    return campaignData.flatMap((campaign) =>
+      campaign.vaults
+        .filter((v) => v.enabled)
+        .map((v) => ({
+          address: v.vault,
+          abi: erc20Abi,
+          functionName: "balanceOf" as const,
+          args: [connectedUser] as const,
+        })),
     );
+  }, [campaignData, connectedUser]);
 
-  const { data: apys, isLoading: isLoadingAPY } =
-    api.gte.getMarketAPYs.useQuery();
+  const { data: vaultBalances, isLoading: isLoadingBalances } =
+    useReadContracts({
+      contracts: vaultContracts,
+      query: { enabled: !!connectedUser && vaultContracts.length > 0 },
+    });
 
-  // Merge vault table with user vault data and filter only vaults with deposits
-  const vaultTableWithBalances = useMemo(() => {
-    if (!vaultTable) return [];
+  // Map each campaign to whether the user has any non-zero share balance
+  const campaignsWithPositions = useMemo((): CampaignInfo[] => {
+    if (!campaignData || !vaultBalances) return [];
 
-    return vaultTable
-      .map((vault) => {
-        const vaultData = userVaultData?.[vault.address] ?? {
-          balanceUsd: "0",
-          vaultBalanceUsd: "0",
-          points: "0",
-        };
-        return {
-          ...vault,
-          walletBalanceUsd: vaultData?.balanceUsd
-            ? parseFloat(vaultData.balanceUsd)
-            : 0,
-          userDepositUsd: vaultData?.vaultBalanceUsd
-            ? parseFloat(vaultData.vaultBalanceUsd)
-            : 0,
-          userPoints: vaultData?.points ? Number(vaultData.points) : 0,
-          apy: apys ? (apys[vault.address]?.apy ?? 0) * 100 : 0,
-        };
-      })
-      .filter((vault) => vault.userDepositUsd > 0);
-  }, [userVaultData, vaultTable, apys]);
+    let balanceIndex = 0;
+    return campaignData.filter((campaign) => {
+      const enabledVaults = campaign.vaults.filter((v) => v.enabled);
+      const hasPosition = enabledVaults.some((_, i) => {
+        const result = vaultBalances[balanceIndex + i];
+        const bal = result?.status === "success" ? result.result : BigInt(0);
+        return bal > BigInt(0);
+      });
+      balanceIndex += enabledVaults.length;
+      return hasPosition;
+    });
+  }, [campaignData, vaultBalances]);
 
-  const { searchQuery, filteredVaults } = useVaultSearch({
-    vaultData: vaultTableWithBalances,
-  });
+  // Aggregate metrics across the user's positions
+  const { totalDeposited, campaignsJoined } = useMemo(() => {
+    if (!campaignData || !vaultBalances) {
+      return { totalDeposited: 0, campaignsJoined: 0 };
+    }
 
-  const { totalDeposited, totalVaults, totalPoints, totalDailyYield } = useMemo(
-    () =>
-      (vaultTableWithBalances ?? []).reduce(
-        (acc, vault) => {
-          acc.totalDeposited += vault.userDepositUsd;
-          acc.totalVaults += 1;
-          acc.totalPoints += vault.userPoints;
-          // Calculate daily yield as (deposit * APY) / 365
-          acc.totalDailyYield += (vault.userDepositUsd * vault.apy) / 36500;
-          return acc;
-        },
-        {
-          totalDeposited: 0,
-          totalVaults: 0,
-          totalPoints: 0,
-          totalDailyYield: 0,
-        },
-      ),
-    [vaultTableWithBalances],
-  );
+    let balanceIndex = 0;
+    let totalDeposited = 0;
+    let campaignsJoined = 0;
+
+    campaignData.forEach((campaign) => {
+      const enabledVaults = campaign.vaults.filter((v) => v.enabled);
+      let hasPosition = false;
+
+      enabledVaults.forEach((_, i) => {
+        const result = vaultBalances[balanceIndex + i];
+        if (result?.status === "success") {
+          const bal = result.result;
+          if (bal > BigInt(0)) {
+            hasPosition = true;
+            // Use shares as a proxy for deposited amount (1:1 until pricing is available)
+            totalDeposited += parseFloat(formatUnits(bal, 18));
+          }
+        }
+      });
+
+      if (hasPosition) campaignsJoined += 1;
+      balanceIndex += enabledVaults.length;
+    });
+
+    return { totalDeposited, campaignsJoined };
+  }, [campaignData, vaultBalances]);
+
+  const isLoading = isLoadingCampaigns || isLoadingBalances;
 
   return (
     <PageLayout
       title="Dashboard | Aqua"
-      description="Track your positions & performance"
+      description="Track your campaign positions"
     >
-      <PageHeader title="Dashboard" subtitle={"Your portfolio at a glance"} />
+      <PageHeader
+        title="Dashboard"
+        subtitle="Your campaign positions at a glance"
+      />
 
       <div className="relative">
         {/* Blur overlay when not connected */}
@@ -123,47 +140,38 @@ const Dashboard = () => {
               </h3>
               <p className="text-muted-foreground mb-6 max-w-sm">
                 Please connect your wallet to view your dashboard and manage
-                your vault positions.
+                your campaign positions.
               </p>
               <CustomConnectButton />
             </div>
           </div>
         )}
 
-        {/* Main content - blurred when not connected */}
+        {/* Main content — blurred when not connected */}
         <div className={!connectedUser ? "pointer-events-none blur-md" : ""}>
-          <div className="mb-12 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div
-              className={
-                "bg-foreground border-border/30 relative space-y-12 overflow-clip rounded-2xl border px-4 py-6 text-white shadow-[var(--shadow-card)] md:col-span-2 md:space-y-6 md:p-6"
-              }
-            >
-              <span
-                className={
-                  "bg-secondary/15 pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full md:-top-12 md:-right-12 md:h-36 md:w-36"
-                }
-              />
+          <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            {/* Hero deposit card */}
+            <div className="bg-foreground border-border/30 relative space-y-6 overflow-clip rounded-2xl border px-4 py-6 text-white shadow-(--shadow-card) md:col-span-2 md:p-6">
+              <span className="bg-secondary/15 pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full md:-top-12 md:-right-12 md:h-36 md:w-36" />
               <div>
-                <p className="pb-2 text-xs font-semibold">TOTAL DEPOSITS</p>
-                <p className="text-3xl font-bold md:text-4xl">
-                  ${formatNumber(totalDeposited)}
+                <p className="pb-2 text-[10px] font-semibold tracking-wider uppercase text-white/70">TOTAL DEPOSITED</p>
+                <p className="text-3xl font-bold">
+                  {formatNumber(totalDeposited)} shares
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {[
+                  { label: "Campaigns Joined", value: campaignsJoined },
                   {
-                    label: "Vaults",
-                    value: totalVaults,
-                  },
-                  {
-                    label: "Est. Daily Yield",
-                    value: <>${formatNumber(totalDailyYield)}</>,
+                    label: "Active Positions",
+                    value: campaignsWithPositions.filter((c) => c.active)
+                      .length,
                   },
                 ].map((metric) => (
                   <MetricCard
-                    label={metric.label}
-                    value={metric.value}
                     key={metric.label}
+                    label={metric.label}
+                    value={<>{formatNumber(metric.value)}</>}
                     type="incard"
                     valueColor="white"
                   />
@@ -173,28 +181,33 @@ const Dashboard = () => {
 
             <MetricCard
               Icon={PointIcon}
-              label="GENESIS POINTS"
-              value={<>{formatNumber(totalPoints)}</>}
-              subValue={"Earn by depositing early"}
+              label="CAMPAIGNS WITH POSITIONS"
+              value={<>{formatNumber(campaignsJoined)}</>}
+              subValue="Campaigns you have deposited into"
               type="card"
-              isLoading={isLoadingVaultTable || isLoadingUserVaultData}
+              isLoading={isLoading}
             />
 
             <MetricCard
               Icon={TrendingUp}
-              label="LIFETIME YIELD"
-              value={<>${formatNumber(totalDailyYield)}</>}
-              subValue={"Across all vaults"}
-              type="card"
-              isLoading={
-                isLoadingVaultTable || isLoadingAPY || isLoadingUserVaultData
+              label="ACTIVE POSITIONS"
+              value={
+                <>
+                  {formatNumber(
+                    campaignsWithPositions.filter((c) => c.active).length,
+                  )}
+                </>
               }
+              subValue="Currently earning yield"
+              type="card"
+              isLoading={isLoading}
             />
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Your Vaults</h2>
+          {/* Positions table */}
+          <div className="bg-card border-border/50 rounded-lg border">
+            <div className="border-border/50 flex items-center justify-between border-b p-4 md:p-5">
+              <h2 className="text-sm font-semibold">Your Campaigns</h2>
               <Link
                 href="/"
                 className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm font-medium transition-colors"
@@ -203,17 +216,14 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            <VaultTable
-              data={filteredVaults}
-              isLoadingWallet={isLoadingUserVaultData}
-              isLoadingDeposit={isLoadingUserVaultData}
-              isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
-              isLoadingPoints={isLoadingUserVaultData}
+            <CampaignTable
+              data={campaignsWithPositions}
+              isLoading={isLoading}
               isDashboard
               customEmptyTableMessage={
-                searchQuery
-                  ? "No vaults found matching your search."
-                  : "Deposit stablecoins into a vault to start earning yield and Genesis Points"
+                connectedUser
+                  ? "You have no campaign positions yet. Deposit into a campaign to start earning yield."
+                  : "Connect your wallet to see your campaign positions."
               }
             />
           </div>

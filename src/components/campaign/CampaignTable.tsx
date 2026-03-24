@@ -16,17 +16,20 @@ import CampaignMobileList from "./CampaignMobileList";
 import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { Skeleton } from "~/components/ui/skeleton";
 
 interface CampaignTableProps {
   data: CampaignInfo[];
   customEmptyTableMessage?: string;
   isDashboard?: boolean;
+  isLoading?: boolean;
 }
 
 const CampaignTable = ({
   data,
   customEmptyTableMessage = "No campaigns available at the moment.",
   isDashboard = false,
+  isLoading = false,
 }: CampaignTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -59,8 +62,14 @@ const CampaignTable = ({
 
   return (
     <div>
-      {data.length === 0 ? (
-        <div className="bg-card flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
+      {isLoading ? (
+        <div className="space-y-2 p-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} isLoading className="h-14 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <div className="flex flex-col items-center justify-center border border-dashed border-border/50 rounded-lg mx-4 mb-4 py-14 text-center">
           <span className="bg-secondary mb-4 grid h-14 w-14 place-content-center rounded-md">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <rect
@@ -88,7 +97,7 @@ const CampaignTable = ({
 
           {isDashboard && (
             <Button className="mt-6 rounded-md px-6" asChild>
-              <Link href="/campaigns">
+              <Link href="/">
                 <PlusIcon />
                 View All Campaigns
               </Link>
@@ -101,7 +110,7 @@ const CampaignTable = ({
           <CampaignMobileList table={table} />
 
           {table.getPageCount() > 1 && (
-            <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-5 py-3">
               <div className="text-muted-foreground text-sm tracking-wide">
                 Showing{" "}
                 {table.getState().pagination.pageIndex *

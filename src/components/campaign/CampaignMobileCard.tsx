@@ -2,23 +2,20 @@ import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import type { CampaignInfo } from "~/types/contracts";
 import { formatNumber } from "~/utils/numbers";
+import { formatAddress } from "~/utils/formatAddress";
 
 interface CampaignMobileCardProps {
   campaign: CampaignInfo;
 }
 
 const CampaignMobileCard = ({ campaign }: CampaignMobileCardProps) => {
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
   return (
     <Link
       href={`/campaign/${campaign.id}`}
       className="bg-card hover:bg-primary/10 border-border/50 block border-b px-6 py-8 transition-colors first:rounded-t-lg last:rounded-b-lg"
     >
       {/* Campaign Header */}
-      <div className="mb-4 flex items-center gap-3 pb-4">
+      <div className="mb-4 flex items-center gap-3 border-b border-border/30 pb-4">
         <div className="min-w-0 flex-1">
           <div className="mb-1 font-semibold">Campaign #{campaign.id}</div>
           <Badge variant="secondary" className="text-xs">

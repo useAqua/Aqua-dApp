@@ -85,7 +85,7 @@ const MetricCard = ({
           {" "}
           <span
             className={cn(
-              "text-card-foreground/70 flex-1 text-xs font-medium uppercase",
+              "text-card-foreground/70 flex-1 text-[10px] font-semibold tracking-wider uppercase",
               { "text-white/50": type === "incard" },
             )}
           >
@@ -103,15 +103,15 @@ const MetricCard = ({
         <>
           <p
             className={cn(
-              "mt-1.5 text-lg font-bold md:text-2xl",
+              "mt-1.5 text-lg font-bold",
               getValueColorClass(),
-              { "mt-0.5 text-xl md:text-xl": type === "incard" },
+              { "mt-0.5 text-xl": type === "incard" },
             )}
           >
             {value}
           </p>
           {subValue && (
-            <p className="text-card-foreground/70 text-xs">{subValue}</p>
+            <p className="text-card-foreground/70 text-[11px]">{subValue}</p>
           )}
         </>
       )}
