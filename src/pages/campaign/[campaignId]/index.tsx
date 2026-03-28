@@ -99,7 +99,7 @@ const CampaignDetail = () => {
       ) : (
         <div className="mb-7 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <span className="bg-teal-500/10 text-teal-600 border-teal-500/25 mb-1.5 inline-block rounded-md border px-2 py-0.5 text-[11px] font-semibold tracking-wider uppercase">
+            <span className="mb-1.5 inline-block rounded-md border border-teal-500/25 bg-teal-500/10 px-2 py-0.5 text-[11px] font-semibold tracking-wider text-teal-600 uppercase">
               Chain: MegaETH
             </span>
             <div className="flex flex-wrap items-baseline gap-2.5">
@@ -107,7 +107,7 @@ const CampaignDetail = () => {
                 {campaign?.name}
               </h1>
               {campaign && (
-                <span className="bg-teal-500/10 text-teal-600 border-teal-500/25 rounded-full border px-2.5 py-0.5 text-[13px] font-semibold">
+                <span className="rounded-full border border-teal-500/25 bg-teal-500/10 px-2.5 py-0.5 text-sm font-semibold text-teal-600">
                   Phase {currentPhase}
                 </span>
               )}
@@ -137,9 +137,11 @@ const CampaignDetail = () => {
           label="Your Deposit"
           value={userAddress ? <>${formatNumber(depositedUsd)}</> : "$0"}
           sub={
-            vaultBalance
-              ? <>{formatNumber(+formatEther(vaultBalance))} aTOKEN</>
-              : "—"
+            vaultBalance ? (
+              <>{formatNumber(+formatEther(vaultBalance))} aTOKEN</>
+            ) : (
+              "—"
+            )
           }
           isLoading={isLoading}
         />

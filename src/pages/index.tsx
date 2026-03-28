@@ -57,15 +57,8 @@ export default function Home() {
   }, [campaigns]);
 
   return (
-    <PageLayout
-      title="Campaigns | Aqua"
-      description="Aqua campaigns overview"
-    >
-      <PageHeader
-        icon={Eye}
-        title="Campaigns"
-        iconBeforeTitle
-      />
+    <PageLayout title="Campaigns | Aqua" description="Aqua campaigns overview">
+      <PageHeader icon={Eye} title="Campaigns" iconBeforeTitle />
 
       <div className="mb-6 grid w-full grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4">
         <MetricCard
@@ -90,7 +83,7 @@ export default function Home() {
 
       <Tabs
         defaultValue={portfolioTabs[0].id}
-        className="mb-6 bg-card border-border/50 w-full rounded-lg border"
+        className="bg-card border-border/50 mb-6 w-full rounded-lg border"
         onValueChange={(tab) => setActiveTab(tab)}
       >
         <div className="flex justify-between gap-4 p-4 max-md:flex-col md:gap-6 md:p-5">
@@ -120,10 +113,10 @@ export default function Home() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="bg-foreground text-background">
-          <CardHeader className="px-5 pt-5 pb-3 text-[13px] font-bold tracking-wider uppercase">
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
             WHAT IS A PRE-DEPOSIT CAMPAIGN?
           </CardHeader>
-          <CardContent className="px-5 pb-5 pt-0 text-sm md:mr-16">
+          <CardContent className="px-5 pt-0 pb-5 text-sm md:mr-16">
             Deposit stablecoins and earn yield —{" "}
             <span className="font-bold text-teal-400">80%</span> funds protocol
             development, <span className="font-bold text-teal-400">20%</span>{" "}
@@ -131,8 +124,10 @@ export default function Home() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="px-5 pt-5 pb-3 text-[13px] font-bold tracking-wider uppercase">HOW IT WORKS</CardHeader>
-          <CardContent className="px-5 pb-5 pt-0 grid gap-3 text-sm">
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
+            HOW IT WORKS
+          </CardHeader>
+          <CardContent className="grid gap-3 px-5 pt-0 pb-5 text-sm">
             {[
               "Deposit USDC into the campaign vault",
               "Funds auto-route to Aave, earning yield",
@@ -148,8 +143,10 @@ export default function Home() {
           </CardContent>
         </Card>
         <Card className="md:col-span-2">
-          <CardHeader className="px-5 pt-5 pb-3 text-[13px] font-bold tracking-wider uppercase">CAPITAL EFFICIENCY</CardHeader>
-          <CardContent className="px-5 pb-5 pt-0 text-sm">
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
+            CAPITAL EFFICIENCY
+          </CardHeader>
+          <CardContent className="px-5 pt-0 pb-5 text-sm">
             Unlike ICOs where you risk 100% of principal, IYOs only cost you the
             opportunity cost of yield. Exit early at any time — forfeit accrued
             yield + 1% principal fee. Zero token lockups, zero vesting cliffs.

@@ -1,7 +1,10 @@
 import { useMemo } from "react";
 import { Card } from "~/components/ui/card";
 import type { CampaignInfo } from "~/types/contracts";
-import { getCurrentPhase, getTotalPhases } from "~/components/campaign/campaignUtils";
+import {
+  getCurrentPhase,
+  getTotalPhases,
+} from "~/components/campaign/campaignUtils";
 
 interface TimelineCardProps {
   campaign: CampaignInfo;
@@ -34,14 +37,24 @@ const TimelineCard = ({ campaign }: TimelineCardProps) => {
   const steps = useMemo((): TimelineStep[] => {
     const items: TimelineStep[] = [];
 
-    const definedPhases = Math.max(totalPhases, Object.keys(PHASE_TITLES).length);
+    const definedPhases = Math.max(
+      totalPhases,
+      Object.keys(PHASE_TITLES).length,
+    );
 
     for (let i = 1; i <= definedPhases; i++) {
       items.push({
         step: i,
         title: PHASE_TITLES[i] ?? `Phase ${i}`,
-        desc: PHASE_DESCS[i] ?? `Phase ${i} — additional integrations and deeper ecosystem bootstrapping.`,
-        state: hasEnded || i < currentPhase ? "done" : i === currentPhase ? "active" : "upcoming",
+        desc:
+          PHASE_DESCS[i] ??
+          `Phase ${i} — additional integrations and deeper ecosystem bootstrapping.`,
+        state:
+          hasEnded || i < currentPhase
+            ? "done"
+            : i === currentPhase
+              ? "active"
+              : "upcoming",
       });
     }
 
@@ -57,7 +70,7 @@ const TimelineCard = ({ campaign }: TimelineCardProps) => {
 
   return (
     <Card className="p-5">
-      <h3 className="font-redaction text-foreground mb-4 text-[13px] font-bold tracking-wider uppercase">
+      <h3 className="font-redaction text-foreground mb-4 text-sm font-bold tracking-wider uppercase">
         Campaign Timeline
       </h3>
       <div className="flex flex-col">
@@ -84,23 +97,25 @@ const TimelineCard = ({ campaign }: TimelineCardProps) => {
             </div>
 
             {/* content */}
-            <div className="pb-5 flex-1 min-w-0">
-              <div className="flex items-start gap-2 mb-0.5">
-                <p className="text-foreground text-[13px] font-semibold flex items-center gap-1.5 flex-wrap">
+            <div className="min-w-0 flex-1 pb-5">
+              <div className="mb-0.5 flex items-start gap-2">
+                <p className="text-foreground flex flex-wrap items-center gap-1.5 text-sm font-semibold">
                   {s.title}
                   {s.state === "active" && (
-                    <span className="bg-primary/10 text-primary border-primary/20 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-none">
+                    <span className="bg-primary/10 text-primary border-primary/20 inline-block rounded-full border px-1.5 py-0.5 text-[10px] leading-none font-semibold">
                       Active
                     </span>
                   )}
                   {s.state === "done" && (
-                    <span className="bg-teal-500/10 text-teal-600 border-teal-500/20 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-semibold leading-none">
+                    <span className="inline-block rounded-full border border-teal-500/20 bg-teal-500/10 px-1.5 py-0.5 text-[10px] leading-none font-semibold text-teal-600">
                       Complete
                     </span>
                   )}
                 </p>
               </div>
-              <p className="text-muted-foreground text-xs leading-relaxed">{s.desc}</p>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                {s.desc}
+              </p>
             </div>
           </div>
         ))}
@@ -110,4 +125,3 @@ const TimelineCard = ({ campaign }: TimelineCardProps) => {
 };
 
 export default TimelineCard;
-

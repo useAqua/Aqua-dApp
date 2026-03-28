@@ -3,6 +3,9 @@ import type { CampaignInfo } from "~/types/contracts";
 import CampaignNameCell from "./CampaignNameCell";
 import { formatNumber } from "~/utils/numbers";
 import { Status } from "~/components/common/Status";
+import Image from "next/image";
+import aaveLogo from "~/assets/aave-logo.svg";
+import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 
 const columnHelper = createColumnHelper<CampaignInfo>();
 
@@ -49,9 +52,18 @@ export const createCampaignTableColumns = () => [
   }),
   columnHelper.accessor("protocolFeeBps", {
     header: "Supported Apps",
-    cell: (info) => (
-      <div className="font-medium">{Number(info.getValue())} bps</div>
-      //   TODO: replace with actual supported apps count once available in API
+    cell: () => (
+      <div className="flex w-max items-center gap-2 rounded-full bg-[#9391F7]/20 px-3 py-1.5">
+        <div className="flex h-6 w-6 items-center justify-center overflow-hidden rounded-full">
+          <Image
+            src={aaveLogo as StaticImport}
+            alt="Aave"
+            width={24}
+            height={24}
+          />
+        </div>
+        <span className="text-xs font-semibold text-[#9391F7]">Aave</span>
+      </div>
     ),
   }),
 ];

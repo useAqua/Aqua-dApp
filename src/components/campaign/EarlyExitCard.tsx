@@ -8,14 +8,14 @@ const earlyExitRows = [
 
 const EarlyExitCard = () => (
   <Card className="space-y-2 p-5">
-    <h3 className="font-redaction text-foreground text-[13px] font-bold tracking-wider uppercase">
+    <h3 className="font-redaction text-foreground text-sm font-bold tracking-wider uppercase">
       Early Exit Mechanics
     </h3>
     <div className="space-y-2">
       {earlyExitRows.map((row) => (
         <div
           key={row.label}
-          className="bg-secondary/50 flex items-center justify-between rounded-lg px-3 py-2 text-[13px]"
+          className="bg-secondary flex items-center justify-between rounded-lg px-3 py-2 text-sm"
         >
           <span className="text-muted-foreground">{row.label}</span>
           <strong className="text-foreground text-right">{row.value}</strong>
@@ -26,4 +26,3 @@ const EarlyExitCard = () => (
 );
 
 export default EarlyExitCard;
-
