@@ -1,8 +1,7 @@
 import { contractsRouter } from "~/server/routers/contracts";
 import { createCallerFactory, createTRPCRouter } from "~/server/trpc";
-import { vaultsRouter } from "~/server/routers/vaults";
-import { gteRouter } from "~/server/routers/gte";
 import { zapRouter } from "~/server/routers/zap";
+import { campaignRouter } from "~/server/routers/campaigns";
 
 /**
  * This is the primary router for your server.
@@ -11,8 +10,7 @@ import { zapRouter } from "~/server/routers/zap";
  */
 export const appRouter = createTRPCRouter({
   contracts: contractsRouter,
-  vaults: vaultsRouter,
-  gte: gteRouter,
+  campaign: campaignRouter,
   zap: zapRouter,
 });
 

@@ -3,16 +3,16 @@ import PageLayout from "~/components/layout/PageLayout";
 import PageHeader from "~/components/layout/PageHeader";
 import { Eye } from "lucide-react";
 import MetricCard from "~/components/common/MetricCard";
+import { useMemo, useState } from "react";
+import { formatNumber } from "~/utils/numbers";
+import CampaignTable from "~/components/campaign/CampaignTable";
+import { Tabs } from "@radix-ui/react-tabs";
+import { useSavedCampaigns } from "~/hooks/use-saved-campaigns";
+import type { CampaignInfo } from "~/types/contracts";
+import { useCampaignSearch } from "~/hooks/use-campaign-search";
 import TabNavigation from "~/components/common/TabNavigation";
 import SearchBar from "~/components/common/SearchBar";
-import { useMemo, useState } from "react";
-import { useVaultSearch } from "~/hooks/use-vault-search";
-import VaultTable from "~/components/vault/VaultTable";
-import { Tabs } from "@radix-ui/react-tabs";
-import { formatNumber } from "~/utils/numbers";
-import { useAccount } from "wagmi";
-import type { VaultTableEntry } from "~/types";
-import { useSavedVaults } from "~/hooks/use-saved-vaults";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 
 const portfolioTabs = [
   { id: "all", label: "All" },
@@ -22,147 +22,74 @@ const portfolioTabs = [
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("all");
-  const { address: connectedUser } = useAccount();
-  const { savedVaults } = useSavedVaults();
+  const { savedCampaigns } = useSavedCampaigns();
 
-  const { data: vaultTable, isLoading: isLoadingVaultTable } =
-    api.vaults.getVaultTable.useQuery();
+  const { data: campaignData, isLoading: isLoadingCampaignTable } =
+    api.campaign.getCampaignTable.useQuery();
 
-  const { data: apys, isLoading: isLoadingAPY } =
-    api.gte.getMarketAPYs.useQuery();
-
-  const { data: userVaultData, isLoading: isLoadingUserVaultData } =
-    api.vaults.getUserVaultData.useQuery(
-      { user: connectedUser! },
-      { enabled: !!connectedUser },
-    );
-
-  // Merge vault table with user vault data
-  const vaultTableWithBalances = useMemo(() => {
-    if (!vaultTable) return [];
-
-    return vaultTable.map((vault) => {
-      const vaultData = userVaultData?.[vault.address] ?? {
-        balanceUsd: "0",
-        vaultBalanceUsd: "0",
-        points: "0",
-      };
-      const apy = apys ? (apys[vault.address]?.apy ?? 0) : 0;
-      return {
-        ...vault,
-        walletBalanceUsd: vaultData?.balanceUsd
-          ? parseFloat(vaultData.balanceUsd)
-          : 0,
-        userDepositUsd: vaultData?.vaultBalanceUsd
-          ? parseFloat(vaultData.vaultBalanceUsd)
-          : 0,
-        userPoints: vaultData?.points ? Number(vaultData.points) : 0,
-        apy: apy * 100,
-      };
-    });
-  }, [userVaultData, vaultTable, apys]);
+  const campaigns = useMemo(() => campaignData ?? [], [campaignData]);
 
   const filterFn = useMemo<
-    ((vault: VaultTableEntry) => boolean) | undefined
+    ((campaign: CampaignInfo) => boolean) | undefined
   >(() => {
     if (activeTab === "all") return undefined;
     if (activeTab === "saved") {
-      return (vault) => savedVaults.includes(vault.address);
+      return (campaign) => savedCampaigns.includes(campaign.id);
     }
-    return (vault) => vault.userDepositUsd > 0;
-  }, [activeTab, savedVaults]);
+    return undefined;
+  }, [activeTab, savedCampaigns]);
 
-  const { searchQuery, setSearchQuery, filteredVaults } = useVaultSearch({
-    vaultData: vaultTableWithBalances,
+  const { searchQuery, setSearchQuery, filteredCampaigns } = useCampaignSearch({
+    campaignData,
     filterFn,
   });
 
-  const { totalDeposited, avgApy, totalTVL, totalVaults, totalPoints } =
-    useMemo(() => {
-      const totals = (vaultTableWithBalances ?? []).reduce(
-        (acc, vault) => {
-          acc.totalDeposited += vault.userDepositUsd;
-          acc.weightedApySum += vault.apy * vault.tvlUsd;
-          acc.totalTVL += vault.tvlUsd;
-          acc.totalVaults += 1;
-          acc.totalPoints += vault.userPoints;
-          return acc;
-        },
-        {
-          totalDeposited: 0,
-          weightedApySum: 0,
-          totalTVL: 0,
-          totalVaults: 0,
-          totalPoints: 0,
-        },
-      );
-
-      return {
-        ...totals,
-        avgApy:
-          totals.totalTVL > 0 ? totals.weightedApySum / totals.totalTVL : 0,
-      };
-    }, [vaultTableWithBalances]);
+  const { totalCampaigns, activeCampaigns, totalVaults } = useMemo(() => {
+    return campaigns.reduce(
+      (acc, campaign) => {
+        acc.totalCampaigns += 1;
+        if (campaign.active) acc.activeCampaigns += 1;
+        acc.totalVaults += campaign.vaults.length;
+        return acc;
+      },
+      { totalCampaigns: 0, activeCampaigns: 0, totalVaults: 0 },
+    );
+  }, [campaigns]);
 
   return (
-    <PageLayout
-      title="Vaults | Aqua"
-      description="Aqua is the first real-time liquidity layer on MegaETH, unifying DEX and lending yields in automated vaults."
-    >
-      <div className="flex justify-between">
-        <PageHeader
-          icon={Eye}
-          title="Portfolio"
-          iconBeforeTitle
-          className="!mb-0"
-        />
-        <PageHeader title="Platform" className="!mb-0 max-md:hidden" />
-      </div>
+    <PageLayout title="Campaigns | Aqua" description="Aqua campaigns overview">
+      <PageHeader icon={Eye} title="Campaigns" iconBeforeTitle />
 
-      <div className="mb-8 flex flex-wrap gap-8 max-md:block md:justify-between">
-        <div className="flex flex-wrap gap-8">
-          <MetricCard
-            label="DEPOSITED"
-            value={<>${formatNumber(totalDeposited)}</>}
-            isLoading={isLoadingVaultTable || isLoadingUserVaultData}
-          />
-          <MetricCard
-            label="AVG. APY"
-            value={<>{formatNumber(avgApy)}%</>}
-            isLoading={isLoadingVaultTable || isLoadingAPY}
-          />
-          <MetricCard
-            label="GENESIS POINTS"
-            value={<>{formatNumber(totalPoints)}</>}
-            isLoading={isLoadingVaultTable || isLoadingUserVaultData}
-          />
-        </div>
-        <PageHeader title="Platform" className="mt-8 !mb-0 md:hidden" />
-        <div className="flex flex-wrap gap-8">
-          <MetricCard
-            label="TVL"
-            value={<>${formatNumber(totalTVL)}</>}
-            className="md:text-right"
-            isLoading={isLoadingVaultTable}
-          />
-          <MetricCard
-            label="Vaults"
-            value={`${totalVaults}`}
-            className="md:text-right"
-            isLoading={isLoadingVaultTable}
-          />
-        </div>
+      <div className="mb-6 grid w-full grid-cols-2 gap-2.5 md:grid-cols-3 md:gap-4">
+        <MetricCard
+          label="TOTAL CAMPAIGNS"
+          value={<>{formatNumber(totalCampaigns)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
+        <MetricCard
+          label="ACTIVE CAMPAIGNS"
+          value={<>{formatNumber(activeCampaigns)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
+        <MetricCard
+          label="TOTAL VAULTS"
+          value={<>{formatNumber(totalVaults)}</>}
+          isLoading={isLoadingCampaignTable}
+          type="card"
+        />
       </div>
 
       <Tabs
         defaultValue={portfolioTabs[0].id}
-        className="w-full space-y-4"
+        className="bg-card border-border/50 mb-6 w-full rounded-lg border"
         onValueChange={(tab) => setActiveTab(tab)}
       >
-        <div className="flex justify-between gap-6 max-md:flex-col">
+        <div className="flex justify-between gap-4 p-4 max-md:flex-col md:gap-6 md:p-5">
           <TabNavigation tabs={portfolioTabs} />
 
-          <div className="flex-1 md:max-w-[500px]">
+          <div className="flex-1 md:max-w-56">
             <SearchBar
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
@@ -170,25 +97,62 @@ export default function Home() {
           </div>
         </div>
 
-        <VaultTable
-          data={filteredVaults}
-          isLoadingWallet={isLoadingUserVaultData}
-          isLoadingDeposit={isLoadingUserVaultData}
-          isLoadingPoints={isLoadingUserVaultData}
-          isLoadingAPY={isLoadingAPY || isLoadingVaultTable}
+        <CampaignTable
+          data={filteredCampaigns}
           customEmptyTableMessage={
-            activeTab === "positions"
-              ? "You don't have any deposits in vaults yet."
-              : activeTab === "saved"
-                ? searchQuery
-                  ? "No saved vaults found matching your search."
-                  : "You haven't saved any vaults yet. Click the bookmark icon on a vault to save it."
-                : searchQuery
-                  ? "No vaults found matching your search."
-                  : "No vaults available at the moment."
+            activeTab === "saved"
+              ? searchQuery
+                ? "No saved campaigns found matching your search."
+                : "You haven't saved any campaigns yet. Click the bookmark icon to save one."
+              : searchQuery
+                ? "No campaigns found matching your search."
+                : "No campaigns available at the moment."
           }
         />
       </Tabs>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card className="bg-foreground text-background">
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
+            WHAT IS A PRE-DEPOSIT CAMPAIGN?
+          </CardHeader>
+          <CardContent className="px-5 pt-0 pb-5 text-sm md:mr-16">
+            Deposit stablecoins and earn yield —{" "}
+            <span className="font-bold text-teal-400">80%</span> funds protocol
+            development, <span className="font-bold text-teal-400">20%</span>{" "}
+            goes back to you. Your principal is always returned at launch.
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
+            HOW IT WORKS
+          </CardHeader>
+          <CardContent className="grid gap-3 px-5 pt-0 pb-5 text-sm">
+            {[
+              "Deposit USDC into the campaign vault",
+              "Funds auto-route to Aave, earning yield",
+              "At launch: principal + tokens returned",
+            ].map((content, index) => (
+              <div className="flex items-center gap-3" key={index}>
+                <span className="text-background flex h-6 w-6 items-center justify-center rounded-full bg-teal-500 text-sm font-bold">
+                  {index + 1}
+                </span>
+                <p>{content}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+        <Card className="md:col-span-2">
+          <CardHeader className="px-5 pt-5 pb-3 text-sm font-bold tracking-wider uppercase">
+            CAPITAL EFFICIENCY
+          </CardHeader>
+          <CardContent className="px-5 pt-0 pb-5 text-sm">
+            Unlike ICOs where you risk 100% of principal, IYOs only cost you the
+            opportunity cost of yield. Exit early at any time — forfeit accrued
+            yield + 1% principal fee. Zero token lockups, zero vesting cliffs.
+          </CardContent>
+        </Card>
+      </div>
     </PageLayout>
   );
 }

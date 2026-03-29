@@ -1,11 +1,12 @@
 import Head from "next/head";
 import Header from "~/components/layout/Header";
 import Footer from "~/components/layout/Footer";
+import type { ReactNode } from "react";
 
 interface PageLayoutProps {
   title?: string;
   description?: string;
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }
 
@@ -26,7 +27,11 @@ const PageLayout = ({
       <div className="flex min-h-screen flex-col">
         <Header />
 
-        <main className={`flex-1 p-5 ${className}`}>{children}</main>
+        <main
+          className={`mx-auto w-full max-w-250 flex-1 p-5 xl:max-w-280 2xl:max-w-300 ${className}`}
+        >
+          {children}
+        </main>
 
         <Footer />
       </div>

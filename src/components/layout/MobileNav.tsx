@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Dot, X } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { CustomConnectButton } from "~/components/common/CustomConnectButton";
 import { useEffect } from "react";
@@ -9,6 +9,7 @@ import aquaLogo from "~/assets/aqua-logo.svg";
 import type { StaticImport } from "next/dist/shared/lib/get-img-props";
 import { api } from "~/utils/api";
 import { useChains } from "wagmi";
+import { Status } from "~/components/common/Status";
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -22,48 +23,16 @@ const navItems = {
       label: "Dashboard",
       icon: (
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <rect
-            x="2"
-            y="2"
-            width="5.5"
-            height="5.5"
-            rx="1.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-          ></rect>
-          <rect
-            x="10.5"
-            y="2"
-            width="5.5"
-            height="5.5"
-            rx="1.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-          ></rect>
-          <rect
-            x="2"
-            y="10.5"
-            width="5.5"
-            height="5.5"
-            rx="1.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-          ></rect>
-          <rect
-            x="10.5"
-            y="10.5"
-            width="5.5"
-            height="5.5"
-            rx="1.5"
-            stroke="currentColor"
-            stroke-width="1.5"
-          ></rect>
+          <rect x="2" y="2" width="5.5" height="5.5" rx="1.5" stroke="currentColor" strokeWidth="1.5"></rect>
+          <rect x="10.5" y="2" width="5.5" height="5.5" rx="1.5" stroke="currentColor" strokeWidth="1.5"></rect>
+          <rect x="2" y="10.5" width="5.5" height="5.5" rx="1.5" stroke="currentColor" strokeWidth="1.5"></rect>
+          <rect x="10.5" y="10.5" width="5.5" height="5.5" rx="1.5" stroke="currentColor" strokeWidth="1.5"></rect>
         </svg>
       ),
     },
     {
       path: "/",
-      label: "Vaults",
+      label: "Campaigns",
       icon: (
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <rect
@@ -73,14 +42,14 @@ const navItems = {
             height="10"
             rx="2"
             stroke="currentColor"
-            stroke-width="1.5"
+            strokeWidth="1.5"
           ></rect>
-          <path d="M2 7.5h14" stroke="currentColor" stroke-width="1.5"></path>
+          <path d="M2 7.5h14" stroke="currentColor" strokeWidth="1.5"></path>
           <path
             d="M6 11h3"
             stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
+            strokeWidth="1.5"
+            strokeLinecap="round"
           ></path>
         </svg>
       ),
@@ -95,13 +64,13 @@ const navItems = {
           <path
             d="M3 4.5C3 3.67 3.67 3 4.5 3h9c.83 0 1.5.67 1.5 1.5v9c0 .83-.67 1.5-1.5 1.5h-9c-.83 0-1.5-.67-1.5-1.5v-9z"
             stroke="currentColor"
-            stroke-width="1.5"
+            strokeWidth="1.5"
           ></path>
           <path
             d="M6 6.5h6M6 9h6M6 11.5h4"
             stroke="currentColor"
-            stroke-width="1.3"
-            stroke-linecap="round"
+            strokeWidth="1.3"
+            strokeLinecap="round"
           ></path>
         </svg>
       ),
@@ -114,15 +83,15 @@ const navItems = {
           <path
             d="M9 3v6M6 6l3 3 3-3"
             stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           ></path>
           <path
             d="M3 12v1.5c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5V12"
             stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
+            strokeWidth="1.5"
+            strokeLinecap="round"
           ></path>
         </svg>
       ),
@@ -132,7 +101,7 @@ const navItems = {
 
 const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
   const router = useRouter();
-  const { data: totalVaults } = api.vaults.getTotalVaults.useQuery();
+  const { data: totalCampaigns } = api.campaign.getTotalCampaigns.useQuery();
   const chains = useChains();
 
   useEffect(() => {
@@ -193,11 +162,8 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
             </button>
           </div>
 
-          <div className="relative mx-4 mt-4 flex items-center gap-1 rounded-full border border-green-200 bg-green-200/20">
-            <Dot size={30} className="absolute text-green-500" />
-            <span className="py-1.5 pl-6 text-xs font-medium">
-              {chains[0]?.name}
-            </span>
+          <div className="mx-4 mt-4">
+            <Status text={chains[0]?.name} state={"Active"} />
           </div>
 
           <nav className="flex flex-1 flex-col gap-2 p-4">
@@ -230,9 +196,16 @@ const MobileNav = ({ isOpen, onClose }: MobileNavProps) => {
                     >
                       <span className="py-1">{item.icon}</span>
                       {item.label}
-                      {item.label === "Vaults" && totalVaults !== undefined && (
-                        <span className="bg-secondary/15 ml-auto inline-flex items-center justify-center rounded-sm px-2 py-0.5 text-xs font-medium text-white">
-                          {totalVaults} Live
+                      {item.label === "Campaigns" && totalCampaigns !== undefined && (
+                        <span
+                          className={cn(
+                            "ml-auto inline-flex items-center justify-center rounded-sm px-2 py-0.5 text-xs font-medium text-white",
+                            router.pathname === item.path
+                              ? "bg-secondary/15"
+                              : "bg-muted-foreground",
+                          )}
+                        >
+                          {totalCampaigns} Live
                         </span>
                       )}
                     </Link>

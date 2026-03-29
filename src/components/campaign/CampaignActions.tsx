@@ -1,34 +1,33 @@
 import { Button } from "~/components/ui/button";
 import { Share2, Bookmark } from "lucide-react";
-import type { Address } from "viem";
 import { cn } from "~/lib/utils";
 import { toast } from "~/components/ui/sonner";
 
-interface VaultActionsProps {
+interface CampaignActionsProps {
   className?: string;
-  vaultAddress?: Address;
-  vaultName?: string;
+  campaignId: number;
+  campaignName?: string;
   isBookmarked?: boolean;
-  onBookmarkToggle?: (address: Address) => void;
+  onBookmarkToggle?: (campaignId: number) => void;
 }
 
-const VaultActions = ({
+const CampaignActions = ({
   className = "",
-  vaultAddress,
-  vaultName,
+  campaignId,
+  campaignName,
   isBookmarked = false,
   onBookmarkToggle,
-}: VaultActionsProps) => {
+}: CampaignActionsProps) => {
   const handleBookmark = () => {
-    if (!vaultAddress) return;
-    onBookmarkToggle?.(vaultAddress);
+    if (isNaN(campaignId)) return;
+    onBookmarkToggle?.(campaignId);
     toast.success(
       isBookmarked
-        ? `${vaultName ?? "Vault"} removed from your saved vaults`
-        : `${vaultName ?? "Vault"} added to your saved vaults`,
+        ? `${campaignName ?? "Campaign"} removed from your saved campaigns`
+        : `${campaignName ?? "Campaign"} added to your saved campaigns`,
     );
   };
-  const parts = vaultName?.split("/") ?? ["TokenA", "TokenB"];
+  const parts = campaignName?.split("/") ?? ["TokenA", "TokenB"];
 
   const handleShare = async () => {
     if (typeof window === "undefined") return;
@@ -38,14 +37,14 @@ const VaultActions = ({
     try {
       if (navigator.share) {
         await navigator.share({
-          title: `${vaultName ?? "Vault"} | Aqua`,
-          text: `${vaultName} LP tokens are deposited into GTE's AMM, earning trading fees, incentives, and points. Earned GTE is converted into equal parts ${parts[0]} and ${parts[1]} to mint more LP tokens. The strategy reinvests these tokens back into the pool, automating the compounding process while socializing gas costs across the vault.`,
+          title: `${campaignName ?? "Campaign"} | Aqua`,
+          text: `${campaignName} LP tokens are deposited into GTE's AMM, earning trading fees, incentives, and points. Earned GTE is converted into equal parts ${parts[0]} and ${parts[1]} to mint more LP tokens. The strategy reinvests these tokens back into the pool, automating the compounding process while socializing gas costs across the campaign.`,
           url: url,
         });
       } else {
         // Fallback to copying to clipboard
         await navigator.clipboard.writeText(url);
-        toast.success("Vault Link copied to clipboard");
+        toast.success("Campaign Link copied to clipboard");
       }
     } catch (error) {
       console.error("Error sharing:", error);
@@ -62,7 +61,7 @@ const VaultActions = ({
           isBookmarked ? "bg-primary/20 text-primary" : "",
           "max-sm:h-8 max-sm:w-8",
         )}
-        disabled={!vaultAddress}
+        disabled={isNaN(campaignId)}
       >
         <Bookmark
           className={`h-2 w-2 sm:h-4 sm:w-4 ${isBookmarked ? "fill-current" : ""}`}
@@ -80,4 +79,4 @@ const VaultActions = ({
   );
 };
 
-export default VaultActions;
+export default CampaignActions;

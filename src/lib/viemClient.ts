@@ -6,7 +6,11 @@ import chainToUse from "~/lib/chainToUse";
 
 const viemClient = createPublicClient({
   chain: chainToUse,
-  transport: http(),
+  transport: http("https://sepolia.drpc.org", {
+    timeout: 10_000, // 10 seconds timeout for RPC calls
+    retryCount: 2,
+    retryDelay: 1_000,
+  }),
 });
 
 export const rpcViemClient = {

@@ -1,14 +1,14 @@
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import type { VaultTableEntry } from "~/types";
+import type { CampaignInfo } from "~/types/contracts";
 
-interface VaultDesktopTableProps {
-  table: TableType<VaultTableEntry>;
+interface CampaignDesktopTableProps {
+  table: TableType<CampaignInfo>;
 }
 
-const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
+const CampaignDesktopTable = ({ table }: CampaignDesktopTableProps) => {
   return (
-    <div className="bg-card border-secondary hidden overflow-hidden rounded-lg border md:block">
+    <div className="hidden overflow-hidden md:block">
       <table className="w-full">
         <thead className="bg-primary/5">
           {table.getHeaderGroups().map((headerGroup) => (
@@ -16,7 +16,7 @@ const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
               {headerGroup.headers.map((header) => (
                 <th
                   key={header.id}
-                  className="text-muted-foreground hover:text-foreground hover:bg-primary/10 cursor-pointer px-4 py-3 text-left text-xs font-medium tracking-wider uppercase transition-colors"
+                  className="text-muted-foreground hover:text-foreground hover:bg-primary/10 cursor-pointer px-5 py-3 text-left text-xs font-medium tracking-wider uppercase transition-colors"
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <div className="flex items-center gap-2">
@@ -45,7 +45,7 @@ const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
               className="border-border/30 hover:bg-primary/10 border-b transition-colors"
             >
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-4 py-4">
+                <td key={cell.id} className="p-5">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -57,4 +57,4 @@ const VaultDesktopTable = ({ table }: VaultDesktopTableProps) => {
   );
 };
 
-export default VaultDesktopTable;
+export default CampaignDesktopTable;

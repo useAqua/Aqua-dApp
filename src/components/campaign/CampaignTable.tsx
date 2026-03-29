@@ -8,34 +8,29 @@ import {
   type ColumnFiltersState,
   type PaginationState,
 } from "@tanstack/react-table";
-import { useState } from "react";
-import type { VaultTableEntry } from "~/types";
-import { createVaultTableColumns } from "./VaultTableColumns";
-import VaultDesktopTable from "./VaultDesktopTable";
-import VaultMobileList from "./VaultMobileList";
+import { useMemo, useState } from "react";
+import type { CampaignInfo } from "~/types/contracts";
+import { createCampaignTableColumns } from "./CampaignTableColumns";
+import CampaignDesktopTable from "./CampaignDesktopTable";
+import CampaignMobileList from "./CampaignMobileList";
 import { ChevronLeft, ChevronRight, PlusIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
+import { Skeleton } from "~/components/ui/skeleton";
 
-interface VaultTableProps {
-  data: VaultTableEntry[];
-  isLoadingWallet?: boolean;
-  isLoadingDeposit?: boolean;
-  isLoadingPoints?: boolean;
-  isLoadingAPY?: boolean;
+interface CampaignTableProps {
+  data: CampaignInfo[];
   customEmptyTableMessage?: string;
   isDashboard?: boolean;
+  isLoading?: boolean;
 }
 
-const VaultTable = ({
+const CampaignTable = ({
   data,
-  isLoadingWallet = false,
-  isLoadingDeposit = false,
-  isLoadingPoints = false,
-  isLoadingAPY = false,
-  customEmptyTableMessage = "You don't have any deposits in vaults yet.",
+  customEmptyTableMessage = "No campaigns available at the moment.",
   isDashboard = false,
-}: VaultTableProps) => {
+  isLoading = false,
+}: CampaignTableProps) => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
@@ -44,12 +39,7 @@ const VaultTable = ({
     pageSize: 5,
   });
 
-  const columns = createVaultTableColumns(
-    isLoadingWallet,
-    isLoadingDeposit,
-    isLoadingPoints,
-    isLoadingAPY,
-  );
+  const columns = useMemo(() => createCampaignTableColumns(), []);
 
   const table = useReactTable({
     data,
@@ -71,9 +61,15 @@ const VaultTable = ({
   });
 
   return (
-    <div className="space-y-4">
-      {data.length === 0 ? (
-        <div className="bg-card flex flex-col items-center justify-center rounded-lg border border-dashed py-14 text-center">
+    <div>
+      {isLoading ? (
+        <div className="space-y-2 p-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} isLoading className="h-14 w-full rounded-lg" />
+          ))}
+        </div>
+      ) : data.length === 0 ? (
+        <div className="flex flex-col items-center justify-center border border-dashed border-border/50 rounded-lg mx-4 mb-4 py-14 text-center">
           <span className="bg-secondary mb-4 grid h-14 w-14 place-content-center rounded-md">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <rect
@@ -83,44 +79,38 @@ const VaultTable = ({
                 height="13"
                 rx="3"
                 stroke="#3472e8"
-                stroke-width="1.8"
-              ></rect>
-              <path d="M3 10h18" stroke="#3472e8" stroke-width="1.8"></path>
+                strokeWidth="1.8"
+              />
+              <path d="M3 10h18" stroke="#3472e8" strokeWidth="1.8" />
               <path
                 d="M7 14h4"
                 stroke="#3472e8"
-                stroke-width="1.8"
-                stroke-linecap="round"
-              ></path>
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
             </svg>
           </span>
-          <h3 className="text-lg font-semibold">No Vaults</h3>
-          <p className="text-muted-foreground max-w-[280px] text-sm">
+          <h3 className="text-lg font-semibold">No Campaigns</h3>
+          <p className="text-muted-foreground max-w-70 text-sm">
             {customEmptyTableMessage}
           </p>
 
           {isDashboard && (
-            <Button className={"mt-6 rounded-md px-6"} asChild>
+            <Button className="mt-6 rounded-md px-6" asChild>
               <Link href="/">
                 <PlusIcon />
-                Explore Vaults
+                View All Campaigns
               </Link>
             </Button>
           )}
         </div>
       ) : (
         <>
-          <VaultDesktopTable table={table} />
-          <VaultMobileList
-            table={table}
-            isLoadingWallet={isLoadingWallet}
-            isLoadingDeposit={isLoadingDeposit}
-            isLoadingPoints={isLoadingPoints}
-            isLoadingAPY={isLoadingAPY}
-          />
+          <CampaignDesktopTable table={table} />
+          <CampaignMobileList table={table} />
 
           {table.getPageCount() > 1 && (
-            <div className="flex items-center justify-between px-2">
+            <div className="flex items-center justify-between px-5 py-3">
               <div className="text-muted-foreground text-sm tracking-wide">
                 Showing{" "}
                 {table.getState().pagination.pageIndex *
@@ -132,7 +122,7 @@ const VaultTable = ({
                     table.getState().pagination.pageSize,
                   table.getFilteredRowModel().rows.length,
                 )}{" "}
-                of {table.getFilteredRowModel().rows.length} vaults
+                of {table.getFilteredRowModel().rows.length} campaigns
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -166,4 +156,4 @@ const VaultTable = ({
   );
 };
 
-export default VaultTable;
+export default CampaignTable;

@@ -4,21 +4,13 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 import { getUnifiedContextData } from "~/lib/trpcContext/unifiedCache";
 
-type CreateContextOptions = Record<string, never>;
-
-const createInnerTRPCContext = async (_opts: CreateContextOptions) => {
-  const { vaultConfigs, vaultNameToAddress, vaultTVL } =
-    await getUnifiedContextData();
-
-  return {
-    vaultConfigs,
-    vaultTVL,
-    vaultNameToAddress,
-  };
+const createInnerTRPCContext = async () => {
+  const { campaignConfig } = await getUnifiedContextData();
+  return { campaignConfig };
 };
 
 export const createTRPCContext = async (_opts: CreateNextContextOptions) => {
-  return createInnerTRPCContext({});
+  return createInnerTRPCContext();
 };
 
 const t = initTRPC.context<typeof createTRPCContext>().create({
@@ -36,7 +28,6 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 });
 
 export const createCallerFactory = t.createCallerFactory;
-
 export const createTRPCRouter = t.router;
 
 const timingMiddleware = t.middleware(async ({ next, path }) => {
@@ -48,10 +39,7 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   }
 
   const result = await next();
-
-  const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
-
+  console.log(`[TRPC] ${path} took ${Date.now() - start}ms to execute`);
   return result;
 });
 

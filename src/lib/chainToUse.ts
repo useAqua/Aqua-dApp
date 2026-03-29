@@ -1,3 +1,4 @@
-import { megaethTestnet } from "wagmi/chains";
+import { sepolia } from "wagmi/chains";
 
-export default megaethTestnet;
+// export default megaethTestnet;
+export default sepolia;

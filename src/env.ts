@@ -17,6 +17,7 @@ export const env = createEnv({
     AQUA_REGISTRY_ADDRESS: addressSchema,
     AQUA_POINTS_POOL_ADDRESS: addressSchema,
     LP_SHARE_CALCULATION_ORACLE: addressSchema,
+    IYO_ADDRESS: addressSchema,
   },
 
   /**
@@ -26,6 +27,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_PROJECT_ID: z.string().optional(),
+    NEXT_PUBLIC_IYO_ADDRESS: addressSchema,
   },
 
   /**
@@ -40,6 +42,8 @@ export const env = createEnv({
     AQUA_REGISTRY_ADDRESS: process.env.AQUA_REGISTRY_ADDRESS,
     AQUA_POINTS_POOL_ADDRESS: process.env.AQUA_POINTS_POOL_ADDRESS,
     LP_SHARE_CALCULATION_ORACLE: process.env.LP_SHARE_CALCULATION_ORACLE,
+    IYO_ADDRESS: process.env.IYO_ADDRESS,
+    NEXT_PUBLIC_IYO_ADDRESS: process.env.NEXT_PUBLIC_IYO_ADDRESS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

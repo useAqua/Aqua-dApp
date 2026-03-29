@@ -5,7 +5,9 @@ import {
   metaMaskWallet,
   rabbyWallet,
   rainbowWallet,
+  zerionWallet,
   walletConnectWallet,
+  trustWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 
 export const wagmiConfig = getDefaultConfig({
@@ -19,7 +21,9 @@ export const wagmiConfig = getDefaultConfig({
         metaMaskWallet,
         rabbyWallet,
         rainbowWallet,
-        // walletConnectWallet,
+        zerionWallet,
+        walletConnectWallet,
+        trustWallet,
       ],
     },
   ],

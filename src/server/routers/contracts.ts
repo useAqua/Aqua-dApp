@@ -2,14 +2,12 @@ import { createTRPCRouter, publicProcedure } from "~/server/trpc";
 import { z } from "zod";
 import { rpcViemClient } from "~/lib/viemClient";
 import { erc20Abi, getAddress, zeroAddress } from "viem";
+import { getIyoContractServer } from "~/lib/contracts/iyo";
 
+const iyo = getIyoContractServer();
 export const contractsRouter = createTRPCRouter({
-  getConfigs: publicProcedure.query(({ ctx }) => {
-    return ctx.vaultConfigs;
-  }),
-
-  getTvls: publicProcedure.query(({ ctx }) => {
-    return ctx.vaultTVL;
+  getCampaigns: publicProcedure.query(({ ctx }) => {
+    return ctx.campaignConfig;
   }),
 
   getAllowance: publicProcedure
@@ -32,4 +30,6 @@ export const contractsRouter = createTRPCRouter({
             : [zeroAddress, zeroAddress],
       });
     }),
+
+  getIyo: publicProcedure.query(() => iyo),
 });
