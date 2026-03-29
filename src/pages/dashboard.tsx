@@ -154,9 +154,11 @@ const Dashboard = () => {
             <div className="bg-foreground border-border/30 relative space-y-6 overflow-clip rounded-2xl border px-4 py-6 text-white shadow-(--shadow-card) md:col-span-2 md:p-6">
               <span className="bg-secondary/15 pointer-events-none absolute -top-8 -right-8 h-28 w-28 rounded-full md:-top-12 md:-right-12 md:h-36 md:w-36" />
               <div>
-                <p className="pb-2 text-[10px] font-semibold tracking-wider uppercase text-white/70">TOTAL DEPOSITED</p>
+                <p className="pb-2 text-[10px] font-semibold tracking-wider text-white/70 uppercase">
+                  TOTAL DEPOSITED
+                </p>
                 <p className="text-3xl font-bold">
-                  {formatNumber(totalDeposited)} shares
+                  {formatNumber(totalDeposited)} UDSC {/*TODO: Change*/}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
