@@ -158,7 +158,7 @@ const Dashboard = () => {
                   TOTAL DEPOSITED
                 </p>
                 <p className="text-3xl font-bold">
-                  {formatNumber(totalDeposited)} UDS {/*TODO: Change*/}
+                  ${formatNumber(totalDeposited)}  {/*TODO: Change*/}
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-4">
