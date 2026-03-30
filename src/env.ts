@@ -26,7 +26,7 @@ export const env = createEnv({
    * `NEXT_PUBLIC_`.
    */
   client: {
-    NEXT_PUBLIC_PROJECT_ID: z.string().optional(),
+    NEXT_PUBLIC_PROJECT_ID: z.string(),
     NEXT_PUBLIC_IYO_ADDRESS: addressSchema,
   },
 
